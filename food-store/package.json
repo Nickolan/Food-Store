@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tanstack/react-form": "^1.29.1",
+    "@tanstack/react-table": "^8.21.3",
     "axios": "^1.15.2",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

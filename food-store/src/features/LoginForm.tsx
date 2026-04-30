@@ -1,4 +1,5 @@
 import { useForm } from '@tanstack/react-form'
+import {login} from '../api/authApi'
 
 const input = 'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
 
@@ -6,7 +7,14 @@ const LoginForm = () => {
 
     const form = useForm({
         defaultValues: {email: "", password: ""},
-        onSubmit: async ({value}) => alert(value)    
+        onSubmit: async ({value}) => {
+            try {
+                const userData = await login(value);
+                console.log(userData);
+            } catch (error) {
+                throw new Error("Error al iniciar sesión")
+            }
+        }
       })
 
   return (
