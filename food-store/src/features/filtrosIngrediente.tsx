@@ -28,7 +28,7 @@ export const FiltrosIngrediente = ({activo, setActivo, nombre, setNombre, es_ale
                 <option value="false">Dados de baja</option>
             </select>
             </div>
-            <button className="bg-gray-400 font-bold rounded p-2" onClick={()=>{setEsAlergeno("Todos"), setActivo("Todos"),setNombre("")}}>Limpiar filtros</button>
+            <button className="bg-gray-400 font-bold rounded p-2" onClick={()=>{setEsAlergeno("todos"), setActivo("todos"),setNombre("")}}>Limpiar filtros</button>
         </div>
     )
 }
