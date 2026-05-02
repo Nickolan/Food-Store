@@ -16,7 +16,7 @@ export const IngredientesContext= createContext<ContextType |undefined> (undefin
 
 export const IngredientesProvider=({children}:{children:ReactNode})=>{
     const [ingredientes,dispatch]=useReducer(ingredienteReducer,[])
-    const api_url="http://localhost:8000/ingredientes";
+    const api_url="http://localhost:8000/ingrediente"; //CAMBIAR A /ingredientes LUEGO
     const [ingredienteSeleccionado,setIngredienteSeleccionado]=useState<Ingrediente | null>(null);
     let contador=ingredientes.length;
 
