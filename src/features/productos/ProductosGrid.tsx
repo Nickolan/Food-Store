@@ -1,10 +1,8 @@
 import {
   useReactTable,
   getCoreRowModel,
-  getFilteredRowModel,
   getPaginationRowModel,
   flexRender,
-  ColumnFiltersState,
 } from "@tanstack/react-table";
 import { useState } from "react";
 import type { Producto } from "../../models/Producto";
@@ -17,7 +15,6 @@ interface Props {
 }
 
 export const ProductosGrid = ({ data, onEdit, onToggleActive, onDelete }: Props) => {
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [filterNombre, setFilterNombre] = useState("");
   const [filterCategoria, setFilterCategoria] = useState("");
   const [filterEstado, setFilterEstado] = useState<"todos" | "activos" | "inactivos">("todos");
@@ -50,29 +47,19 @@ export const ProductosGrid = ({ data, onEdit, onToggleActive, onDelete }: Props)
     },
   ];
 
-  const table = useReactTable({
-    data,
-    columns,
-    state: { columnFilters },
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-  });
-
   // Filtros personalizados (3 mínimo)
   const filteredData = data.filter((p) => {
     if (filterNombre && !p.nombre.toLowerCase().includes(filterNombre.toLowerCase())) return false;
-    if (filterCategoria && p.categorias_ids?.length) {
-      // Simplificado: comparar si alguna categoría coincide (asumimos que filterCategoria es id)
+    if (filterCategoria) {
+      const catId = parseInt(filterCategoria);
+      if (!isNaN(catId) && !p.categorias_ids?.includes(catId)) return false;
     }
     if (filterEstado === "activos" && !p.activo) return false;
     if (filterEstado === "inactivos" && p.activo) return false;
     return true;
   });
 
-  // Re-crear tabla con datos filtrados
-  const tableFiltered = useReactTable({
+  const table = useReactTable({
     data: filteredData,
     columns,
     getCoreRowModel: getCoreRowModel(),
@@ -98,7 +85,6 @@ export const ProductosGrid = ({ data, onEdit, onToggleActive, onDelete }: Props)
           <option value="activos">Activos</option>
           <option value="inactivos">Dados de baja</option>
         </select>
-        {/* Filtro adicional por categoría (simplificado) */}
         <input
           placeholder="ID categoría..."
           className="rounded border px-3 py-1 text-sm w-24"
@@ -110,7 +96,7 @@ export const ProductosGrid = ({ data, onEdit, onToggleActive, onDelete }: Props)
       <div className="overflow-x-auto rounded border">
         <table className="w-full text-sm">
           <thead className="bg-gray-100">
-            {tableFiltered.getHeaderGroups().map((hg: any) => (
+            {table.getHeaderGroups().map((hg: any) => (
               <tr key={hg.id}>
                 {hg.headers.map((h: any) => (
                   <th key={h.id} className="px-4 py-2 text-left font-semibold">
@@ -121,7 +107,7 @@ export const ProductosGrid = ({ data, onEdit, onToggleActive, onDelete }: Props)
             ))}
           </thead>
           <tbody>
-            {tableFiltered.getRowModel().rows.map((row: any) => (
+            {table.getRowModel().rows.map((row: any) => (
               <tr key={row.id} className="border-t hover:bg-gray-50">
                 {row.getVisibleCells().map((cell: any) => (
                   <td key={cell.id} className="px-4 py-2">
@@ -137,18 +123,18 @@ export const ProductosGrid = ({ data, onEdit, onToggleActive, onDelete }: Props)
       {/* Paginación */}
       <div className="flex items-center gap-2">
         <button
-          onClick={() => tableFiltered.previousPage()}
-          disabled={!tableFiltered.getCanPreviousPage()}
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
           className="rounded border px-3 py-1 text-sm disabled:opacity-50"
         >
           Anterior
         </button>
         <span className="text-sm">
-          Página {tableFiltered.getState().pagination.pageIndex + 1} de {tableFiltered.getPageCount()}
+          Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
         </span>
         <button
-          onClick={() => tableFiltered.nextPage()}
-          disabled={!tableFiltered.getCanNextPage()}
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
           className="rounded border px-3 py-1 text-sm disabled:opacity-50"
         >
           Siguiente
