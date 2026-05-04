@@ -2,6 +2,7 @@ import './App.css'
 import {Routes, Route} from 'react-router-dom'
 import LoginScreen from './pages/LoginScreen'
 import MenuScreen from './pages/MenuScreen'
+import CategoriaScreen from './pages/CategoriaScreen'
 
 function App() {
 
@@ -9,6 +10,7 @@ function App() {
    <Routes>
     <Route path='/login' element={<LoginScreen/>}/>
     <Route path='/menu' element={<MenuScreen/>}/>   
+    <Route path='/categorias' element={<CategoriaScreen/>}/>
     </Routes>
   )
 }
