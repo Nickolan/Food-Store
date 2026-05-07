@@ -1,5 +1,5 @@
-import { useState, useContext, ChangeEvent, FormEvent } from 'react';
-import { CategoriasContext } from '../context/categoriaContext';
+import { useState, useContext, type ChangeEvent, type FormEvent } from 'react';
+import { CategoriasContext } from '../context/categoriasContext';
 import type { Categoria } from '../models/Categoria';
 
 interface FormCategoriaProps {

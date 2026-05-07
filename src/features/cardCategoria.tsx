@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import type { Categoria } from '../models/Categoria';
-import { CategoriasContext } from '../context/categoriaContext';
+import { CategoriasContext } from '../context/categoriasContext';
 
 export default function CardCategoria({ categoria }: { categoria: Categoria }) {
     const categoriasContext = useContext(CategoriasContext);
