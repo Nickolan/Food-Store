@@ -5,6 +5,7 @@ import MenuScreen from './pages/MenuScreen'
 import ListaIngredientesScreen from './pages/ListaIngredientesScreen'
 import CrearIngredienteScreen from './pages/CrearIngredienteScreen'
 import EditarIngredienteScreen from './pages/EditarIngredienteScreen'
+import { ProductosPage } from './pages/ProductosPage'
 
 function App() {
 
@@ -12,10 +13,11 @@ function App() {
    <Routes>
     <Route path='/login' element={<LoginScreen/>}/>
     <Route path='/menu' element={<MenuScreen/>}/>
-    <Route path='/ingredientes' element={<ListaIngredientesScreen/>}/> 
-    <Route path='/formulario-ingrediente' element={<CrearIngredienteScreen/>}/>  
+    <Route path='/ingredientes' element={<ListaIngredientesScreen/>}/>
+    <Route path='/formulario-ingrediente' element={<CrearIngredienteScreen/>}/>
     <Route path='/ingredientes/editar/:id' element={<EditarIngredienteScreen/>}/>
-    </Routes>
+    <Route path='/productos' element={<ProductosPage/>} />
+   </Routes>
   )
 }
 
