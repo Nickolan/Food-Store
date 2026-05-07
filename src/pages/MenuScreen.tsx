@@ -8,7 +8,7 @@ export default function MenuScreen() {
         <div>
         <Link to="/ingredientes" className="border rounded-full bg-blue-600 text-white font-bold p-3 m-2">Ver todos los ingredientes</Link>
         <Link to="/productos" className="border rounded-full bg-blue-600 text-white font-bold p-3 m-2">Ver todos los productos</Link>
-        <Link to="/categorias" className="border rounded-full bg-blue-600 text-white font-bold p-3 m-2">Ver todas las categorias</Link>
+        <Link to="/categorias" className="border rounded-full bg-blue-600 text-white font-bold p-3 m-2">Ver todas las categorías</Link>
         </div>
     </div>
     </>

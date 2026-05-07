@@ -2,8 +2,7 @@
 export default {
   content: [
     "./index.html",
-    "./food-store/src/**/*.{js,ts,jsx,tsx}", // Agregada la carpeta 'food-store'
-    "./src/**/*.{js,ts,jsx,tsx}",            // Por si acaso
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {},
