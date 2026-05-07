@@ -1,8 +1,9 @@
 import axios from "axios";
+import type { LoginResponse } from "../models/Usuario";
 
-export async function login(data: {email: string, password: string}) {
+const api = axios.create({ baseURL: "http://localhost:8000" });
 
-    const response = await axios.post("/users/login", data)
-    return response.data
-    
-}
+export async function login(data: { email: string; password: string }): Promise<LoginResponse> {
+    const response = await api.post<LoginResponse>("/usuarios/login", data);
+    return response.data;
+}
