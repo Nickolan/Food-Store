@@ -1,16 +1,16 @@
 import type { ReactNode } from "react"
-import { CategoriasProvider } from "./categoriaContext"
+import { CategoriasProvider } from "./categoriasContext"
 import { IngredientesProvider } from "./ingredientesContext"
 import { ProductosProvider } from "./productosContext"
 
-export const MainProvider = ({ children }: { children: ReactNode }) => {
-    return (
-        <IngredientesProvider>
-            <CategoriasProvider>
-                <ProductosProvider>
-                    {children}
-                </ProductosProvider>
-            </CategoriasProvider>
-        </IngredientesProvider>
-    )
+export const MainProvider = ({children}:{children:ReactNode})=>{
+return(
+    <IngredientesProvider>
+        <CategoriasProvider>
+            <ProductosProvider>
+                {children}
+            </ProductosProvider>
+        </CategoriasProvider>
+    </IngredientesProvider>
+)
 }
