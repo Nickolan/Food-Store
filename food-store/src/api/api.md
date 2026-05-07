@@ -1,1 +1,0 @@
-# Carpeta para solicitudes api usando axios y manejo de jwt
