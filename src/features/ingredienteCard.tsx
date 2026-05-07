@@ -12,7 +12,7 @@ export const IngredienteCard=({i}:{i:Ingrediente})=>{
     <div key={i.id} className={`${bgColor} shadow rounded p-4 hover:shadow-lg transition`}>
       <h3>{i.nombre}</h3>
       <p>{i.descripcion}</p>
-      <p>Es alergeno:{i.es_alergeno?"Sí":"No"}</p>
+      <p>Es alergeno: {i.es_alergeno?"Sí":"No"}</p>
       <div className="flex justify-left items-left">
         <button className="bg-blue-600 text-white rounded mt-3 py-2 px-3" onClick={()=>{
           navigate(`/ingredientes/editar/${i.id}`)

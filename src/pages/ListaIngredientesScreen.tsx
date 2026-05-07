@@ -2,6 +2,7 @@ import { useContext, useState } from "react"
 import { IngredientesContext } from "../context/ingredientesContext"
 import { FiltrosIngrediente } from "../features/filtrosIngrediente"
 import { IngredienteCard } from "../features/ingredienteCard"
+import { Link } from "react-router-dom"
 
 export default function ListaIngredientesScreen() {
     const context=useContext(IngredientesContext)
@@ -29,7 +30,12 @@ export default function ListaIngredientesScreen() {
           setEsAlergeno={setFiltroAlergeno}
         />
         <h2 className="flex justify-center items-center text-3xl font-bold m-10">Resultados</h2>
+        <div className="flex justify-between items-center">
         <p className="mb-6 text-lg ml-6">Mostrando {filtrarIngredientes.length} de {context.ingredientes.length} ingredientes</p>
+        <Link to="/formulario-ingrediente" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-6 mb-6">
+          Agregar Ingrediente
+        </Link>
+        </div>
         <div className="max-w-7xl md:w-5/6 lg:w-3/4 sm:w-5/6 mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {context.ingredientes.length === 0 ? (
