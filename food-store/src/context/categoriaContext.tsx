@@ -23,7 +23,7 @@ export const CategoriasProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         fetch(api_url)
             .then(respuesta => respuesta.json())
-            .then(data => dispatch({ type: "GET_CATEGORIAS", payload: data }))
+            .then(data => dispatch({ type: "GET_CATEGORIAS", payload: data.items }))
     }, []);
 
     const agregar = async (categoria: Categoria) => {
@@ -43,8 +43,8 @@ export const CategoriasProvider = ({ children }: { children: ReactNode }) => {
     }
     const eliminar = async (id: number) => {
         try {
-            const respuesta = await fetch(`${api_url}/${id}`, {
-                method: "DELETE"
+            const respuesta = await fetch(`${api_url}/${id}/desactivar`, {
+                method: "PUT"
             });
             if (respuesta.ok) {
                 dispatch({ type: "ELIMINAR_CATEGORIA", payload: id });
