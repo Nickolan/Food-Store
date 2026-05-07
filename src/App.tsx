@@ -6,6 +6,7 @@ import ListaIngredientesScreen from './pages/ListaIngredientesScreen'
 import CrearIngredienteScreen from './pages/CrearIngredienteScreen'
 import EditarIngredienteScreen from './pages/EditarIngredienteScreen'
 import { ProductosPage } from './pages/ProductosPage'
+import CategoriaScreen from './pages/CategoriaScreen'
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
     <Route path='/formulario-ingrediente' element={<CrearIngredienteScreen/>}/>
     <Route path='/ingredientes/editar/:id' element={<EditarIngredienteScreen/>}/>
     <Route path='/productos' element={<ProductosPage/>} />
+    <Route path='/categorias' element={<CategoriaScreen/>}/>
    </Routes>
   )
 }
