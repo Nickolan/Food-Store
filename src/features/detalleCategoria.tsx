@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { CategoriasContext } from '../context/categoriaContext';
+import { CategoriasContext } from '../context/categoriasContext';
 import FormCategoria from './formCategoria';
 import { FaTrash, FaEdit, FaTimes } from 'react-icons/fa';
 

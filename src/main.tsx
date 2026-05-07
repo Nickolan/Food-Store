@@ -4,16 +4,22 @@ import './index.css'
 import App from './App.tsx'
 import {BrowserRouter} from 'react-router-dom'
 import axios from 'axios'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MainProvider } from './context/MainProvider'
 
-axios.defaults.baseURL = 'http://localhost:3000'
+// Marcamos la URL base para las solicitudes HTTP
+axios.defaults.baseURL = 'http://localhost:8000'
+
+const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
       <MainProvider>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </MainProvider>
-    </BrowserRouter>
+    </QueryClientProvider>
   </StrictMode>,
 )

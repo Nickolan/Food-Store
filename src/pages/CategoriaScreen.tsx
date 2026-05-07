@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { CategoriasContext } from '../context/categoriaContext';
+import { CategoriasContext } from '../context/categoriasContext';
 import FiltrosCategoria from '../features/filtrosCategoria';
 import CardCategoria from '../features/cardCategoria';
 import FormCategoria from '../features/formCategoria';
