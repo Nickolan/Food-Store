@@ -1,49 +1,59 @@
 import axios from "axios";
+import type { Producto } from "../models/Producto";
 
 const api = axios.create({ baseURL: "http://localhost:8000" });
 
+// ─── Tipos de respuesta del server ───────────────────────────────────────────
+
+export interface ProductoPaginadoResponse {
+  total: number;
+  items: Producto[];
+}
+
 export interface ProductoFilter {
   nombre?: string;
-  categoria_id?: number;
-  estado?: "todos" | "activos" | "dados_de_baja";
-  page?: number;
+  activo?: boolean;
+  offset?: number;
   limit?: number;
 }
 
-export const getProductos = async (filters?: ProductoFilter) => {
-  const params = new URLSearchParams();
-  if (filters?.nombre) params.append("nombre", filters.nombre);
-  if (filters?.categoria_id) params.append("categoria_id", String(filters.categoria_id));
-  if (filters?.estado && filters.estado !== "todos") params.append("activo", filters.estado === "activos" ? "true" : "false");
-  if (filters?.page) params.append("page", String(filters.page));
-  if (filters?.limit) params.append("limit", String(filters.limit));
+// ─── Endpoints ───────────────────────────────────────────────────────────────
 
-  const response = await api.get("/productos/", { params });
-  return response.data.items || response.data;
-};
+export const getProductos = async (
+  filters?: ProductoFilter
+): Promise<ProductoPaginadoResponse> => {
+  const params: Record<string, string> = {};
+  if (filters?.nombre) params["nombre"] = filters.nombre;
+  if (filters?.activo !== undefined) params["activo"] = String(filters.activo);
+  if (filters?.offset !== undefined) params["offset"] = String(filters.offset);
+  if (filters?.limit !== undefined) params["limit"] = String(filters.limit);
 
-export const getProductoById = async (id: number) => {
-  const response = await api.get(`/productos/${id}`);
+  const response = await api.get<ProductoPaginadoResponse>("/productos", { params });
   return response.data;
 };
 
-export const createProducto = async (producto: any) => {
-  const response = await api.post("/productos/", producto);
+export const getProductoById = async (id: number): Promise<Producto> => {
+  const response = await api.get<Producto>(`/productos/${id}`);
   return response.data;
 };
 
-export const updateProducto = async (id: number, producto: any) => {
-  const response = await api.put(`/productos/${id}`, producto);
+export const createProducto = async (
+  producto: Omit<Producto, "id" | "activo">
+): Promise<Producto> => {
+  const response = await api.post<Producto>("/productos", producto);
   return response.data;
 };
 
-export const deleteProducto = async (id: number) => {
-  // Soft delete: cambiar activo a false
-  const response = await api.patch(`/productos/${id}/disponibilidad`, { activo: false });
+export const updateProducto = async (
+  id: number,
+  producto: Partial<Omit<Producto, "id" | "activo">>
+): Promise<Producto> => {
+  const response = await api.put<Producto>(`/productos/${id}`, producto);
   return response.data;
 };
 
-export const reactivarProducto = async (id: number) => {
-  const response = await api.patch(`/productos/${id}/disponibilidad`, { activo: true });
+// Baja lógica — PUT /{id}/desactivar (según el router del server)
+export const desactivarProducto = async (id: number): Promise<Producto> => {
+  const response = await api.put<Producto>(`/productos/${id}/desactivar`);
   return response.data;
 };
