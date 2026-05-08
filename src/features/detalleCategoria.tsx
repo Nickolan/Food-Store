@@ -21,7 +21,7 @@ export default function DetalleCategoria({ cerrar }: DetalleCategoriaProps) {
     }
 
     const handleEliminar = () => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+        if (window.confirm('¿Estás seguro de que deseas eliminar esta categoría? Si contiene subcategorías, estas también serán eliminadas.')) {
             categoriasContext.eliminar(categoria.id);
             cerrar();
         }

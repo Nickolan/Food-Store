@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { CategoriasContext } from '../context/categoriasContext';
 import FiltrosCategoria from '../features/filtrosCategoria';
 import CardCategoria from '../features/cardCategoria';
@@ -10,6 +10,13 @@ export default function CategoriaScreen() {
     
     const [filtroNombre, setFiltroNombre] = useState('');
     const [filtroActivo, setFiltroActivo] = useState('todos');
+    
+    const [paginaActual, setPaginaActual] = useState(1);
+    const categoriasPorPagina = 8;
+
+    useEffect(() => {
+        setPaginaActual(1);
+    }, [filtroNombre, filtroActivo]);
     
     const [mostrarModalCrear, setMostrarModalCrear] = useState(false);
 
@@ -31,6 +38,12 @@ export default function CategoriaScreen() {
 
         return coincideNombre && coincideActivo;
     });
+
+    const indexUltimaCategoria = paginaActual * categoriasPorPagina;
+    const indexPrimeraCategoria = indexUltimaCategoria - categoriasPorPagina;
+    const categoriasPagina = categoriasFiltradas.slice(indexPrimeraCategoria, indexUltimaCategoria);
+    
+    const totalPaginas = Math.ceil(categoriasFiltradas.length / categoriasPorPagina);
 
     return (
         <div className="p-6">
@@ -58,14 +71,36 @@ export default function CategoriaScreen() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {categoriasFiltradas.length > 0 ? (
-                    categoriasFiltradas.map((categoria) => (
+                {categoriasPagina.length > 0 ? (
+                    categoriasPagina.map((categoria) => (
                         <CardCategoria key={categoria.id} categoria={categoria} />
                     ))
                 ) : (
                     <p className="text-gray-500 col-span-full text-center py-8">No se encontraron categorías.</p>
                 )}
             </div>
+
+            {totalPaginas > 0 && (
+                <div className="flex justify-center items-center gap-4 mt-8">
+                    <button 
+                        onClick={() => setPaginaActual(prev => Math.max(prev - 1, 1))}
+                        disabled={paginaActual === 1}
+                        className={`p-2 rounded ${paginaActual === 1 ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'text-blue-500 bg-blue-100 hover:bg-blue-200'}`}
+                    >
+                        &larr; Anterior
+                    </button>
+                    <span className="font-semibold text-gray-700">
+                        Página {paginaActual} de {totalPaginas}
+                    </span>
+                    <button 
+                        onClick={() => setPaginaActual(prev => Math.min(prev + 1, totalPaginas))}
+                        disabled={paginaActual === totalPaginas}
+                        className={`p-2 rounded ${paginaActual === totalPaginas ? 'text-gray-400 bg-gray-100 cursor-not-allowed' : 'text-blue-500 bg-blue-100 hover:bg-blue-200'}`}
+                    >
+                        Siguiente &rarr;
+                    </button>
+                </div>
+            )}
 
             {mostrarModalCrear && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">

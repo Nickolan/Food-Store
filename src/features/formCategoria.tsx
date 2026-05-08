@@ -38,6 +38,11 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
             return;
         }
 
+        if (!descripcion.trim()) {
+            alert("La descripción es obligatoria");
+            return;
+        }
+
         const categoriaData: Categoria = {
             id: categoriaAEditar ? categoriaAEditar.id : Date.now(),
             nombre,
@@ -83,6 +88,7 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
                     onChange={(e) => setDescripcion(e.target.value)}
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
                     placeholder="Descripción de la categoría"
+                    required
                 />
             </div>
 

@@ -4,7 +4,7 @@ import type { Categoria } from "../models/Categoria";
 const api = axios.create({ baseURL: "http://localhost:8000" });
 
 export const getCategorias = async () => {
-  const response = await api.get<{ total: number; items: Categoria[] }>("/categorias/");
+  const response = await api.get<{ total: number; items: Categoria[] }>("/categorias/?limit=100");
   return response.data.items;
 };
 
@@ -24,5 +24,5 @@ export const updateCategoria = async (id: number, categoria: Partial<Categoria>)
 };
 
 export const deleteCategoria = async (id: number) => {
-  await api.delete(`/categorias/${id}`);
+  await api.put(`/categorias/${id}/desactivar`);
 };
