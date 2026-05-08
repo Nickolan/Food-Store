@@ -18,8 +18,8 @@ export const getProductos = async (filters?: ProductoFilter) => {
   if (filters?.page) params.append("page", String(filters.page));
   if (filters?.limit) params.append("limit", String(filters.limit));
 
-  const response = await api.get("/productos", { params });
-  return response.data;
+  const response = await api.get("/productos/", { params });
+  return response.data.items || response.data;
 };
 
 export const getProductoById = async (id: number) => {
@@ -28,7 +28,7 @@ export const getProductoById = async (id: number) => {
 };
 
 export const createProducto = async (producto: any) => {
-  const response = await api.post("/productos", producto);
+  const response = await api.post("/productos/", producto);
   return response.data;
 };
 

@@ -1,7 +1,7 @@
 import { createContext, useEffect, useReducer, useState, type ReactNode } from "react";
-import axios from "axios";
 import type { Categoria } from "../models/Categoria";
 import { categoriaReducer } from "../reducer/categoriaReducer";
+import { getCategorias, createCategoria, updateCategoria, deleteCategoria } from "../api/categoriasApi";
 
 interface ContextType{
     categorias: Categoria[];
@@ -17,50 +17,41 @@ export const CategoriasContext = createContext<ContextType |undefined> (undefine
 
 export const CategoriasProvider=({children}:{children:ReactNode})=>{
     const [categorias, dispatch]=useReducer(categoriaReducer,[])
-    const api_url="/categorias";
     const [categoriaSeleccionada, setCategoriaSeleccionada]=useState<Categoria | null>(null);
     let contador=categorias.length;
 
     useEffect(()=>{
-        const getCategorias = async () => {
+        const cargarCategorias = async () => {
             try {
-                const respuesta = await axios.get(api_url);
-                dispatch({ type: "GET_CATEGORIAS", payload: respuesta.data });
+                const datos = await getCategorias();
+                dispatch({ type: "GET_CATEGORIAS", payload: datos });
             } catch (error) {
                 console.error("Error al obtener categorias:", error);
             }
         };
-        getCategorias();
+        cargarCategorias();
     }, []);
     
     const agregar=async(categoria:Categoria)=>{
         try{
-            const respuesta = await axios.post(api_url, categoria);
-            if (respuesta.status === 201 || respuesta.status === 200){
-                const nuevaCategoria = respuesta.data;
-                dispatch({type:"AGREGAR_CATEGORIA", payload:nuevaCategoria});
-            }
+            const nuevaCategoria = await createCategoria(categoria);
+            dispatch({type:"AGREGAR_CATEGORIA", payload:nuevaCategoria});
         }catch(error){
             console.error("Error al agregar categoria:", error);
         }
     }
     const eliminar=async(id:number)=>{
         try{
-            const respuesta = await axios.delete(`${api_url}/${id}`);
-            if (respuesta.status === 200 || respuesta.status === 204){
-                dispatch({type:"ELIMINAR_CATEGORIA", payload:id});
-            }
+            await deleteCategoria(id);
+            dispatch({type:"ELIMINAR_CATEGORIA", payload:id});
         }catch(error){
             console.error("Error al eliminar categoria:", error);
         }
     }
     const actualizar=async(categoria:Categoria)=>{
         try{
-            const respuesta = await axios.put(`${api_url}/${categoria.id}`, categoria);
-            if (respuesta.status === 200){
-                const categoriaActualizada = respuesta.data;
-                dispatch({type:"ACTUALIZAR_CATEGORIA", payload:categoriaActualizada});
-            }
+            const categoriaActualizada = await updateCategoria(categoria.id, categoria);
+            dispatch({type:"ACTUALIZAR_CATEGORIA", payload:categoriaActualizada});
         }catch(error){
             console.error("Error al actualizar categoria:", error);
         }
