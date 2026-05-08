@@ -1,4 +1,4 @@
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 
 import { IngredientesContext } from "../context/ingredientesContext"
 
@@ -15,19 +15,24 @@ export default function ListaIngredientesScreen() {
   const context = useContext(IngredientesContext)
 
   if (!context) return null
-
+  const [pagina, setPagina] = useState(0); // <--- NUEVO: Estado de página
+  const [limit] = useState(10);
   const [filtroNombre, setFiltroNombre] = useState("")
 
   const [filtroActivo, setFiltroActivo] = useState("todos")
 
   const [filtroAlergeno, setFiltroAlergeno] = useState("todos")
 
+ useEffect(() => {
+    context.getIngredientes(pagina * limit, limit);
+  }, [pagina]);
+   const inicio = pagina * limit + 1;
 
-
+const fin = Math.min((pagina * limit) + context.ingredientes.length, context.total);
   const filtrarIngredientes = (Array.isArray(context.ingredientes) ? context.ingredientes : []).filter((i) => {
 
     const coincideNombre = i.nombre.toLowerCase().includes(filtroNombre.toLowerCase())
-
+ 
     const coincideActivo = filtroActivo === "todos" || (filtroActivo === "true" && i.activo) || (filtroActivo === "false" && !i.activo)
 
     const coincideAlergeno = filtroAlergeno === "todos" || (filtroAlergeno === "true" && i.es_alergeno) || (filtroAlergeno === "false" && !i.es_alergeno)
@@ -64,7 +69,12 @@ export default function ListaIngredientesScreen() {
 
         <div className="flex justify-between items-center">
 
-          <p className="mb-6 text-lg ml-6">Mostrando {filtrarIngredientes.length} de {context.ingredientes.length} ingredientes</p>
+          <p className="mb-6 text-lg ml-6 font-medium text-gray-700">
+    {context.total > 0 
+      ? `Mostrando ${context.ingredientes.length} de ${context.total} ingredientes`
+      : "No hay ingredientes para mostrar"
+    }
+  </p>
 
           <Link to="/formulario-ingrediente" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-6 mb-6">
 
@@ -101,7 +111,27 @@ export default function ListaIngredientesScreen() {
         </div>
 
       </div>
+     <div className="flex justify-center items-center gap-4 m-10">
+  <button 
+    disabled={pagina === 0}
+    onClick={() => setPagina(p => p - 1)}
+    className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded disabled:opacity-50"
+  >
+    Anterior
+  </button>
 
+  <span className="font-bold">
+    Página {pagina + 1} de {Math.ceil(context.total / limit)}
+  </span>
+
+  <button 
+    disabled={(pagina + 1) * limit >= context.total}
+    onClick={() => setPagina(p => p + 1)}
+    className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded disabled:opacity-50"
+  >
+    Siguiente
+  </button>
+</div>
     </div>
 
   )
