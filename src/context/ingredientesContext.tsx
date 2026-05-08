@@ -98,7 +98,7 @@ export const IngredientesProvider = ({ children }: { children: ReactNode }) => {
 
             if (respuesta.status === 200 || respuesta.status === 204) {
 
-                dispatch({ type: "ELIMINAR_INGREDIENTE", payload: id });
+                dispatch({ type: "ACTUALIZAR_INGREDIENTE", payload: respuesta.data });
 
             }
 
