@@ -13,9 +13,9 @@ import axios from "axios";
 interface ContextType {
 
     ingredientes: Ingrediente[];
-
+    total: number;
     ingredienteSeleccionado: Ingrediente | null;
-
+    getIngredientes: (offset?: number, limit?: number) => Promise<void>;
     setIngredienteSeleccionado: (ingrediente: Ingrediente | null) => void;
 
     actualizar: (ingrediente: Ingrediente) => void;
@@ -37,15 +37,18 @@ export const IngredientesProvider = ({ children }: { children: ReactNode }) => {
     const [ingredientes, dispatch] = useReducer(ingredienteReducer, [])
 
     const api_url = "/ingredientes"; //CAMBIAR A /ingredientes LUEGO
-
+    const [total, setTotal] = useState(0);
     const [ingredienteSeleccionado, setIngredienteSeleccionado] = useState<Ingrediente | null>(null);
 
     let contador = ingredientes.length;
 
-    const getIngredientes = async () => {
+    const getIngredientes = async (offset = 0, limit = 10) => {
         try {
-            const respuesta = await axios.get(api_url);
-            const lista = respuesta.data.items || respuesta.data;
+            const respuesta = await axios.get(`${api_url}?offset=${offset}&limit=${limit}`);
+            const lista = respuesta.data.items; 
+            const totalServidor = respuesta.data.total;
+
+            setTotal(totalServidor); // Guardamos el total
             dispatch({ type: "GET_INGREDIENTES", payload: lista });
         } catch (error) {
             console.error("Error al obtener ingredientes:", error);
@@ -137,7 +140,8 @@ export const IngredientesProvider = ({ children }: { children: ReactNode }) => {
         <IngredientesContext.Provider value={{
 
             ingredientes: ingredientes,
-
+            total: total, 
+            getIngredientes: getIngredientes,
             ingredienteSeleccionado: ingredienteSeleccionado,
 
             setIngredienteSeleccionado: setIngredienteSeleccionado,
