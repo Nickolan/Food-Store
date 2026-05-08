@@ -108,7 +108,7 @@ export const ProductosGrid = ({
                 : "text-green-600 hover:bg-green-50"
             }`}
           >
-            {row.original.activo ? "Dar de baja" : "Reactivar"}
+            {row.original.activo ? "Dar de baja" : ""}
           </button>
         </div>
       ),
@@ -125,7 +125,6 @@ export const ProductosGrid = ({
 
   return (
     <div className="space-y-4">
-      {/* ── Filtros ─────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-3">
         <input
           id="filtro-nombre"
@@ -163,7 +162,6 @@ export const ProductosGrid = ({
         </span>
       </div>
 
-      {/* ── Tabla ───────────────────────────────────────────── */}
       <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
@@ -210,7 +208,6 @@ export const ProductosGrid = ({
         </table>
       </div>
 
-      {/* ── Paginación ──────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-2">
         <button
           id="btn-pagina-anterior"
