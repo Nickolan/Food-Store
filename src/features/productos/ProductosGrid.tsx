@@ -147,7 +147,7 @@ export const ProductosGrid = ({
           <option value="false">Dados de baja</option>
         </select>
 
-        <select
+        {/* <select
           id="filtro-disponible"
           value={filterDisponible}
           onChange={(e) => onFilterDisponible(e.target.value as "" | "true" | "false")}
@@ -156,7 +156,7 @@ export const ProductosGrid = ({
           <option value="">Disponibilidad: todos</option>
           <option value="true">Disponibles</option>
           <option value="false">No disponibles</option>
-        </select>
+        </select> */}
 
         <span className="ml-auto text-sm text-gray-500">
           {total} producto{total !== 1 ? "s" : ""}
