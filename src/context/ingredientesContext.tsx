@@ -36,7 +36,7 @@ export const IngredientesProvider = ({ children }: { children: ReactNode }) => {
 
     const [ingredientes, dispatch] = useReducer(ingredienteReducer, [])
 
-    const api_url = "/ingredientes"; //CAMBIAR A /ingredientes LUEGO
+    const api_url = "/ingredientes/"; //CAMBIAR A /ingredientes LUEGO
     const [total, setTotal] = useState(0);
     const [ingredienteSeleccionado, setIngredienteSeleccionado] = useState<Ingrediente | null>(null);
 
