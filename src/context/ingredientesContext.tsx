@@ -36,7 +36,7 @@ export const IngredientesProvider = ({ children }: { children: ReactNode }) => {
 
     const [ingredientes, dispatch] = useReducer(ingredienteReducer, [])
 
-    const api_url = "/ingredientes/"; //CAMBIAR A /ingredientes LUEGO
+    const api_url = "/ingredientes/"; 
     const [total, setTotal] = useState(0);
     const [ingredienteSeleccionado, setIngredienteSeleccionado] = useState<Ingrediente | null>(null);
 
@@ -91,10 +91,14 @@ export const IngredientesProvider = ({ children }: { children: ReactNode }) => {
 
 
     const eliminar = async (id: number) => {
-
+        const ingredienteaBorrar = ingredientes.find(ing => ing.id === id);
+        if (!ingredienteaBorrar) {
+            return;
+        }
+        const atributoactivo = !ingredienteaBorrar.activo;
+        const ingredienteEliminado = { ...ingredienteaBorrar, activo: atributoactivo };
         try {
-
-            const respuesta = await axios.delete(`${api_url}/${id}`);
+            const respuesta = await axios.put(`${api_url}${id}`, ingredienteEliminado);
 
             if (respuesta.status === 200 || respuesta.status === 204) {
 
@@ -114,15 +118,13 @@ export const IngredientesProvider = ({ children }: { children: ReactNode }) => {
 
         try {
 
-            const respuesta = await axios.put(`${api_url}/${ingrediente.id}`, ingrediente);
+            const respuesta = await axios.put(`${api_url}${ingrediente.id}`, ingrediente);
 
             if (respuesta.status === 200) {
 
                 const ingredienteActualizado = respuesta.data;
 
                 dispatch({ type: "ACTUALIZAR_INGREDIENTE", payload: ingredienteActualizado });
-
-                body: JSON.stringify(ingrediente)
 
             };
 

@@ -42,96 +42,70 @@ const fin = Math.min((pagina * limit) + context.ingredientes.length, context.tot
   })
 
   return (
-
-    <div>
-
-      <h1 className="flex justify-center items-center text-5xl font-bold m-6 mb-10">Busqueda</h1>
-
-      <div>
-
-        <FiltrosIngrediente
-
-          nombre={filtroNombre}
-
-          setNombre={setFiltroNombre}
-
-          activo={filtroActivo}
-
-          setActivo={setFiltroActivo}
-
-          es_alergeno={filtroAlergeno}
-
-          setEsAlergeno={setFiltroAlergeno}
-
-        />
-
-        <h2 className="flex justify-center items-center text-3xl font-bold m-10">Resultados</h2>
-
-        <div className="flex justify-between items-center">
-
-          <p className="mb-6 text-lg ml-6 font-medium text-gray-700">
-    {context.total > 0 
-      ? `Mostrando ${context.ingredientes.length} de ${context.total} ingredientes`
-      : "No hay ingredientes para mostrar"
-    }
-  </p>
-
-          <Link to="/formulario-ingrediente" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-6 mb-6">
-
-            Agregar Ingrediente
-
-          </Link>
-
+    <div className="mx-auto max-w-6xl p-6">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Gestión de Ingredientes</h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Administrá el catálogo de ingredientes y alérgenos.
+          </p>
         </div>
-
-        <div className="max-w-7xl md:w-5/6 lg:w-3/4 sm:w-5/6 mx-auto">
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-            {context.ingredientes.length === 0 ? (
-
-              <p>No hay ingredientes para mostrar</p>
-
-            ) : (
-
-              filtrarIngredientes.map((i) => {
-
-                return (
-
-                  <IngredienteCard i={i} key={i.id} />
-
-                )
-
-              })
-
-            )}
-
-          </div>
-
-        </div>
-
+        <Link 
+          to="/formulario-ingrediente" 
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+        >
+          + Agregar Ingrediente
+        </Link>
       </div>
-     <div className="flex justify-center items-center gap-4 m-10">
-  <button 
-    disabled={pagina === 0}
-    onClick={() => setPagina(p => p - 1)}
-    className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded disabled:opacity-50"
-  >
-    Anterior
-  </button>
 
-  <span className="font-bold">
-    Página {pagina + 1} de {Math.ceil(context.total / limit)}
-  </span>
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <FiltrosIngrediente
+              nombre={filtroNombre}
+              setNombre={setFiltroNombre}
+              activo={filtroActivo}
+              setActivo={setFiltroActivo}
+              es_alergeno={filtroAlergeno}
+              setEsAlergeno={setFiltroAlergeno}
+            />
+          </div>
+          <span className="text-sm text-gray-500 mb-6">
+            {context.total} ingrediente{context.total !== 1 ? "s" : ""}
+          </span>
+        </div>
 
-  <button 
-    disabled={(pagina + 1) * limit >= context.total}
-    onClick={() => setPagina(p => p + 1)}
-    className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded disabled:opacity-50"
-  >
-    Siguiente
-  </button>
-</div>
+        <div className="flex flex-col gap-2">
+          {context.ingredientes.length === 0 ? (
+            <p className="py-8 text-center text-sm text-gray-400">No hay ingredientes para mostrar</p>
+          ) : (
+            filtrarIngredientes.map((i) => (
+              <IngredienteCard i={i} key={i.id} />
+            ))
+          )}
+        </div>
+      </div>
+      <div className="flex items-center justify-between gap-2 mt-8">
+        <button 
+          disabled={pagina === 0}
+          onClick={() => setPagina(p => p - 1)}
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-40 hover:bg-gray-50 transition"
+        >
+          ← Anterior
+        </button>
+
+        <span className="text-sm text-gray-600">
+          Página <strong>{pagina + 1}</strong> de <strong>{Math.ceil(context.total / limit)}</strong>
+        </span>
+
+        <button 
+          disabled={(pagina + 1) * limit >= context.total}
+          onClick={() => setPagina(p => p + 1)}
+          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-40 hover:bg-gray-50 transition"
+        >
+          Siguiente →
+        </button>
+      </div>
     </div>
 
   )
