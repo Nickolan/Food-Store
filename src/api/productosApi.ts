@@ -3,7 +3,6 @@ import type { Producto } from "../models/Producto";
 
 const api = axios.create({ baseURL: "http://localhost:8000" });
 
-// ─── Tipos de respuesta del server ───────────────────────────────────────────
 
 export interface ProductoPaginadoResponse {
   total: number;
@@ -17,7 +16,6 @@ export interface ProductoFilter {
   limit?: number;
 }
 
-// ─── Endpoints ───────────────────────────────────────────────────────────────
 
 export const getProductos = async (
   filters?: ProductoFilter
