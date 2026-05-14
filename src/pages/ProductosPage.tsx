@@ -86,11 +86,11 @@ export const ProductosPage = () => {
   const total = data?.total ?? 0;
 
   return (
-    <div className="mx-auto max-w-6xl p-6">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="w-full">
+      <div className="flex justify-between items-center px-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestión de Productos</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h1 className="text-[#1D3557] text-2xl font-bold">Gestión de Productos</h1>
+          <p className="text-gray-500 text-sm mt-1">
             Administrá el catálogo de productos del local.
           </p>
         </div>
@@ -100,26 +100,21 @@ export const ProductosPage = () => {
             setEditing(undefined);
             setShowForm(true);
           }}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+          className="bg-[#E63946] text-white font-bold px-4 py-2 rounded-lg hover:bg-[#d92c3a] transition"
         >
           + Nuevo producto
         </button>
       </div>
 
       {showForm && (
-        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-base font-semibold text-gray-800">
-            {editing ? "Editar producto" : "Nuevo producto"}
-          </h2>
-          <ProductoForm
-            initial={editing}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditing(undefined);
-            }}
-          />
-        </div>
+        <ProductoForm
+          initial={editing}
+          onSubmit={handleSubmit}
+          onCancel={() => {
+            setShowForm(false);
+            setEditing(undefined);
+          }}
+        />
       )}
 
       {isLoading && (

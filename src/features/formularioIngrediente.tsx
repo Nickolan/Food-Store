@@ -6,7 +6,12 @@ import type { Ingrediente } from "../models/Ingrediente"
 
 
 
-export const FormularioIngrediente = ({ onSuccess }: any) => {
+interface FormularioIngredienteProps {
+    onSuccess: () => void;
+    onCancel: () => void;
+}
+
+export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredienteProps) => {
 
     const context = useContext(IngredientesContext)
 
@@ -24,20 +29,22 @@ export const FormularioIngrediente = ({ onSuccess }: any) => {
 
     })
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
 
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
+        let finalValue: string | boolean = value;
 
-        const finalValue = value === "true" ? true : value === "false" ? false : value;
-
-
+        if (type === "checkbox") {
+            finalValue = (e.target as HTMLInputElement).checked;
+        } else if (value === "true") {
+            finalValue = true;
+        } else if (value === "false") {
+            finalValue = false;
+        }
 
         setFormData({
-
             ...formData,
-
             [name]: finalValue
-
         });
 
     };
@@ -117,157 +124,74 @@ export const FormularioIngrediente = ({ onSuccess }: any) => {
 
 
     return (
-
-        <div className="max-w-2xl mx-auto p-8 bg-white shadow-lg rounded-xl border border-gray-100 mt-10">
-
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
-                <h2 className="text-2xl font-bold mb-4">
-
-                    {context.ingredienteSeleccionado ? "Editar Ingrediente" : "Crear Ingrediente"}
-
-                </h2>
-
-
-
-                <div>
-
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
-
-                    <input
-
-                        type="text"
-
-                        name="nombre"
-
-                        value={formData.nombre}
-
-                        onChange={handleChange}
-
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-
-                        placeholder="Ej. Harina"
-
-                        required
-
-                    />
-
-                </div>
-
-
-
-                <div>
-
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Descripción</label>
-
-                    <textarea
-
-                        name="descripcion"
-
-                        value={formData.descripcion}
-
-                        onChange={(e: any) => handleChange(e)}
-
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
-
-                        placeholder="Descripción del ingrediente"
-
-                        required
-
-                    />
-
-                </div>
-
-
-
-                <div>
-
-                    <label className="block text-gray-700 text-sm font-bold mb-2">¿Es Alérgeno?</label>
-
-                    <select
-
-                        name="es_alergeno"
-
-                        value={String(formData.es_alergeno)}
-
-                        onChange={handleChange}
-
-                        className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative flex flex-col">
+                <div className="p-6">
+                    <button 
+                        onClick={onCancel}
+                        className="absolute top-6 right-6 text-gray-400 hover:text-[#E63946] transition-colors"
                     >
-
-                        <option value="true">Sí</option>
-
-                        <option value="false">No</option>
-
-                    </select>
-
-                </div>
-
-
-
-                <div className="flex items-center mb-4 mt-2">
-
-                    <input
-
-                        type="checkbox"
-
-                        id="activoCheck"
-
-                        name="activo"
-
-                        checked={formData.activo}
-
-                        onChange={(e) => setFormData({ ...formData, activo: e.target.checked })}
-
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-
-                    />
-
-                    <label htmlFor="activoCheck" className="ml-2 block text-gray-900 font-bold">
-
-                        Ingrediente Activo
-
-                    </label>
-
-                </div>
-
-
-
-                <div className="flex justify-end gap-2 mt-4">
-
-                    <button
-
-                        type="button"
-
-                        onClick={onSuccess}
-
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
-
-                    >
-
-                        Cancelar
-
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
 
-                    <button
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                        <h2 className="text-2xl font-bold text-[#1D3557] mb-6">
+                            {context.ingredienteSeleccionado ? "Editar Ingrediente" : "Crear Ingrediente"}
+                        </h2>
 
-                        type="submit"
+                        <div>
+                            <label className="block text-sm font-bold text-[#1D3557] mb-1.5">Nombre</label>
+                            <input
+                                type="text"
+                                name="nombre"
+                                value={formData.nombre}
+                                onChange={handleChange}
+                                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-[#1D3557] focus:outline-none focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] transition-all bg-gray-50/50 focus:bg-white"
+                                placeholder="Ej. Harina"
+                                required
+                            />
+                        </div>
 
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                        <div>
+                            <label className="block text-sm font-bold text-[#1D3557] mb-1.5">Descripcion</label>
+                            <textarea
+                                name="descripcion"
+                                value={formData.descripcion}
+                                onChange={handleChange}
+                                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-[#1D3557] focus:outline-none focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] transition-all bg-gray-50/50 focus:bg-white min-h-[100px]"
+                                placeholder="Descripcion del ingrediente"
+                                required
+                            />
+                        </div>
 
-                    >
+                        <div>
+                            <label className="block text-sm font-bold text-[#1D3557] mb-1.5">Es Alergeno?</label>
+                            <select
+                                name="es_alergeno"
+                                value={String(formData.es_alergeno)}
+                                onChange={handleChange}
+                                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-[#1D3557] focus:outline-none focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] transition-all bg-gray-50/50 focus:bg-white"
+                            >
+                                <option value="true">Si</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
 
-                        Guardar
+                        
 
-                    </button>
-
+                        <div className="flex justify-end mt-8 pt-5 border-t border-gray-100">
+                            <button
+                                type="submit"
+                                className="px-5 py-2.5 rounded-lg font-bold bg-[#E63946] text-white hover:bg-[#d92c3a] transition-colors shadow-md"
+                            >
+                                {context.ingredienteSeleccionado ? "Guardar Cambios" : "Crear Ingrediente"}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-            </form>
-
+            </div>
         </div>
-
     )
-
 }
