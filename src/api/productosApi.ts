@@ -1,8 +1,7 @@
 import axios from "axios";
-import type { Producto } from "../models/Producto";
+import type { Producto, ProductoCreate, ProductoUpdate, ProductoReadFull } from "../models/Producto";
 
 const api = axios.create({ baseURL: "http://localhost:8000" });
-
 
 export interface ProductoPaginadoResponse {
   total: number;
@@ -15,7 +14,6 @@ export interface ProductoFilter {
   offset?: number;
   limit?: number;
 }
-
 
 export const getProductos = async (
   filters?: ProductoFilter
@@ -30,13 +28,13 @@ export const getProductos = async (
   return response.data;
 };
 
-export const getProductoById = async (id: number): Promise<Producto> => {
-  const response = await api.get<Producto>(`/productos/${id}`);
+export const getProductoById = async (id: number): Promise<ProductoReadFull> => {
+  const response = await api.get<ProductoReadFull>(`/productos/${id}`);
   return response.data;
 };
 
 export const createProducto = async (
-  producto: Omit<Producto, "id" | "activo">
+  producto: ProductoCreate
 ): Promise<Producto> => {
   const response = await api.post<Producto>("/productos/", producto);
   return response.data;
@@ -44,14 +42,49 @@ export const createProducto = async (
 
 export const updateProducto = async (
   id: number,
-  producto: Partial<Omit<Producto, "id" | "activo">>
+  producto: ProductoUpdate
 ): Promise<Producto> => {
   const response = await api.put<Producto>(`/productos/${id}`, producto);
   return response.data;
 };
 
-// Baja lógica — PUT /{id}/desactivar (según el router del server)
 export const desactivarProducto = async (id: number): Promise<Producto> => {
   const response = await api.put<Producto>(`/productos/${id}/desactivar`);
+  return response.data;
+};
+
+export const addIngredienteToProducto = async (
+  productoId: number,
+  ingredienteId: number,
+  esRemovible: boolean
+): Promise<Producto> => {
+  const response = await api.post<Producto>(`/productos/${productoId}/ingredientes`, {
+    ingrediente_id: ingredienteId,
+    es_removible: esRemovible
+  });
+  return response.data;
+};
+
+export const updateIngredienteRemovible = async (
+  productoId: number,
+  ingredienteId: number,
+  esRemovible: boolean
+): Promise<Producto> => {
+  const response = await api.put<Producto>(
+    `/productos/${productoId}/ingredientes/${ingredienteId}?es_removible=${esRemovible}`
+  );
+  return response.data;
+};
+
+export const removeIngredienteFromProducto = async (
+  productoId: number,
+  ingredienteId: number
+): Promise<Producto> => {
+  const response = await api.delete<Producto>(`/productos/${productoId}/ingredientes/${ingredienteId}`);
+  return response.data;
+};
+
+export const reactivarProducto = async (id: number): Promise<Producto> => {
+  const response = await api.put<Producto>(`/productos/${id}/reactivar`);
   return response.data;
 };

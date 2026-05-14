@@ -11,7 +11,7 @@ interface Props {
   onPageChange: (page: number) => void;
   filterNombre: string;
   filterDisponible: "" | "true" | "false";
-  filterActivo: "" | "true" | "false";
+  filterActivo: "" | "true" "false";
   onFilterNombre: (v: string) => void;
   onFilterDisponible: (v: "" | "true" | "false") => void;
   onFilterActivo: (v: "" | "true" | "false") => void;
@@ -108,7 +108,7 @@ export const ProductosGrid = ({
                 : "text-green-600 hover:bg-green-50"
             }`}
           >
-            {row.original.activo ? "Dar de baja" : ""}
+            {row.original.activo ? "Dar de baja" : "Reactivar"}
           </button>
         </div>
       ),
@@ -145,17 +145,6 @@ export const ProductosGrid = ({
           <option value="true">Solo activos</option>
           <option value="false">Dados de baja</option>
         </select>
-
-        {/* <select
-          id="filtro-disponible"
-          value={filterDisponible}
-          onChange={(e) => onFilterDisponible(e.target.value as "" | "true" | "false")}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option value="">Disponibilidad: todos</option>
-          <option value="true">Disponibles</option>
-          <option value="false">No disponibles</option>
-        </select> */}
 
         <span className="ml-auto text-sm text-gray-500">
           {total} producto{total !== 1 ? "s" : ""}
