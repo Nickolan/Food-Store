@@ -20,16 +20,16 @@ export default function ListaIngredientesScreen() {
 
   const [filtroAlergeno, setFiltroAlergeno] = useState("todos")
 
- useEffect(() => {
+  useEffect(() => {
     context.getIngredientes(pagina * limit, limit);
   }, [pagina]);
-   const inicio = pagina * limit + 1;
+  const inicio = pagina * limit + 1;
 
-const fin = Math.min((pagina * limit) + context.ingredientes.length, context.total);
+  const fin = Math.min((pagina * limit) + context.ingredientes.length, context.total);
   const filtrarIngredientes = (Array.isArray(context.ingredientes) ? context.ingredientes : []).filter((i) => {
 
     const coincideNombre = i.nombre.toLowerCase().includes(filtroNombre.toLowerCase())
- 
+
     const coincideActivo = filtroActivo === "todos" || (filtroActivo === "true" && i.activo) || (filtroActivo === "false" && !i.activo)
 
     const coincideAlergeno = filtroAlergeno === "todos" || (filtroAlergeno === "true" && i.es_alergeno) || (filtroAlergeno === "false" && !i.es_alergeno)
