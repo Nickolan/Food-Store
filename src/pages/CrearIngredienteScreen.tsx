@@ -25,14 +25,7 @@ export default function CrearIngredienteScreen() {
   }, [])
 
   return (
-
-    <div>
-
-      <FormularioIngrediente onSuccess={() => { navigate("/ingredientes") }} />
-
-    </div>
-
+    <FormularioIngrediente onSuccess={() => { navigate("/ingredientes") }} onCancel={() => { navigate("/ingredientes") }} />
   )
 
 }
-

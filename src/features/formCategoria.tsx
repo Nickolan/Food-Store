@@ -12,23 +12,11 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
 
     const [nombre, setNombre] = useState(categoriaAEditar?.nombre || '');
     const [descripcion, setDescripcion] = useState(categoriaAEditar?.descripcion || '');
-    const [imagenUrl, setImagenUrl] = useState(categoriaAEditar?.imagen_url || '');
-    const [activo, setActivo] = useState(categoriaAEditar !== undefined ? categoriaAEditar.activo : true);
+    
     const [parentId, setParentId] = useState<number | ''>(categoriaAEditar?.parent_id || '');
 
     if (!categoriasContext) return null;
     const categoriasDisponibles = categoriasContext.categorias.filter(c => c.id !== categoriaAEditar?.id);
-
-    const handleImagenChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagenUrl(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -47,8 +35,8 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
             id: categoriaAEditar ? categoriaAEditar.id : Date.now(),
             nombre,
             descripcion,
-            imagen_url: imagenUrl,
-            activo,
+            imagen_url: categoriaAEditar?.imagen_url || '',
+            activo: categoriaAEditar?.activo ?? true,
             parent_id: parentId === '' ? undefined : Number(parentId),
             hijos: categoriaAEditar?.hijos || []
         };
@@ -64,91 +52,73 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
     };
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <h2 className="text-2xl font-bold mb-4">
-                {categoriaAEditar ? 'Editar Categoría' : 'Crear Categoría'}
-            </h2>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative flex flex-col">
+                <div className="p-6">
+                    <button 
+                        onClick={cerrar}
+                        className="absolute top-6 right-6 text-gray-400 hover:text-[#E63946] transition-colors"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
 
-            <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
-                <input 
-                    type="text" 
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Ej. Bebidas"
-                    required
-                />
-            </div>
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                        <h2 className="text-2xl font-bold text-[#1D3557] mb-6">
+                            {categoriaAEditar ? 'Editar Categoria' : 'Crear Categoria'}
+                        </h2>
 
-            <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">Descripción</label>
-                <textarea 
-                    value={descripcion}
-                    onChange={(e) => setDescripcion(e.target.value)}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
-                    placeholder="Descripción de la categoría"
-                    required
-                />
-            </div>
+                        <div>
+                            <label className="block text-sm font-bold text-[#1D3557] mb-1.5">Nombre</label>
+                            <input 
+                                type="text" 
+                                value={nombre}
+                                onChange={(e) => setNombre(e.target.value)}
+                                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-[#1D3557] focus:outline-none focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] transition-all bg-gray-50/50 focus:bg-white"
+                                placeholder="Ej. Bebidas"
+                                required
+                            />
+                        </div>
 
-            <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">Imagen Local</label>
-                <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={handleImagenChange}
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {imagenUrl && (
-                    <div className="mt-2 h-24 overflow-hidden rounded border bg-gray-100 flex items-center justify-center">
-                        <img src={imagenUrl} alt="Preview" className="h-full object-contain" />
-                    </div>
-                )}
-            </div>
+                        <div>
+                            <label className="block text-sm font-bold text-[#1D3557] mb-1.5">Descripcion</label>
+                            <textarea 
+                                value={descripcion}
+                                onChange={(e) => setDescripcion(e.target.value)}
+                                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-[#1D3557] focus:outline-none focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] transition-all bg-gray-50/50 focus:bg-white min-h-[100px]"
+                                placeholder="Descripcion de la categoria"
+                                required
+                            />
+                        </div>
 
-            <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2">Categoría Padre</label>
-                <select 
-                    value={parentId}
-                    onChange={(e) => setParentId(e.target.value === '' ? '' : Number(e.target.value))}
-                    className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                >
-                    <option value="">Ninguna (Categoría Raíz)</option>
-                    {categoriasDisponibles.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.nombre}</option>
-                    ))}
-                </select>
-            </div>
+                        <div>
+                            <label className="block text-sm font-bold text-[#1D3557] mb-1.5">Categoria Padre</label>
+                            <select 
+                                value={parentId}
+                                onChange={(e) => setParentId(e.target.value === '' ? '' : Number(e.target.value))}
+                                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-[#1D3557] focus:outline-none focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] transition-all bg-gray-50/50 focus:bg-white"
+                            >
+                                <option value="">Ninguna (Categoria Raiz)</option>
+                                {categoriasDisponibles.map(cat => (
+                                    <option key={cat.id} value={cat.id}>{cat.nombre}</option>
+                                ))}
+                            </select>
+                        </div>
 
-            <div className="flex items-center mb-4 mt-2">
-                <input 
-                    type="checkbox" 
-                    id="activoCheck"
-                    checked={activo}
-                    onChange={(e) => setActivo(e.target.checked)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="activoCheck" className="ml-2 block text-gray-900 font-bold">
-                    Categoría Activa
-                </label>
-            </div>
+                        
 
-            <div className="flex justify-end gap-2 mt-4">
-                <button 
-                    type="button" 
-                    onClick={cerrar}
-                    className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
-                >
-                    Cancelar
-                </button>
-                <button 
-                    type="submit"
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-                >
-                    Guardar
-                </button>
+                        <div className="flex justify-end mt-8 pt-5 border-t border-gray-100">
+                            <button 
+                                type="submit"
+                                className="px-5 py-2.5 rounded-lg font-bold bg-[#E63946] text-white hover:bg-[#d92c3a] transition-colors shadow-md"
+                            >
+                                {categoriaAEditar ? "Guardar Cambios" : "Crear Categoria"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
+        </div>
     );
 }

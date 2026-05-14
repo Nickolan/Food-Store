@@ -49,13 +49,7 @@ export default function EditarIngredienteScreen() {
   }, [id, ingredientes, setIngredienteSeleccionado])
 
   return (
-
-    <div>
-
-      <FormularioIngrediente onSuccess={() => { navigate("/ingredientes") }} />
-
-    </div>
-
+    <FormularioIngrediente onSuccess={() => { navigate("/ingredientes") }} onCancel={() => { navigate("/ingredientes") }} />
   )
 
 }
