@@ -11,7 +11,7 @@ interface Props {
   onPageChange: (page: number) => void;
   filterNombre: string;
   filterDisponible: "" | "true" | "false";
-  filterActivo: "" | "true" "false";
+  filterActivo: "" | "true" | "false";
   onFilterNombre: (v: string) => void;
   onFilterDisponible: (v: "" | "true" | "false") => void;
   onFilterActivo: (v: "" | "true" | "false") => void;

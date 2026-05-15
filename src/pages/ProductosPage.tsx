@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductosGrid } from "../features/productos/ProductosGrid";
 import { ProductoForm } from "../features/productos/ProductoForm";
-import type { Producto, ProductoReadFull } from "../models/Producto";
+import type { Producto, ProductoCreate, ProductoReadFull } from "../models/Producto";
 import {
   getProductos,
   createProducto,
@@ -48,7 +48,7 @@ export const ProductosPage = () => {
   });
 
   const mutUpdate = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Producto, "id" | "activo">> }) =>
+    mutationFn: ({ id, data }: { id: number; data: ProductoCreate }) =>
       updateProducto(id, data),
     onSuccess: invalidar,
   });
@@ -64,14 +64,19 @@ export const ProductosPage = () => {
     onSuccess: invalidar,
   });
 
-  const handleSubmit = async (formData: Omit<Producto, "id" | "activo">) => {
-    if (editing?.id) {
-      await mutUpdate.mutateAsync({ id: editing.id, data: formData });
-    } else {
-      await mutCreate.mutateAsync(formData);
+  const handleSubmit = async (formData: ProductoCreate) => {
+    try {
+      if (editing?.id) {
+        await mutUpdate.mutateAsync({ id: editing.id, data: formData });
+      } else {
+        await mutCreate.mutateAsync(formData);
+      }
+      setShowForm(false);
+      setEditing(undefined);
+    } catch (error) {
+      console.error("Error al guardar producto:", error);
+      alert("Error al guardar el producto. Verificá los datos e intentá de nuevo.");
     }
-    setShowForm(false);
-    setEditing(undefined);
   };
 
   // ← Modificar esta función para manejar tanto baja como reactivación
