@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductosGrid } from "../features/productos/ProductosGrid";
 import { ProductoForm } from "../features/productos/ProductoForm";
-import type { Producto } from "../models/Producto";
+import type { Producto, ProductoReadFull } from "../models/Producto";
 import {
   getProductos,
   createProducto,
   desactivarProducto,
   updateProducto,
+  getProductoById,
+  reactivarProducto,  // ← Importar nueva función
 } from "../api/productosApi";
 
 const PAGE_SIZE = 10;
@@ -22,7 +24,8 @@ export const ProductosPage = () => {
   const [filterDisponible, setFilterDisponible] = useState<"" | "true" | "false">("");
 
   const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<Producto | undefined>();
+  const [editing, setEditing] = useState<Producto | ProductoReadFull | undefined>();
+  const [isLoadingProducto, setIsLoadingProducto] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["productos", { page, filterNombre, filterActivo, filterDisponible }],
@@ -55,6 +58,12 @@ export const ProductosPage = () => {
     onSuccess: invalidar,
   });
 
+  // ← Nueva mutación para reactivar
+  const mutReactivar = useMutation({
+    mutationFn: reactivarProducto,
+    onSuccess: invalidar,
+  });
+
   const handleSubmit = async (formData: Omit<Producto, "id" | "activo">) => {
     if (editing?.id) {
       await mutUpdate.mutateAsync({ id: editing.id, data: formData });
@@ -65,13 +74,18 @@ export const ProductosPage = () => {
     setEditing(undefined);
   };
 
+  // ← Modificar esta función para manejar tanto baja como reactivación
   const handleToggleActivo = async (p: Producto) => {
     if (p.activo) {
-      await mutDesactivar.mutateAsync(p.id!);
+      // Si está activo, desactivar
+      if (confirm(`¿Estás seguro de que querés desactivar "${p.nombre}"?`)) {
+        await mutDesactivar.mutateAsync(p.id!);
+      }
     } else {
-      alert(
-        "Reactivación no implementada aún en el backend. Usá el panel de administración."
-      );
+      // Si está inactivo, reactivar
+      if (confirm(`¿Estás seguro de que querés reactivar "${p.nombre}"?`)) {
+        await mutReactivar.mutateAsync(p.id!);
+      }
     }
   };
 
@@ -80,6 +94,21 @@ export const ProductosPage = () => {
   ) => (value: any) => {
     setter(value);
     setPage(0);
+  };
+
+  const handleEdit = async (producto: Producto) => {
+    setIsLoadingProducto(true);
+    try {
+      const productoCompleto = await getProductoById(producto.id!);
+      setEditing(productoCompleto);
+      setShowForm(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      console.error("Error al cargar producto para editar:", error);
+      alert("Error al cargar los detalles del producto");
+    } finally {
+      setIsLoadingProducto(false);
+    }
   };
 
   const productos = data?.items ?? [];
@@ -107,14 +136,23 @@ export const ProductosPage = () => {
       </div>
 
       {showForm && (
-        <ProductoForm
-          initial={editing}
-          onSubmit={handleSubmit}
-          onCancel={() => {
-            setShowForm(false);
-            setEditing(undefined);
-          }}
-        />
+        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-base font-semibold text-gray-800">
+            {editing ? "Editar producto" : "Nuevo producto"}
+          </h2>
+          {isLoadingProducto ? (
+            <p className="text-center py-8 text-gray-500">Cargando ingredientes del producto...</p>
+          ) : (
+            <ProductoForm
+              initial={editing}
+              onSubmit={handleSubmit}
+              onCancel={() => {
+                setShowForm(false);
+                setEditing(undefined);
+              }}
+            />
+          )}
+        </div>
       )}
 
       {isLoading && (
@@ -139,11 +177,7 @@ export const ProductosPage = () => {
           onFilterNombre={handleFilterChange(setFilterNombre)}
           onFilterActivo={handleFilterChange(setFilterActivo)}
           onFilterDisponible={handleFilterChange(setFilterDisponible)}
-          onEdit={(p) => {
-            setEditing(p);
-            setShowForm(true);
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }}
+          onEdit={handleEdit}
           onToggleActivo={handleToggleActivo}
         />
       )}
