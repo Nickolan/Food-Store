@@ -1,13 +1,13 @@
-import { useContext, type JSX } from 'react'
+import { type JSX } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { AuthContext } from '../context/authContext'
+import { useAuth } from '../context/authContext'
 
 interface Props {
   children: JSX.Element
 }
 
 const ProtectedRoute = ({ children }: Props) => {
-  const auth = useContext(AuthContext)
+  const auth = useAuth()
   const location = useLocation()
 
   if (!auth) return null

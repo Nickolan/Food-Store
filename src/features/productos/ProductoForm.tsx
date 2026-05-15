@@ -262,6 +262,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                 )}
               </form.Field>
             </div>
+        </form>
 
       {/* Sección de Ingredientes */}
       <div className="sm:col-span-2 border-t border-gray-200 pt-4 mt-2">
@@ -368,6 +369,8 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
           {initial ? "Guardar cambios" : "Crear producto"}
         </button>
       </div>
+    </div>
+    </div>
     </div>
   );
 };

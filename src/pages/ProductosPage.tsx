@@ -9,7 +9,7 @@ import {
   desactivarProducto,
   updateProducto,
   getProductoById,
-  reactivarProducto,  // ← Importar nueva función
+  reactivarProducto,
 } from "../api/productosApi";
 
 const PAGE_SIZE = 10;

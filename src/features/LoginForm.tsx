@@ -1,10 +1,9 @@
-import { useContext } from 'react'
 import { useForm } from '@tanstack/react-form'
 import { useNavigate } from 'react-router-dom'
-import { AuthContext } from '../context/authContext'
+import { useAuth } from '../context/authContext'
 
 const LoginForm = () => {
-    const auth = useContext(AuthContext)
+    const auth = useAuth()
     const navigate = useNavigate()
 
     const form = useForm({

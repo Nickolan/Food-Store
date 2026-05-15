@@ -9,8 +9,28 @@ import CategoriaScreen from './pages/CategoriaScreen'
 import ProtectedRoute from './features/ProtectedRoute'
 import DashboardLayout from './features/DashboardLayout'
 import DashboardWelcome from './pages/DashboardWelcome'
+import { useAuth } from './context/authContext'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function App() {
+  const {getUsuarioFromToken} = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      console.log(token);
+      
+      getUsuarioFromToken(token).then((usuario) => {
+        navigate('/')
+      }
+    )
+      
+    } else {
+      console.log("No token found in localStorage.");
+    }
+  }, [])
   return (
     <Routes>
       <Route path='/login' element={<LoginScreen />} />
