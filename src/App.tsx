@@ -1,37 +1,29 @@
 import './App.css'
-import {Routes, Route, useLocation, useNavigate} from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import LoginScreen from './pages/LoginScreen'
-import MenuScreen from './pages/MenuScreen'
 import ListaIngredientesScreen from './pages/ListaIngredientesScreen'
 import CrearIngredienteScreen from './pages/CrearIngredienteScreen'
 import EditarIngredienteScreen from './pages/EditarIngredienteScreen'
 import { ProductosPage } from './pages/ProductosPage'
 import CategoriaScreen from './pages/CategoriaScreen'
 import ProtectedRoute from './features/ProtectedRoute'
-import { useEffect } from 'react'
+import DashboardLayout from './features/DashboardLayout'
+import DashboardWelcome from './pages/DashboardWelcome'
 
 function App() {
-
-  const location = useLocation()
-  const navigate = useNavigate()
-
-
-  useEffect(() => {
-    if (location.pathname === '/') {
-      navigate('/login')
-    }
-  }, [])
-
   return (
-  <Routes>
-  <Route path='/login' element={<LoginScreen/>}/>
-  <Route path='/menu' element={<ProtectedRoute><MenuScreen/></ProtectedRoute>} />
-  <Route path='/ingredientes' element={<ProtectedRoute><ListaIngredientesScreen/></ProtectedRoute>} />
-  <Route path='/formulario-ingrediente' element={<ProtectedRoute><CrearIngredienteScreen/></ProtectedRoute>} />
-  <Route path='/ingredientes/editar/:id' element={<ProtectedRoute><EditarIngredienteScreen/></ProtectedRoute>} />
-  <Route path='/productos' element={<ProtectedRoute><ProductosPage/></ProtectedRoute>} />
-  <Route path='/categorias' element={<ProtectedRoute><CategoriaScreen/></ProtectedRoute>} />
-   </Routes>
+    <Routes>
+      <Route path='/login' element={<LoginScreen />} />
+      
+      <Route path='/' element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+        <Route index element={<DashboardWelcome />} />
+        <Route path='categorias' element={<CategoriaScreen />} />
+        <Route path='ingredientes' element={<ListaIngredientesScreen />} />
+        <Route path='formulario-ingrediente' element={<CrearIngredienteScreen />} />
+        <Route path='ingredientes/editar/:id' element={<EditarIngredienteScreen />} />
+        <Route path='productos' element={<ProductosPage />} />
+      </Route>
+    </Routes>
   )
 }
 
