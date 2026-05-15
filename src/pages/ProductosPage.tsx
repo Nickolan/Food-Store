@@ -2,14 +2,14 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductosGrid } from "../features/productos/ProductosGrid";
 import { ProductoForm } from "../features/productos/ProductoForm";
-import type { Producto, ProductoCreate, ProductoReadFull } from "../models/Producto";
+import type { Producto, ProductoReadFull } from "../models/Producto";
 import {
   getProductos,
   createProducto,
   desactivarProducto,
   updateProducto,
   getProductoById,
-  reactivarProducto,  // ← Importar nueva función
+  reactivarProducto,
 } from "../api/productosApi";
 
 const PAGE_SIZE = 10;
@@ -44,50 +44,61 @@ export const ProductosPage = () => {
 
   const mutCreate = useMutation({
     mutationFn: createProducto,
-    onSuccess: invalidar,
+    onSuccess: () => {
+      invalidar();
+      setShowForm(false);
+      setEditing(undefined);
+    },
+    onError: (error: any) => {
+      const mensaje = error.response?.data?.detail || "Error al crear producto. Verifique que tenga al menos un ingrediente.";
+      alert(mensaje);
+    }
   });
 
   const mutUpdate = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: ProductoCreate }) =>
+    mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Producto, "id" | "activo">> }) =>
       updateProducto(id, data),
-    onSuccess: invalidar,
+    onSuccess: () => {
+      invalidar();
+      setShowForm(false);
+      setEditing(undefined);
+    },
+    onError: (error: any) => {
+      const mensaje = error.response?.data?.detail || "Error al actualizar producto. Verifique que tenga al menos un ingrediente.";
+      alert(mensaje);
+    }
   });
 
   const mutDesactivar = useMutation({
     mutationFn: desactivarProducto,
     onSuccess: invalidar,
+    onError: (error: any) => {
+      alert(error.response?.data?.detail || "Error al desactivar producto");
+    }
   });
 
-  // ← Nueva mutación para reactivar
   const mutReactivar = useMutation({
     mutationFn: reactivarProducto,
     onSuccess: invalidar,
+    onError: (error: any) => {
+      alert(error.response?.data?.detail || "Error al reactivar producto");
+    }
   });
 
-  const handleSubmit = async (formData: ProductoCreate) => {
-    try {
-      if (editing?.id) {
-        await mutUpdate.mutateAsync({ id: editing.id, data: formData });
-      } else {
-        await mutCreate.mutateAsync(formData);
-      }
-      setShowForm(false);
-      setEditing(undefined);
-    } catch (error) {
-      console.error("Error al guardar producto:", error);
-      alert("Error al guardar el producto. Verificá los datos e intentá de nuevo.");
+  const handleSubmit = async (formData: Omit<Producto, "id" | "activo">) => {
+    if (editing?.id) {
+      await mutUpdate.mutateAsync({ id: editing.id, data: formData });
+    } else {
+      await mutCreate.mutateAsync(formData);
     }
   };
 
-  // ← Modificar esta función para manejar tanto baja como reactivación
   const handleToggleActivo = async (p: Producto) => {
     if (p.activo) {
-      // Si está activo, desactivar
       if (confirm(`¿Estás seguro de que querés desactivar "${p.nombre}"?`)) {
         await mutDesactivar.mutateAsync(p.id!);
       }
     } else {
-      // Si está inactivo, reactivar
       if (confirm(`¿Estás seguro de que querés reactivar "${p.nombre}"?`)) {
         await mutReactivar.mutateAsync(p.id!);
       }
