@@ -44,24 +44,45 @@ export const ProductosPage = () => {
 
   const mutCreate = useMutation({
     mutationFn: createProducto,
-    onSuccess: invalidar,
+    onSuccess: () => {
+      invalidar();
+      setShowForm(false);
+      setEditing(undefined);
+    },
+    onError: (error: any) => {
+      const mensaje = error.response?.data?.detail || "Error al crear producto. Verifique que tenga al menos un ingrediente.";
+      alert(mensaje);
+    }
   });
 
   const mutUpdate = useMutation({
     mutationFn: ({ id, data }: { id: number; data: Partial<Omit<Producto, "id" | "activo">> }) =>
       updateProducto(id, data),
-    onSuccess: invalidar,
+    onSuccess: () => {
+      invalidar();
+      setShowForm(false);
+      setEditing(undefined);
+    },
+    onError: (error: any) => {
+      const mensaje = error.response?.data?.detail || "Error al actualizar producto. Verifique que tenga al menos un ingrediente.";
+      alert(mensaje);
+    }
   });
 
   const mutDesactivar = useMutation({
     mutationFn: desactivarProducto,
     onSuccess: invalidar,
+    onError: (error: any) => {
+      alert(error.response?.data?.detail || "Error al desactivar producto");
+    }
   });
 
-  // ← Nueva mutación para reactivar
   const mutReactivar = useMutation({
     mutationFn: reactivarProducto,
     onSuccess: invalidar,
+    onError: (error: any) => {
+      alert(error.response?.data?.detail || "Error al reactivar producto");
+    }
   });
 
   const handleSubmit = async (formData: Omit<Producto, "id" | "activo">) => {
@@ -70,19 +91,14 @@ export const ProductosPage = () => {
     } else {
       await mutCreate.mutateAsync(formData);
     }
-    setShowForm(false);
-    setEditing(undefined);
   };
 
-  // ← Modificar esta función para manejar tanto baja como reactivación
   const handleToggleActivo = async (p: Producto) => {
     if (p.activo) {
-      // Si está activo, desactivar
       if (confirm(`¿Estás seguro de que querés desactivar "${p.nombre}"?`)) {
         await mutDesactivar.mutateAsync(p.id!);
       }
     } else {
-      // Si está inactivo, reactivar
       if (confirm(`¿Estás seguro de que querés reactivar "${p.nombre}"?`)) {
         await mutReactivar.mutateAsync(p.id!);
       }

@@ -42,7 +42,6 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
   useEffect(() => {
     if (initial && (initial as ProductoReadFull).ingredientes) {
       const productoFull = initial as ProductoReadFull;
-      // Acceder correctamente a la estructura anidada: ingrediente -> ingrediente
       const ingredientesConRemovible = productoFull.ingredientes.map((item: any) => ({
         id: item.ingrediente.id,
         nombre: item.ingrediente.nombre,
@@ -64,6 +63,12 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       imagenes_url: initial?.imagenes_url?.join(", ") ?? "",
     },
     onSubmit: async ({ value }) => {
+      // VALIDACIÓN: el producto debe tener al menos un ingrediente
+      if (ingredientesSeleccionados.length === 0) {
+        alert("El producto debe tener al menos un ingrediente.");
+        return;
+      }
+
       const productoData: ProductoCreate = {
         nombre: value.nombre,
         descripcion: value.descripcion,
@@ -267,10 +272,10 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       {/* Sección de Ingredientes */}
       <div className="sm:col-span-2 border-t border-gray-200 pt-4 mt-2">
         <label className={labelCls + " text-base font-semibold"}>
-          Ingredientes del producto
+          Ingredientes del producto *
         </label>
         <p className="text-xs text-gray-500 mb-3">
-          Especificá los ingredientes y si pueden ser removidos por el cliente
+          Especificá los ingredientes y si pueden ser removidos por el cliente. El producto debe tener al menos un ingrediente.
         </p>
 
         {/* Selector para agregar ingredientes */}
@@ -337,7 +342,11 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                       <button
                         type="button"
                         onClick={() => removerIngrediente(ing.id)}
-                        className="text-red-600 hover:text-red-800 text-sm"
+                        disabled={ingredientesSeleccionados.length === 1}
+                        className={`text-red-600 hover:text-red-800 text-sm ${
+                          ingredientesSeleccionados.length === 1 ? "opacity-40 cursor-not-allowed" : ""
+                        }`}
+                        title={ingredientesSeleccionados.length === 1 ? "No se puede eliminar el único ingrediente" : "Quitar ingrediente"}
                       >
                         Quitar
                       </button>
@@ -348,8 +357,8 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
             </table>
           </div>
         ) : (
-          <p className="text-sm text-gray-400 text-center py-4 border border-dashed border-gray-300 rounded-lg">
-            No hay ingredientes agregados. Seleccioná ingredientes de la lista.
+          <p className="text-sm text-red-500 text-center py-4 border border-red-300 border-dashed rounded-lg bg-red-50">
+            ⚠️ Debes agregar al menos un ingrediente al producto.
           </p>
         )}
       </div>
@@ -364,7 +373,12 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
         </button>
         <button
           type="submit"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition"
+          disabled={ingredientesSeleccionados.length === 0}
+          className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${
+            ingredientesSeleccionados.length === 0
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           {initial ? "Guardar cambios" : "Crear producto"}
         </button>
