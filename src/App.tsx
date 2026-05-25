@@ -12,6 +12,7 @@ import DashboardWelcome from './pages/DashboardWelcome'
 import { useAuth } from './context/authContext'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import LandingScreen from './pages/LandingScreen'
 
 function App() {
   const {getUsuarioFromToken} = useAuth();
@@ -34,8 +35,9 @@ function App() {
   return (
     <Routes>
       <Route path='/login' element={<LoginScreen />} />
+      <Route path='/' element={<LandingScreen />} />
       
-      <Route path='/' element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+      <Route path='/admin' element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route index element={<DashboardWelcome />} />
         <Route path='categorias' element={<CategoriaScreen />} />
         <Route path='ingredientes' element={<ListaIngredientesScreen />} />

@@ -1,23 +1,34 @@
-import { type JSX } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 
-interface Props {
-  children: JSX.Element
-}
+const ProtectedRoute = ({children, rolesHabilitados}: any) => {
 
-const ProtectedRoute = ({ children }: Props) => {
-  const auth = useAuth()
-  const location = useLocation()
+    const {getUsuarioFromToken} = useAuth();
+    
+      useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          getUsuarioFromToken(token).then((usuario) => {
+            if (!usuario) {
+              localStorage.removeItem('token');
+              return <Navigate to="/" />;
+            }
 
-  if (!auth) return null
+            // Revisar si el usuario tiene el rol necesario para acceder a la ruta protegida
+            const tieneRolHabilitado: boolean = usuario.roles.some((rol) => rolesHabilitados.includes(rol.codigo));
+            if (!tieneRolHabilitado) {
+              return <Navigate to="/" />;
+            }
+          })
+          
+        } else {
+          console.log("No token found in localStorage.");
+        }
+      }, [])
+    
 
-  if (auth.isAuthenticated) return children
-
-  // Allow access to the login page even when not authenticated
-  if (location.pathname === '/login') return children
-
-  return <Navigate to="/login" replace />
+    return children;
 }
 
 export default ProtectedRoute

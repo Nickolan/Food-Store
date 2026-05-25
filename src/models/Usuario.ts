@@ -6,6 +6,7 @@ export interface Usuario {
     celular?: string;
     created_at: string;
     updated_at: string;
+    roles: Rol[];
 }
 
 export interface LoginResponse {
@@ -14,4 +15,10 @@ export interface LoginResponse {
     expires_in: number;
     mensaje: string;
     usuario: Usuario;
+}
+
+export interface Rol {
+    codigo: string;
+    nombre: string;
+    descripcion?: string;
 }
