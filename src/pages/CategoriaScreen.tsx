@@ -80,18 +80,18 @@ export default function CategoriaScreen() {
         <div className="w-full">
             <div className="flex justify-between items-center px-4 mb-6">
                 <div>
-                    <h1 className="text-[#1D3557] text-2xl font-bold">Categorias</h1>
+                    <h1 className="text-stone-900 text-2xl font-bold">Categorias</h1>
                     <p className="text-gray-500 text-sm mt-1">Administra las categorias de tus productos</p>
                 </div>
                 <button 
                     onClick={() => setMostrarModalCrear(true)}
-                    className="bg-[#E63946] font-bold text-white px-4 py-2 rounded-lg hover:bg-[#d92c3a] transition-colors"
+                    className="bg-orange-600 font-bold text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
                 >
                     + Nueva Categoria
                 </button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 w-full">
+            <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 w-full">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex gap-4 items-center">
                         <input
@@ -99,12 +99,12 @@ export default function CategoriaScreen() {
                             placeholder="Buscar por nombre..."
                             value={filtroNombre}
                             onChange={(e) => setFiltroNombre(e.target.value)}
-                            className="h-10 rounded-lg border border-gray-200 px-3 text-sm text-[#1D3557] focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] outline-none w-52"
+                            className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none w-52"
                         />
                         <select
                             value={filtroActivo}
                             onChange={(e) => setFiltroActivo(e.target.value)}
-                            className="h-10 rounded-lg border border-gray-200 px-3 text-sm text-[#1D3557] focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] outline-none bg-white"
+                            className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none bg-white"
                         >
                             <option value="todos">Todos los estados</option>
                             <option value="activos">Activos</option>
@@ -116,7 +116,7 @@ export default function CategoriaScreen() {
                     </span>
                 </div>
 
-                <div className="flex items-center gap-2 mb-4 text-sm font-semibold text-[#1D3557]">
+                <div className="flex items-center gap-2 mb-4 text-sm font-semibold text-stone-900">
                     {breadcrumbs.map((crumb, index) => (
                         <React.Fragment key={crumb.id ?? 'root'}>
                             {index > 0 && (
@@ -129,7 +129,7 @@ export default function CategoriaScreen() {
                                 className={`transition-colors ${
                                     index === breadcrumbs.length - 1 
                                         ? 'text-gray-400 cursor-default' 
-                                        : 'text-[#1D3557] hover:underline cursor-pointer'
+                                        : 'text-stone-900 hover:underline cursor-pointer'
                                 }`}
                             >
                                 {crumb.name}
@@ -140,7 +140,7 @@ export default function CategoriaScreen() {
 
                 <div className="w-full overflow-x-auto">
                     <table className="w-full border-collapse">
-                        <thead className="bg-gray-50 text-[#1D3557] text-xs uppercase font-bold">
+                        <thead className="bg-orange-50 text-stone-900 text-xs uppercase font-bold">
                             <tr>
                                 <th className="py-3 px-4 text-center">ID</th>
                                 <th className="py-3 px-4 text-center">NOMBRE</th>
@@ -152,7 +152,7 @@ export default function CategoriaScreen() {
                         <tbody className="bg-white">
                             {paginatedCategorias.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="py-8 px-4 text-center text-sm text-gray-400 border-b border-gray-100">
+                                    <td colSpan={5} className="py-8 px-4 text-center text-sm text-gray-400 border-b border-orange-100">
                                         No se encontraron categorias.
                                     </td>
                                 </tr>
@@ -160,42 +160,42 @@ export default function CategoriaScreen() {
                                 paginatedCategorias.map((categoria) => {
                                     const tieneHijos = hasHijos(categoria.id);
                                     return (
-                                        <tr key={categoria.id} className="transition hover:bg-gray-50">
-                                            <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center">
+                                        <tr key={categoria.id} className="transition hover:bg-orange-50">
+                                            <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                                                 {categoria.id}
                                             </td>
-                                            <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm">
+                                            <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm">
                                                 <div className="flex items-center justify-center gap-2">
                                                     {tieneHijos ? (
                                                         <button
                                                             onClick={() => handleNavigate(categoria.id, categoria.nombre)}
-                                                            className="flex items-center justify-center gap-2 cursor-pointer hover:text-[#E63946] transition-colors group"
+                                                            className="flex items-center justify-center gap-2 cursor-pointer hover:text-orange-600 transition-colors group"
                                                         >
-                                                            <span className="text-sm text-[#1D3557]">{categoria.nombre}</span>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 group-hover:text-[#E63946] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                            <span className="text-sm text-stone-900">{categoria.nombre}</span>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                                                             </svg>
                                                         </button>
                                                     ) : (
-                                                        <span className="text-sm text-[#1D3557]">{categoria.nombre}</span>
+                                                        <span className="text-sm text-stone-900">{categoria.nombre}</span>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center">
+                                            <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                                                 {categoria.descripcion || "-"}
                                             </td>
-                                            <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center">
+                                            <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                                                 <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
                                                     categoria.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-red-50 text-red-800'
                                                 }`}>
                                                     {categoria.activo ? 'Activo' : 'Inactivo'}
                                                 </span>
                                             </td>
-                                            <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center">
+                                            <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                                                 <div className="flex justify-center items-center gap-4">
                                                     <button
                                                         onClick={() => setCategoriaSeleccionada(categoria)}
-                                                        className="text-gray-400 hover:text-[#1D3557] transition-colors outline-none"
+                                                        className="text-gray-400 hover:text-stone-900 transition-colors outline-none"
                                                         title="Editar"
                                                     >
                                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -205,7 +205,7 @@ export default function CategoriaScreen() {
                                                     <button
                                                         onClick={() => context.actualizar({ ...categoria, activo: !categoria.activo })}
                                                         className={`transition-colors outline-none ${
-                                                            categoria.activo ? 'text-gray-400 hover:text-[#E63946]' : 'text-gray-400 hover:text-emerald-600'
+                                                            categoria.activo ? 'text-gray-400 hover:text-orange-600' : 'text-gray-400 hover:text-emerald-600'
                                                         }`}
                                                         title={categoria.activo ? "Dar de baja" : "Dar de alta"}
                                                     >
@@ -230,11 +230,11 @@ export default function CategoriaScreen() {
                 </div>
 
                 {totalPages > 1 && (
-                    <div className="flex justify-between items-center mt-6 border-t border-gray-100 pt-6">
+                    <div className="flex justify-between items-center mt-6 border-t border-orange-100 pt-6">
                         <button 
                             disabled={currentPage === 1}
                             onClick={() => setCurrentPage(p => p - 1)}
-                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                            className="px-4 py-2 border border-orange-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-orange-50 disabled:opacity-50 transition-colors"
                         >
                             Anterior
                         </button>
@@ -244,7 +244,7 @@ export default function CategoriaScreen() {
                         <button 
                             disabled={currentPage === totalPages}
                             onClick={() => setCurrentPage(p => p + 1)}
-                            className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                            className="px-4 py-2 border border-orange-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-orange-50 disabled:opacity-50 transition-colors"
                         >
                             Siguiente
                         </button>

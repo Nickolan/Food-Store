@@ -42,20 +42,20 @@ export default function ListaIngredientesScreen() {
     <div className="w-full">
       <div className="flex justify-between items-center px-4 mb-6">
         <div>
-          <h1 className="text-[#1D3557] text-2xl font-bold">Gestión de Ingredientes</h1>
+          <h1 className="text-stone-900 text-2xl font-bold">Gestión de Ingredientes</h1>
           <p className="text-gray-500 text-sm mt-1">
             Administrá el catálogo de ingredientes y alérgenos.
           </p>
         </div>
         <Link 
           to="/admin/formulario-ingrediente" 
-          className="bg-[#E63946] hover:bg-[#d92c3a] text-white font-bold px-4 py-2 rounded-lg transition-colors"
+          className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-4 py-2 rounded-lg transition-colors"
         >
           + Agregar Ingrediente
         </Link>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 w-full">
+      <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 w-full">
         <div className="flex justify-between items-center mb-6">
           <div className="flex gap-4 items-center">
             <input
@@ -63,12 +63,12 @@ export default function ListaIngredientesScreen() {
               placeholder="Buscar ingrediente..."
               value={filtroNombre}
               onChange={(e) => setFiltroNombre(e.target.value)}
-              className="h-10 rounded-lg border border-gray-200 px-3 text-sm text-[#1D3557] focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] outline-none w-52"
+              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none w-52"
             />
             <select
               value={filtroActivo}
               onChange={(e) => setFiltroActivo(e.target.value)}
-              className="h-10 rounded-lg border border-gray-200 px-3 text-sm text-[#1D3557] focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] outline-none"
+              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none"
             >
               <option value="todos">Todos los Estados</option>
               <option value="true">Solo Activos</option>
@@ -77,7 +77,7 @@ export default function ListaIngredientesScreen() {
             <select
               value={filtroAlergeno}
               onChange={(e) => setFiltroAlergeno(e.target.value)}
-              className="h-10 rounded-lg border border-gray-200 px-3 text-sm text-[#1D3557] focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] outline-none"
+              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none"
             >
               <option value="todos">Todos los Alérgenos</option>
               <option value="true">Sí (Alérgeno)</option>
@@ -91,7 +91,7 @@ export default function ListaIngredientesScreen() {
 
         <div className="w-full overflow-x-auto">
           <table className="w-full border-collapse">
-            <thead className="bg-gray-50 text-[#1D3557] text-xs uppercase font-bold">
+            <thead className="bg-orange-50 text-stone-900 text-xs uppercase font-bold">
               <tr>
                 <th className="py-3 px-4 text-center">ID</th>
                 <th className="py-3 px-4 text-center">Nombre</th>
@@ -104,23 +104,23 @@ export default function ListaIngredientesScreen() {
             <tbody className="bg-white">
               {filtrarIngredientes.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 px-4 text-center text-sm text-gray-400 border-b border-gray-100">
+                  <td colSpan={6} className="py-8 px-4 text-center text-sm text-gray-400 border-b border-orange-100">
                     No hay ingredientes para mostrar.
                   </td>
                 </tr>
               ) : (
                 filtrarIngredientes.map((i) => (
-                  <tr key={i.id} className="transition hover:bg-gray-50">
-                    <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center">
+                  <tr key={i.id} className="transition hover:bg-orange-50">
+                    <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                       {i.id}
                     </td>
-                    <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center font-medium">
+                    <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center font-medium">
                       {i.nombre}
                     </td>
-                    <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center">
+                    <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                       {i.descripcion || "Sin descripción"}
                     </td>
-                    <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center">
+                    <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                       {i.es_alergeno ? (
                         <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
                           Alérgeno
@@ -129,18 +129,18 @@ export default function ListaIngredientesScreen() {
                         <span className="text-gray-400">-</span>
                       )}
                     </td>
-                    <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center">
+                    <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
                         i.activo ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
                       }`}>
                         {i.activo ? 'Activo' : 'Inactivo'}
                       </span>
                     </td>
-                    <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center">
+                    <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                       <div className="flex justify-center items-center gap-4">
                         <button
                           onClick={() => navigate(`/admin/ingredientes/editar/${i.id}`)}
-                          className="text-gray-400 hover:text-[#1D3557] transition-colors outline-none"
+                          className="text-gray-400 hover:text-stone-900 transition-colors outline-none"
                           title="Editar"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -150,7 +150,7 @@ export default function ListaIngredientesScreen() {
                         <button
                           onClick={() => context.eliminar(i.id!)}
                           className={`transition-colors outline-none ${
-                            i.activo ? 'text-gray-400 hover:text-[#E63946]' : 'text-gray-400 hover:text-emerald-600'
+                            i.activo ? 'text-gray-400 hover:text-orange-600' : 'text-gray-400 hover:text-emerald-600'
                           }`}
                           title={i.activo ? "Dar de baja" : "Dar de alta"}
                         >
@@ -177,7 +177,7 @@ export default function ListaIngredientesScreen() {
           <button 
             disabled={pagina === 0}
             onClick={() => setPagina(p => p - 1)}
-            className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition"
+            className="bg-white border border-orange-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-50 transition"
           >
             Anterior
           </button>
@@ -187,7 +187,7 @@ export default function ListaIngredientesScreen() {
           <button 
             disabled={(pagina + 1) * limit >= context.total}
             onClick={() => setPagina(p => p + 1)}
-            className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition"
+            className="bg-white border border-orange-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-50 transition"
           >
             Siguiente
           </button>

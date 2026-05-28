@@ -17,3 +17,18 @@ export async function getMe(): Promise<Usuario> {
     const response = await api.get<Usuario>("/me");
     return response.data;
 }
+
+export async function logout(): Promise<void> {
+    await api.post("/logout");
+}
+
+export async function signUpApi(form_data: { nombre: string; apellido: string; email: string; celular: string; password: string }): Promise<Usuario> {
+    const response = await api.post<Usuario>("/", {
+        nombre: form_data.nombre,
+        apellido: form_data.apellido,
+        email: form_data.email,
+        celular: form_data.celular,
+        password: form_data.password
+    });
+    return response.data;
+}

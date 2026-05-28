@@ -33,7 +33,7 @@ const LoginForm = () => {
             className="bg-white rounded-[24px] w-full max-w-[520px] p-12 shadow-[0_10px_30px_rgba(0,0,0,0.05)]"
         >
             <div className="text-[#E63946] font-bold text-xl text-center mb-8">
-                FOOD-STORE
+                Sabor&Gestión
             </div>
             
             <h2 className="text-[#1D3557] text-3xl font-bold text-center mb-3">

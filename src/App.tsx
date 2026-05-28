@@ -12,6 +12,7 @@ import DashboardLayout from './features/DashboardLayout'
 import DashboardWelcome from './pages/DashboardWelcome'
 import { useAuth } from './context/authContext'
 import LandingScreen from './pages/LandingScreen'
+import SignUpScreen from './pages/SignUpScreen'
 
 function App() {
   const { getUsuarioFromToken } = useAuth();
@@ -26,8 +27,8 @@ function App() {
     <Routes>
       <Route path='/login' element={<LoginScreen />} />
       <Route path='/' element={<LandingScreen />} />
+      <Route path='/signup' element={<SignUpScreen />} />
       
-      {/* Tu ruta protegida ahora funcionará perfectamente */}
       <Route path='/admin' element={
           <ProtectedRoute rolesHabilitados={['ADMIN']}>
               <DashboardLayout />
@@ -38,7 +39,7 @@ function App() {
         <Route path='ingredientes' element={<ListaIngredientesScreen />} />
         <Route path='formulario-ingrediente' element={<CrearIngredienteScreen />} />
         <Route path='ingredientes/editar/:id' element={<EditarIngredienteScreen />} />
-        <Route path='admin/productos' element={<ProductosPage />} />
+        <Route path='productos' element={<ProductosPage />} />
       </Route>
     </Routes>
   )

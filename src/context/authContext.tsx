@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import type { Usuario } from "../models/Usuario";
-import { login as loginApi, getMe } from "../api/authApi";
+import { login as loginApi, getMe, logout as logoutApi, signUpApi } from "../api/authApi";
 
 interface AuthContextType {
     usuario: Usuario | null;
@@ -10,6 +10,7 @@ interface AuthContextType {
     error: string | null;
     login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
+    signUp: (nombre: string, apellido: string, email: string, celular: string, password: string) => Promise<boolean>;
     getUsuarioFromToken: () => Promise<Usuario>;
 }
 
@@ -41,8 +42,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const signUp = async (nombre: string, apellido: string, email: string, celular: string, password: string): Promise<boolean> => {
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await signUpApi({ nombre, apellido, email, celular, password });
+            console.log(data);
+            setUsuario(data);
+            return true;
+        } catch {
+            setError("Error al registrarse. Por favor, intentá nuevamente.");
+            return false;
+        } finally {
+            setLoading(false);
+        }
+    }
 
-    const logout = () => {
+
+    const logout = async () => {
+        await logoutApi();
         setUsuario(null);
         setError(null);
         setToken(null);
@@ -67,6 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 login,
                 logout,
                 token,
+                signUp,
                 getUsuarioFromToken
             }}
         >
