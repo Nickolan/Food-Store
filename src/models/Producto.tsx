@@ -1,9 +1,11 @@
 import type { Categoria } from "./Categoria";
 import type { Ingrediente } from "./Ingrediente";
-
+import type { UnidadMedida } from "./Unidad_medida";
 export interface ProductoIngrediente {
   ingrediente_id: number;
   es_removible: boolean;
+  cantidad: number;           
+  unidad_medida_id: number;
 }
 
 export interface ProductoBase {
@@ -21,14 +23,17 @@ export interface Producto extends ProductoBase {
   activo: boolean;
   categorias?: Categoria[];
   ingredientes?: Ingrediente[];
+  unidad_medida?: UnidadMedida | null;
 }
 
 export interface ProductoCreate extends ProductoBase {
   ingredientes?: ProductoIngrediente[];
+  unidad_venta_id?: number | null; 
 }
 
 export interface ProductoUpdate extends Partial<ProductoBase> {
   ingredientes?: ProductoIngrediente[];
+  unidad_venta_id?: number | null; 
 }
 
 // Para la respuesta completa con metadata de relaciones
@@ -41,6 +46,7 @@ export interface ProductoReadFull {
   stock_minimo: number;
   disponible: boolean;
   imagenes_url: string[];
+  unidad_medida?: UnidadMedida | null;
   activo: boolean;
   categorias: Array<{
     categoria: Categoria;

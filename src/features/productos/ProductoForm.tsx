@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import type { Producto, ProductoCreate, ProductoReadFull } from "../../models/Producto";
 import type { Ingrediente } from "../../models/Ingrediente";
 import { getIngredientes } from "../../api/ingredientesApi";
-
+import { getUnidadesMedida } from "../../api/unidadesMedidaApi";
+import type { UnidadMedida } from "../../models/Unidad_medida";
 interface Props {
   initial?: Producto | ProductoReadFull;  
   onSubmit: (producto: ProductoCreate) => void;
@@ -18,14 +19,16 @@ interface IngredienteSeleccionado {
   nombre: string;
   es_alergeno: boolean;
   es_removible: boolean;
+  cantidad: number;           
+  unidad_medida_id: number; 
 }
 
 export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
   const [ingredientesDisponibles, setIngredientesDisponibles] = useState<Ingrediente[]>([]);
   const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState<IngredienteSeleccionado[]>([]);
   const [selectedIngredienteId, setSelectedIngredienteId] = useState<number>(0);
-
-  // Cargar ingredientes disponibles
+  const [unidadesDisponibles, setUnidadesDisponibles] = useState<UnidadMedida[]>([]);
+  // cargar ingredientes disponibles
   useEffect(() => {
     const cargarIngredientes = async () => {
       try {
@@ -36,6 +39,15 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       }
     };
     cargarIngredientes();
+    const cargarUnidades = async () => {
+    try {
+      const response = await getUnidadesMedida();
+      setUnidadesDisponibles(response.items);
+    } catch (error) {
+      console.error("Error cargando unidades de medida:", error);
+    }
+  };
+  cargarUnidades();
   }, []);
 
   // Cargar ingredientes existentes si estamos editando
@@ -46,8 +58,9 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
         id: item.ingrediente.id,
         nombre: item.ingrediente.nombre,
         es_alergeno: item.ingrediente.es_alergeno || false,
-        es_removible: item.es_removible
-      }));
+        es_removible: item.es_removible,
+        cantidad: item.cantidad ?? 1,              
+        unidad_medida_id: item.unidad_medida_id ?? 0,      }));
       setIngredientesSeleccionados(ingredientesConRemovible);
     }
   }, [initial]);
@@ -68,7 +81,10 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
         alert("El producto debe tener al menos un ingrediente.");
         return;
       }
-
+      if (ingredientesSeleccionados.some(i => i.unidad_medida_id === 0)) {
+        alert("Todos los ingredientes deben tener una unidad de medida.");
+        return;
+      }
       const productoData: ProductoCreate = {
         nombre: value.nombre,
         descripcion: value.descripcion,
@@ -84,7 +100,9 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
           : [],
         ingredientes: ingredientesSeleccionados.map(ing => ({
           ingrediente_id: ing.id,
-          es_removible: ing.es_removible
+          es_removible: ing.es_removible,
+          cantidad: ing.cantidad,
+          unidad_medida_id: ing.unidad_medida_id,
         }))
       };
       onSubmit(productoData);
@@ -102,7 +120,9 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
           id: ingrediente.id!, 
           nombre: ingrediente.nombre, 
           es_alergeno: ingrediente.es_alergeno,
-          es_removible: false 
+          es_removible: false,
+          cantidad: 1,           
+          unidad_medida_id: 0, 
         }
       ]);
       setSelectedIngredienteId(0);
@@ -267,7 +287,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                 )}
               </form.Field>
             </div>
-        </form>
+        
 
       {/* Sección de Ingredientes */}
       <div className="sm:col-span-2 border-t border-gray-200 pt-4 mt-2">
@@ -310,6 +330,8 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Ingrediente</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Cantidad</th>       {/* ← agregar */}
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Unidad</th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">¿Removible?</th>
                   <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Acciones</th>
                 </tr>
@@ -324,6 +346,33 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                           Alérgeno
                         </span>
                       )}
+                    </td>
+                    <td className="px-4 py-2">
+                      <input
+                        type="number"
+                        min={0.01}
+                        step={0.01}
+                        value={ing.cantidad}
+                        onChange={(e) => setIngredientesSeleccionados(prev =>
+                          prev.map(i => i.id === ing.id ? { ...i, cantidad: Number(e.target.value) } : i)
+                        )}
+                        className="w-20 border border-gray-200 rounded px-2 py-1 text-sm text-center"
+                      />
+                    </td>
+
+                    <td className="px-4 py-2">
+                      <select
+                        value={ing.unidad_medida_id}
+                        onChange={(e) => setIngredientesSeleccionados(prev =>
+                          prev.map(i => i.id === ing.id ? { ...i, unidad_medida_id: Number(e.target.value) } : i)
+                        )}
+                        className="border border-gray-200 rounded px-2 py-1 text-sm"
+                      >
+                        <option value={0}>Seleccionar...</option>
+                        {unidadesDisponibles.map(u => (
+                          <option key={u.id} value={u.id}>{u.nombre} ({u.simbolo})</option>
+                        ))}
+                      </select>
                     </td>
                     <td className="px-4 py-2">
                       <label className="flex items-center gap-2 text-sm">
@@ -383,6 +432,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
           {initial ? "Guardar cambios" : "Crear producto"}
         </button>
       </div>
+      </form>
     </div>
     </div>
     </div>
