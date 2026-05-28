@@ -1,4 +1,4 @@
-import { createContext, use, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import type { Usuario } from "../models/Usuario";
 import { login as loginApi, getMe } from "../api/authApi";
 
@@ -10,7 +10,7 @@ interface AuthContextType {
     error: string | null;
     login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
-    getUsuarioFromToken: (token: string) => Promise<Usuario>;
+    getUsuarioFromToken: () => Promise<Usuario>;
 }
 
 
@@ -49,8 +49,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem('token');
     };
 
-    const getUsuarioFromToken = async (token: string) => {
-        const response = await getMe({ access_token: token });
+    const getUsuarioFromToken = async () => {
+        const response = await getMe();
         setUsuario(response);
         console.log("Usuario Obtenido: ", response);
         

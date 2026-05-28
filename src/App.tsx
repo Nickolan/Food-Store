@@ -1,5 +1,6 @@
 import './App.css'
 import { Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
 import LoginScreen from './pages/LoginScreen'
 import ListaIngredientesScreen from './pages/ListaIngredientesScreen'
 import CrearIngredienteScreen from './pages/CrearIngredienteScreen'
@@ -10,33 +11,28 @@ import ProtectedRoute from './features/ProtectedRoute'
 import DashboardLayout from './features/DashboardLayout'
 import DashboardWelcome from './pages/DashboardWelcome'
 import { useAuth } from './context/authContext'
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import LandingScreen from './pages/LandingScreen'
 
 function App() {
-  const {getUsuarioFromToken} = useAuth();
-  const navigate = useNavigate();
+  const { getUsuarioFromToken } = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      console.log(token);
-      
-      getUsuarioFromToken(token).then(() => {
-        navigate('/')
-      })
-      
-    } else {
-      console.log("No token found in localStorage.");
-    }
-  }, [])
+    getUsuarioFromToken().catch(() => {
+        console.log("No hay sesión activa o la cookie expiró.");
+    });
+  }, []);
+
   return (
     <Routes>
       <Route path='/login' element={<LoginScreen />} />
       <Route path='/' element={<LandingScreen />} />
       
-      <Route path='/admin' element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+      {/* Tu ruta protegida ahora funcionará perfectamente */}
+      <Route path='/admin' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN']}>
+              <DashboardLayout />
+          </ProtectedRoute>
+      }>
         <Route index element={<DashboardWelcome />} />
         <Route path='categorias' element={<CategoriaScreen />} />
         <Route path='ingredientes' element={<ListaIngredientesScreen />} />
@@ -48,4 +44,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

@@ -1,34 +1,51 @@
-import { useEffect } from 'react'
-import { Navigate } from 'react-router-dom'
-import { useAuth } from '../context/authContext'
+import { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/authContext';
 
-const ProtectedRoute = ({children, rolesHabilitados}: any) => {
-
-    const {getUsuarioFromToken} = useAuth();
+const ProtectedRoute = ({children, rolesHabilitados}: {children: React.ReactNode; rolesHabilitados: string[]}) => {
+    const { getUsuarioFromToken } = useAuth();
     
-      useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-          getUsuarioFromToken(token).then((usuario) => {
-            if (!usuario) {
-              localStorage.removeItem('token');
-              return <Navigate to="/" />;
-            }
+    const [isLoading, setIsLoading] = useState(true);
+    const [isAuthorized, setIsAuthorized] = useState(false);
 
-            // Revisar si el usuario tiene el rol necesario para acceder a la ruta protegida
-            const tieneRolHabilitado: boolean = usuario.roles.some((rol) => rolesHabilitados.includes(rol.codigo));
-            if (!tieneRolHabilitado) {
-              return <Navigate to="/" />;
-            }
-          })
-          
-        } else {
-          console.log("No token found in localStorage.");
-        }
-      }, [])
-    
+    useEffect(() => {
+        const verificarAcceso = async () => {
+            try {
+                const usuario = await getUsuarioFromToken();
+                
+                if (!usuario) {
+                    setIsAuthorized(false);
+                    return;
+                }
 
-    return children;
+                console.log("Roles del usuario: ", usuario.roles);
+                console.log("Roles Permitidos", rolesHabilitados);
+                
+                const tieneRolHabilitado = usuario.roles.some((rol) => 
+                    rolesHabilitados.includes(rol.codigo)
+                );
+                
+                setIsAuthorized(tieneRolHabilitado);
+            } catch (error) {
+                console.error("Error validando sesión:", error);
+                setIsAuthorized(false);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        verificarAcceso();
+    }, []); 
+
+    if (isLoading) {
+        return <div>Cargando validación de seguridad...</div>; 
+    }
+
+    if (!isAuthorized) {
+        return <Navigate to="/" replace />;
+    }
+
+    return <>{children}</>;
 }
 
-export default ProtectedRoute
+export default ProtectedRoute;
