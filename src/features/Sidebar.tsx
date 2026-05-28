@@ -1,11 +1,14 @@
 import { NavLink, Link } from 'react-router-dom';
+import { useAuth } from '../context/authContext';
+
 
 export default function Sidebar() {
+  const { logout } = useAuth();
   return (
-    <div className="h-screen bg-[#1D3557] flex flex-col w-[15%] min-w-[200px] shadow-[4px_0_24px_rgba(0,0,0,0.05)] z-50 relative">
+    <div className="h-screen bg-white border-r border-orange-100 flex flex-col w-[15%] min-w-[200px] z-50 relative">
       <div className="px-6 py-6">
-        <Link to="/" className="text-[#E63946] font-bold text-xl block hover:opacity-80 transition-opacity">
-          FOOD-STORE
+        <Link to="/" className="text-orange-600 font-bold text-xl block hover:opacity-80 transition-opacity">
+          Sabor&Gestión
         </Link>
       </div>
       <nav className="flex flex-col gap-2 mt-2">
@@ -14,8 +17,8 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `block transition-colors ${
               isActive
-                ? 'border-l-4 border-[#E63946] bg-white/5 text-[#E63946] px-6 py-3 font-bold text-sm'
-                : 'text-white/70 hover:text-white hover:bg-white/5 px-6 py-3 text-sm font-medium'
+                ? 'border-l-4 border-orange-600 bg-orange-50 text-orange-600 px-6 py-3 font-bold text-sm'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-orange-50 px-6 py-3 text-sm font-medium'
             }`
           }
         >
@@ -26,8 +29,8 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `block transition-colors ${
               isActive
-                ? 'border-l-4 border-[#E63946] bg-white/5 text-[#E63946] px-6 py-3 font-bold text-sm'
-                : 'text-white/70 hover:text-white hover:bg-white/5 px-6 py-3 text-sm font-medium'
+                ? 'border-l-4 border-orange-600 bg-orange-50 text-orange-600 px-6 py-3 font-bold text-sm'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-orange-50 px-6 py-3 text-sm font-medium'
             }`
           }
         >
@@ -38,8 +41,8 @@ export default function Sidebar() {
           className={({ isActive }) =>
             `block transition-colors ${
               isActive
-                ? 'border-l-4 border-[#E63946] bg-white/5 text-[#E63946] px-6 py-3 font-bold text-sm'
-                : 'text-white/70 hover:text-white hover:bg-white/5 px-6 py-3 text-sm font-medium'
+                ? 'border-l-4 border-orange-600 bg-orange-50 text-orange-600 px-6 py-3 font-bold text-sm'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-orange-50 px-6 py-3 text-sm font-medium'
             }`
           }
         >
@@ -47,10 +50,9 @@ export default function Sidebar() {
         </NavLink>
       </nav>
       <button
-        className="text-[#E63946] font-bold px-6 py-3 hover:bg-[#E63946]/10 transition-colors w-full text-left mt-auto mb-8"
+        className="text-orange-600 font-bold px-6 py-3 hover:bg-orange-50 transition-colors w-full text-left mt-auto mb-8"
         onClick={() => {
-          localStorage.removeItem('token');
-          window.location.href = '/login';
+          logout();
         }}
       >
         Cerrar Sesión

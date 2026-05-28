@@ -134,8 +134,8 @@ export const ProductosPage = () => {
     <div className="w-full">
       <div className="flex justify-between items-center px-4 mb-6">
         <div>
-          <h1 className="text-[#1D3557] text-2xl font-bold">Gestión de Productos</h1>
-          <p className="text-gray-500 text-sm mt-1">
+          <h1 className="text-stone-900 text-2xl font-bold">Gestión de Productos</h1>
+          <p className="text-stone-500 text-sm mt-1">
             Administrá el catálogo de productos del local.
           </p>
         </div>
@@ -145,19 +145,19 @@ export const ProductosPage = () => {
             setEditing(undefined);
             setShowForm(true);
           }}
-          className="bg-[#E63946] text-white font-bold px-4 py-2 rounded-lg hover:bg-[#d92c3a] transition"
+          className="bg-orange-600 text-white font-bold px-4 py-2 rounded-lg hover:bg-orange-700 transition focus:ring-2 focus:ring-orange-600 focus:ring-offset-2"
         >
           + Nuevo producto
         </button>
       </div>
 
       {showForm && (
-        <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-base font-semibold text-gray-800">
+        <div className="mb-6 rounded-xl border border-orange-200 bg-white p-6 shadow-sm focus-within:border-orange-600">
+          <h2 className="mb-4 text-base font-semibold text-stone-800">
             {editing ? "Editar producto" : "Nuevo producto"}
           </h2>
           {isLoadingProducto ? (
-            <p className="text-center py-8 text-gray-500">Cargando ingredientes del producto...</p>
+            <p className="text-center py-8 text-stone-500">Cargando ingredientes del producto...</p>
           ) : (
             <ProductoForm
               initial={editing}
