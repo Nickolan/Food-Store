@@ -36,7 +36,7 @@ export default function EditarIngredienteScreen() {
 
       alert("Ingrediente no encontrado")
 
-      navigate("/ingredientes")
+      navigate("/admin/ingredientes")
 
     }
 
@@ -49,7 +49,7 @@ export default function EditarIngredienteScreen() {
   }, [id, ingredientes, setIngredienteSeleccionado])
 
   return (
-    <FormularioIngrediente onSuccess={() => { navigate("/ingredientes") }} onCancel={() => { navigate("/ingredientes") }} />
+    <FormularioIngrediente onSuccess={() => { navigate("/admin/ingredientes") }} onCancel={() => { navigate("/admin/ingredientes") }} />
   )
 
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Categoria } from "../models/Categoria";
 
-const api = axios.create({ baseURL: "http://localhost:8000" });
+const api = axios.create({ baseURL: "http://localhost:8000", withCredentials: true  });
 
 export const getCategorias = async () => {
   const response = await api.get<{ total: number; items: Categoria[] }>("/categorias/?limit=100");
