@@ -38,7 +38,7 @@ function App() {
         <Route path='ingredientes' element={<ListaIngredientesScreen />} />
         <Route path='formulario-ingrediente' element={<CrearIngredienteScreen />} />
         <Route path='ingredientes/editar/:id' element={<EditarIngredienteScreen />} />
-        <Route path='productos' element={<ProductosPage />} />
+        <Route path='admin/productos' element={<ProductosPage />} />
       </Route>
     </Routes>
   )
