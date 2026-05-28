@@ -10,8 +10,6 @@ export default function ListaIngredientesScreen() {
 
   const context = useContext(IngredientesContext)
   const navigate = useNavigate()
-
-  if (!context) return null
   const [pagina, setPagina] = useState(0);
   const [limit] = useState(10);
   const [filtroNombre, setFiltroNombre] = useState("")
@@ -21,8 +19,10 @@ export default function ListaIngredientesScreen() {
   const [filtroAlergeno, setFiltroAlergeno] = useState("todos")
 
   useEffect(() => {
-    context.getIngredientes(pagina * limit, limit);
+    if (!context) return
+    context.cargar({ offset: pagina * limit, limit })
   }, [pagina]);
+  if (!context) return null
   const inicio = pagina * limit + 1;
 
   const fin = Math.min((pagina * limit) + context.ingredientes.length, context.total);
