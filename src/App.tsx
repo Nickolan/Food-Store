@@ -23,10 +23,9 @@ function App() {
     if (token) {
       console.log(token);
       
-      getUsuarioFromToken(token).then((usuario) => {
+      getUsuarioFromToken(token).then(() => {
         navigate('/')
-      }
-    )
+      })
       
     } else {
       console.log("No token found in localStorage.");

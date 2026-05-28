@@ -1,5 +1,5 @@
-import React from 'react';
 import Navbar from '../features/Navbar';
+import { Link } from 'react-router-dom';
 
 function LandingScreen() {
   return (
@@ -17,9 +17,9 @@ function LandingScreen() {
             Explora nuestro catálogo, personaliza tus pedidos con los mejores ingredientes y guarda tus direcciones para recibir tu comida caliente y a tiempo.
           </p>
           <div className="flex gap-4 pt-4">
-            <button className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-full font-semibold text-lg transition-colors shadow-md">
+            <Link to={"/catalogo"} className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-full font-semibold text-lg transition-colors shadow-md">
               Ver Catalogo
-            </button>
+            </Link>
           </div>
         </div>
 
