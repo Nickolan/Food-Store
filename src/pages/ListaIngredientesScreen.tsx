@@ -48,7 +48,7 @@ export default function ListaIngredientesScreen() {
           </p>
         </div>
         <Link 
-          to="/formulario-ingrediente" 
+          to="/admin/formulario-ingrediente" 
           className="bg-[#E63946] hover:bg-[#d92c3a] text-white font-bold px-4 py-2 rounded-lg transition-colors"
         >
           + Agregar Ingrediente
@@ -139,7 +139,7 @@ export default function ListaIngredientesScreen() {
                     <td className="py-4 px-4 border-b border-gray-100 text-[#1D3557] text-sm text-center">
                       <div className="flex justify-center items-center gap-4">
                         <button
-                          onClick={() => navigate(`/ingredientes/editar/${i.id}`)}
+                          onClick={() => navigate(`/admin/ingredientes/editar/${i.id}`)}
                           className="text-gray-400 hover:text-[#1D3557] transition-colors outline-none"
                           title="Editar"
                         >

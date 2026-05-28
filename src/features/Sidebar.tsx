@@ -10,7 +10,7 @@ export default function Sidebar() {
       </div>
       <nav className="flex flex-col gap-2 mt-2">
         <NavLink
-          to="/categorias"
+          to="/admin/categorias"
           className={({ isActive }) =>
             `block transition-colors ${
               isActive
@@ -22,7 +22,7 @@ export default function Sidebar() {
           Categorías
         </NavLink>
         <NavLink
-          to="/ingredientes"
+          to="/admin/ingredientes"
           className={({ isActive }) =>
             `block transition-colors ${
               isActive
@@ -34,7 +34,7 @@ export default function Sidebar() {
           Ingredientes
         </NavLink>
         <NavLink
-          to="/productos"
+          to="/admin/productos"
           className={({ isActive }) =>
             `block transition-colors ${
               isActive
