@@ -29,11 +29,13 @@ export interface Producto extends ProductoBase {
 export interface ProductoCreate extends ProductoBase {
   ingredientes?: ProductoIngrediente[];
   unidad_venta_id?: number | null; 
+  categorias_ids: number[];
 }
 
 export interface ProductoUpdate extends Partial<ProductoBase> {
   ingredientes?: ProductoIngrediente[];
   unidad_venta_id?: number | null; 
+  categorias_ids: number[];
 }
 
 // Para la respuesta completa con metadata de relaciones
