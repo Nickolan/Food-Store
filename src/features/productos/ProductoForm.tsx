@@ -70,7 +70,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
   useEffect(() => {
     if (initial && (initial as ProductoReadFull).ingredientes) {
       const productoFull = initial as ProductoReadFull;
-      const ingredientesConRemovible = productoFull.ingredientes.map((item: any) => ({
+      const ingredientesConRemovible = productoFull.ingredientes.map((item) => ({
         id: item.ingrediente.id,
         nombre: item.ingrediente.nombre,
         es_alergeno: item.ingrediente.es_alergeno || false,
@@ -97,6 +97,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       stock_minimo: initial?.stock_minimo ?? 0,
       disponible: initial?.disponible ?? true,
       imagenes_url: initial?.imagenes_url?.join(", ") ?? "",
+      unidad_venta_id: (initial as ProductoReadFull | undefined)?.unidad_medida?.id ?? 0,
     },
     onSubmit: async ({ value }) => {
       if (ingredientesSeleccionados.length === 0) {
@@ -125,6 +126,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
               .filter(Boolean)
           : [],
         categorias_ids: selectedCategoriasIds,
+        unidad_venta_id: value.unidad_venta_id !== 0 ? value.unidad_venta_id : null,
         ingredientes: ingredientesSeleccionados.map(ing => ({
           ingrediente_id: ing.id,
           es_removible: ing.es_removible,
@@ -292,6 +294,33 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                   <label htmlFor="disponible" className="text-sm font-bold text-[#1D3557] ml-2">
                     Disponible para venta
                   </label>
+                </div>
+              )}
+            </form.Field>
+
+            <form.Field name="unidad_venta_id">
+              {(f) => (
+                <div>
+                  <label className={labelCls}>
+                    Unidad de venta{" "}
+                    <span className="font-normal text-gray-400">(opcional)</span>
+                  </label>
+                  <select
+                    id="unidad-venta"
+                    className={inputCls}
+                    value={f.state.value}
+                    onChange={(e) => f.handleChange(Number(e.target.value))}
+                  >
+                    <option value={0}>Sin unidad de venta</option>
+                    {unidadesDisponibles.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.nombre} ({u.simbolo})
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-gray-400">
+                    Ej: unidad, porción, kg — cómo se vende este producto al cliente.
+                  </p>
                 </div>
               )}
             </form.Field>
