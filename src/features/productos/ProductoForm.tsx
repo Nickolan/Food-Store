@@ -5,6 +5,10 @@ import type { Ingrediente } from "../../models/Ingrediente";
 import { getIngredientes } from "../../api/ingredientesApi";
 import { getUnidadesMedida } from "../../api/unidadesMedidaApi";
 import type { UnidadMedida } from "../../models/Unidad_medida";
+import { getCategorias } from "../../api/categoriasApi";
+import type { Categoria } from "../../models/Categoria";
+
+
 interface Props {
   initial?: Producto | ProductoReadFull;  
   onSubmit: (producto: ProductoCreate) => void;
@@ -28,7 +32,9 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
   const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState<IngredienteSeleccionado[]>([]);
   const [selectedIngredienteId, setSelectedIngredienteId] = useState<number>(0);
   const [unidadesDisponibles, setUnidadesDisponibles] = useState<UnidadMedida[]>([]);
-  // cargar ingredientes disponibles
+  const [categoriasDisponibles, setCategoriasDisponibles] = useState<Categoria[]>([]);
+  const [selectedCategoriasIds, setSelectedCategoriasIds] = useState<number[]>([]);
+
   useEffect(() => {
     const cargarIngredientes = async () => {
       try {
@@ -39,18 +45,28 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       }
     };
     cargarIngredientes();
+
     const cargarUnidades = async () => {
-    try {
-      const response = await getUnidadesMedida();
-      setUnidadesDisponibles(response.items);
-    } catch (error) {
-      console.error("Error cargando unidades de medida:", error);
-    }
-  };
-  cargarUnidades();
+      try {
+        const response = await getUnidadesMedida();
+        setUnidadesDisponibles(response.items);
+      } catch (error) {
+        console.error("Error cargando unidades de medida:", error);
+      }
+    };
+    cargarUnidades();
+
+    const cargarCategorias = async () => {
+      try {
+        const cats = await getCategorias();
+        setCategoriasDisponibles(cats.filter(c => c.activo));
+      } catch (error) {
+        console.error("Error cargando categorías:", error);
+      }
+    };
+    cargarCategorias();
   }, []);
 
-  // Cargar ingredientes existentes si estamos editando
   useEffect(() => {
     if (initial && (initial as ProductoReadFull).ingredientes) {
       const productoFull = initial as ProductoReadFull;
@@ -59,10 +75,16 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
         nombre: item.ingrediente.nombre,
         es_alergeno: item.ingrediente.es_alergeno || false,
         es_removible: item.es_removible,
-        cantidad: item.cantidad ?? 1,
+        cantidad: item.cantidad ?? 1,              
         unidad_medida_id: item.unidad_medida_id ?? 0,
       }));
       setIngredientesSeleccionados(ingredientesConRemovible);
+    }
+
+    if (initial && (initial as ProductoReadFull).categorias) {
+      const productoFull = initial as ProductoReadFull;
+      const ids = productoFull.categorias.map((item: any) => item.categoria.id);
+      setSelectedCategoriasIds(ids);
     }
   }, [initial]);
 
@@ -78,13 +100,16 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       unidad_venta_id: (initial as ProductoReadFull | undefined)?.unidad_medida?.id ?? 0,
     },
     onSubmit: async ({ value }) => {
-      // VALIDACIÓN: el producto debe tener al menos un ingrediente
       if (ingredientesSeleccionados.length === 0) {
         alert("El producto debe tener al menos un ingrediente.");
         return;
       }
       if (ingredientesSeleccionados.some(i => i.unidad_medida_id === 0)) {
         alert("Todos los ingredientes deben tener una unidad de medida.");
+        return;
+      }
+      if (selectedCategoriasIds.length === 0) {
+        alert("El producto debe tener al menos una categoría.");
         return;
       }
       const productoData: ProductoCreate = {
@@ -100,6 +125,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
               .map((s: string) => s.trim())
               .filter(Boolean)
           : [],
+        categorias_ids: selectedCategoriasIds,
         unidad_venta_id: value.unidad_venta_id !== 0 ? value.unidad_venta_id : null,
         ingredientes: ingredientesSeleccionados.map(ing => ({
           ingrediente_id: ing.id,
@@ -144,7 +170,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative flex flex-col max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl relative flex flex-col max-h-[90vh] overflow-y-auto overflow-x-auto">
         <div className="p-6">
           <button 
             onClick={onCancel}
@@ -317,154 +343,179 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                 )}
               </form.Field>
             </div>
-        
 
-      {/* Sección de Ingredientes */}
-      <div className="sm:col-span-2 border-t border-gray-200 pt-4 mt-2">
-        <label className={labelCls + " text-base font-semibold"}>
-          Ingredientes del producto *
-        </label>
-        <p className="text-xs text-gray-500 mb-3">
-          Especificá los ingredientes y si pueden ser removidos por el cliente. El producto debe tener al menos un ingrediente.
-        </p>
-
-        {/* Selector para agregar ingredientes */}
-        <div className="flex gap-2 mb-3">
-          <select
-            className={inputCls}
-            value={selectedIngredienteId}
-            onChange={(e) => setSelectedIngredienteId(Number(e.target.value))}
-          >
-            <option value={0}>Seleccionar ingrediente...</option>
-            {ingredientesDisponibles
-              .filter(ing => !ingredientesSeleccionados.some(sel => sel.id === ing.id))
-              .map(ing => (
-                <option key={ing.id} value={ing.id}>
-                  {ing.nombre} {ing.es_alergeno ? "⚠️ Alérgeno" : ""}
-                </option>
-              ))}
-          </select>
-          <button
-            type="button"
-            onClick={agregarIngrediente}
-            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
-          >
-            Agregar
-          </button>
-        </div>
-
-        {/* Lista de ingredientes seleccionados */}
-        {ingredientesSeleccionados.length > 0 ? (
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Ingrediente</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Cantidad</th>       {/* ← agregar */}
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Unidad</th>
-                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">¿Removible?</th>
-                  <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {ingredientesSeleccionados.map((ing) => (
-                  <tr key={ing.id}>
-                    <td className="px-4 py-2 text-sm text-gray-900">
-                      {ing.nombre}
-                      {ing.es_alergeno && (
-                        <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
-                          Alérgeno
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-2">
-                      <input
-                        type="number"
-                        min={0.01}
-                        step={0.01}
-                        value={ing.cantidad}
-                        onChange={(e) => setIngredientesSeleccionados(prev =>
-                          prev.map(i => i.id === ing.id ? { ...i, cantidad: Number(e.target.value) } : i)
-                        )}
-                        className="w-20 border border-gray-200 rounded px-2 py-1 text-sm text-center"
-                      />
-                    </td>
-
-                    <td className="px-4 py-2">
-                      <select
-                        value={ing.unidad_medida_id}
-                        onChange={(e) => setIngredientesSeleccionados(prev =>
-                          prev.map(i => i.id === ing.id ? { ...i, unidad_medida_id: Number(e.target.value) } : i)
-                        )}
-                        className="border border-gray-200 rounded px-2 py-1 text-sm"
-                      >
-                        <option value={0}>Seleccionar...</option>
-                        {unidadesDisponibles.map(u => (
-                          <option key={u.id} value={u.id}>{u.nombre} ({u.simbolo})</option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="px-4 py-2">
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={ing.es_removible}
-                          onChange={() => toggleRemovible(ing.id)}
-                          className="rounded border-gray-300 text-blue-600"
-                        />
-                        <span className="text-xs text-gray-600">
-                          {ing.es_removible ? "El cliente puede quitarlo" : "Ingrediente fijo"}
-                        </span>
-                      </label>
-                    </td>
-                    <td className="px-4 py-2 text-right">
-                      <button
-                        type="button"
-                        onClick={() => removerIngrediente(ing.id)}
-                        disabled={ingredientesSeleccionados.length === 1}
-                        className={`text-red-600 hover:text-red-800 text-sm ${
-                          ingredientesSeleccionados.length === 1 ? "opacity-40 cursor-not-allowed" : ""
-                        }`}
-                        title={ingredientesSeleccionados.length === 1 ? "No se puede eliminar el único ingrediente" : "Quitar ingrediente"}
-                      >
-                        Quitar
-                      </button>
-                    </td>
-                  </tr>
+            {/* Sección de Categorías */}
+            <div className="border-t border-gray-200 pt-4 mt-2">
+              <label className={labelCls + " text-base font-semibold"}>
+                Categorías *
+              </label>
+              {selectedCategoriasIds.length === 0 && (
+                <p className="text-xs text-red-500 mb-2">Seleccioná al menos una categoría.</p>
+              )}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                {categoriasDisponibles.map(cat => (
+                  <label key={cat.id} className="flex items-center gap-2 text-sm text-[#1D3557] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategoriasIds.includes(cat.id!)}
+                      onChange={(e) => {
+                        setSelectedCategoriasIds(prev =>
+                          e.target.checked
+                            ? [...prev, cat.id!]
+                            : prev.filter(id => id !== cat.id)
+                        );
+                      }}
+                      className="rounded border-gray-300 text-[#E63946] focus:ring-[#E63946]"
+                    />
+                    {cat.nombre}
+                  </label>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="text-sm text-red-500 text-center py-4 border border-red-300 border-dashed rounded-lg bg-red-50">
-            ⚠️ Debes agregar al menos un ingrediente al producto.
-          </p>
-        )}
-      </div>
+              </div>
+            </div>
 
-      <div className="sm:col-span-2 flex justify-end gap-2 pt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          disabled={ingredientesSeleccionados.length === 0}
-          className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${
-            ingredientesSeleccionados.length === 0
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {initial ? "Guardar cambios" : "Crear producto"}
-        </button>
+            {/* Sección de Ingredientes */}
+            <div className="sm:col-span-2 border-t border-gray-200 pt-4 mt-2">
+              <label className={labelCls + " text-base font-semibold"}>
+                Ingredientes del producto *
+              </label>
+              <p className="text-xs text-gray-500 mb-3">
+                Especificá los ingredientes y si pueden ser removidos por el cliente. El producto debe tener al menos un ingrediente.
+              </p>
+
+              <div className="flex gap-2 mb-3">
+                <select
+                  className={inputCls}
+                  value={selectedIngredienteId}
+                  onChange={(e) => setSelectedIngredienteId(Number(e.target.value))}
+                >
+                  <option value={0}>Seleccionar ingrediente...</option>
+                  {ingredientesDisponibles
+                    .filter(ing => !ingredientesSeleccionados.some(sel => sel.id === ing.id))
+                    .map(ing => (
+                      <option key={ing.id} value={ing.id}>
+                        {ing.nombre} {ing.es_alergeno ? "⚠️ Alérgeno" : ""}
+                      </option>
+                    ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={agregarIngrediente}
+                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
+                >
+                  Agregar
+                </button>
+              </div>
+
+              {ingredientesSeleccionados.length > 0 ? (
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Ingrediente</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Cantidad</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">Unidad</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-500">¿Removible?</th>
+                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-500">Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                      {ingredientesSeleccionados.map((ing) => (
+                        <tr key={ing.id}>
+                          <td className="px-4 py-2 text-sm text-gray-900">
+                            {ing.nombre}
+                            {ing.es_alergeno && (
+                              <span className="ml-2 inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800">
+                                Alérgeno
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-2">
+                            <input
+                              type="number"
+                              min={0.01}
+                              step={0.01}
+                              value={ing.cantidad}
+                              onChange={(e) => setIngredientesSeleccionados(prev =>
+                                prev.map(i => i.id === ing.id ? { ...i, cantidad: Number(e.target.value) } : i)
+                              )}
+                              className="w-20 border border-gray-200 rounded px-2 py-1 text-sm text-center"
+                            />
+                          </td>
+                          <td className="px-4 py-2">
+                            <select
+                              value={ing.unidad_medida_id}
+                              onChange={(e) => setIngredientesSeleccionados(prev =>
+                                prev.map(i => i.id === ing.id ? { ...i, unidad_medida_id: Number(e.target.value) } : i)
+                              )}
+                              className="border border-gray-200 rounded px-2 py-1 text-sm"
+                            >
+                              <option value={0}>Seleccionar...</option>
+                              {unidadesDisponibles.map(u => (
+                                <option key={u.id} value={u.id}>{u.nombre} ({u.simbolo})</option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="px-4 py-2">
+                            <label className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={ing.es_removible}
+                                onChange={() => toggleRemovible(ing.id)}
+                                className="rounded border-gray-300 text-blue-600"
+                              />
+                              <span className="text-xs text-gray-600">
+                                {ing.es_removible ? "El cliente puede quitarlo" : "Ingrediente fijo"}
+                              </span>
+                            </label>
+                          </td>
+                          <td className="px-4 py-2 text-right">
+                            <button
+                              type="button"
+                              onClick={() => removerIngrediente(ing.id)}
+                              disabled={ingredientesSeleccionados.length === 1}
+                              className={`text-red-600 hover:text-red-800 text-sm ${
+                                ingredientesSeleccionados.length === 1 ? "opacity-40 cursor-not-allowed" : ""
+                              }`}
+                              title={ingredientesSeleccionados.length === 1 ? "No se puede eliminar el único ingrediente" : "Quitar ingrediente"}
+                            >
+                              Quitar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-sm text-red-500 text-center py-4 border border-red-300 border-dashed rounded-lg bg-red-50">
+                  ⚠️ Debes agregar al menos un ingrediente al producto.
+                </p>
+              )}
+            </div>
+
+            <div className="sm:col-span-2 flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={ingredientesSeleccionados.length === 0 || selectedCategoriasIds.length === 0}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${
+                  ingredientesSeleccionados.length === 0 || selectedCategoriasIds.length === 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }`}
+              >
+                {initial ? "Guardar cambios" : "Crear producto"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-      </form>
-    </div>
-    </div>
     </div>
   );
 };
