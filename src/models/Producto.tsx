@@ -55,5 +55,7 @@ export interface ProductoReadFull {
   ingredientes: Array<{
     ingrediente: Ingrediente;
     es_removible: boolean;
+    cantidad: number;
+    unidad_medida_id: number | null;
   }>;
 }
