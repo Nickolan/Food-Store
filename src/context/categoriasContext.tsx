@@ -23,7 +23,7 @@ export const CategoriasProvider=({children}:{children:ReactNode})=>{
     useEffect(()=>{
         const cargarCategorias = async () => {
             try {
-                const datos = await getCategorias();
+                const datos = await getCategorias({});
                 dispatch({ type: "GET_CATEGORIAS", payload: datos });
             } catch (error) {
                 console.error("Error al obtener categorias:", error);

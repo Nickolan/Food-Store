@@ -13,6 +13,7 @@ import DashboardWelcome from './pages/DashboardWelcome'
 import { useAuth } from './context/authContext'
 import LandingScreen from './pages/LandingScreen'
 import SignUpScreen from './pages/SignUpScreen'
+import CatalogoScreen from './pages/CatalogoScreen'
 
 function App() {
   const { getUsuarioFromToken } = useAuth();
@@ -28,6 +29,7 @@ function App() {
       <Route path='/login' element={<LoginScreen />} />
       <Route path='/' element={<LandingScreen />} />
       <Route path='/signup' element={<SignUpScreen />} />
+      <Route path='/catalogo' element={<CatalogoScreen />} />
       
       <Route path='/admin' element={
           <ProtectedRoute rolesHabilitados={['ADMIN']}>
