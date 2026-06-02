@@ -88,3 +88,8 @@ export const reactivarProducto = async (id: number): Promise<Producto> => {
   const response = await api.put<Producto>(`/productos/${id}/reactivar`);
   return response.data;
 };
+
+export const productosPorCategoria = async (id: number): Promise<ProductoPaginadoResponse> => {
+  const response = await api.get<ProductoPaginadoResponse>(`/productos/${id}/categoria`);
+  return response.data;
+}
