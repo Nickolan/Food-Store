@@ -58,7 +58,9 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
 
     const cargarCategorias = async () => {
       try {
-        const cats = await getCategorias();
+        const cats = await getCategorias({});
+        console.log(cats);
+        
         setCategoriasDisponibles(cats.filter(c => c.activo));
       } catch (error) {
         console.error("Error cargando categorías:", error);

@@ -23,6 +23,8 @@ export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredi
 
         descripcion: "",
 
+        stock_cantidad: 0,
+
         activo: true,
 
         es_alergeno: false
@@ -77,6 +79,8 @@ export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredi
 
             descripcion: "",
 
+            stock_cantidad: 0,
+
             activo: true,
 
             es_alergeno: false
@@ -97,6 +101,8 @@ export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredi
 
                 descripcion: context.ingredienteSeleccionado.descripcion,
 
+                stock_cantidad: context.ingredienteSeleccionado.stock_cantidad,
+
                 activo: context.ingredienteSeleccionado.activo,
 
                 es_alergeno: context.ingredienteSeleccionado.es_alergeno
@@ -110,6 +116,8 @@ export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredi
                 nombre: "",
 
                 descripcion: "",
+
+                stock_cantidad: 0,
 
                 activo: true,
 
@@ -162,7 +170,19 @@ export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredi
                                 onChange={handleChange}
                                 className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-[#1D3557] focus:outline-none focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] transition-all bg-gray-50/50 focus:bg-white min-h-[100px]"
                                 placeholder="Descripcion del ingrediente"
-                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-bold text-[#1D3557] mb-1.5">Stock disponible</label>
+                            <input
+                                type="number"
+                                name="stock_cantidad"
+                                value={formData.stock_cantidad}
+                                min={0}
+                                onChange={(e) => setFormData({ ...formData, stock_cantidad: Math.max(0, Number(e.target.value)) })}
+                                className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-[#1D3557] focus:outline-none focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] transition-all bg-gray-50/50 focus:bg-white"
+                                placeholder="0"
                             />
                         </div>
 

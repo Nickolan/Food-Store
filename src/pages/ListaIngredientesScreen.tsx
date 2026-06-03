@@ -96,6 +96,7 @@ export default function ListaIngredientesScreen() {
                 <th className="py-3 px-4 text-center">ID</th>
                 <th className="py-3 px-4 text-center">Nombre</th>
                 <th className="py-3 px-4 text-center">Descripción</th>
+                <th className="py-3 px-4 text-center">Stock</th>
                 <th className="py-3 px-4 text-center">Alérgeno</th>
                 <th className="py-3 px-4 text-center">Estado</th>
                 <th className="py-3 px-4 text-center">Acciones</th>
@@ -104,7 +105,7 @@ export default function ListaIngredientesScreen() {
             <tbody className="bg-white">
               {filtrarIngredientes.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 px-4 text-center text-sm text-gray-400 border-b border-orange-100">
+                  <td colSpan={7} className="py-8 px-4 text-center text-sm text-gray-400 border-b border-orange-100">
                     No hay ingredientes para mostrar.
                   </td>
                 </tr>
@@ -119,6 +120,15 @@ export default function ListaIngredientesScreen() {
                     </td>
                     <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                       {i.descripcion || "Sin descripción"}
+                    </td>
+                    <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                        i.stock_cantidad === 0
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-emerald-100 text-emerald-700'
+                      }`}>
+                        {i.stock_cantidad}
+                      </span>
                     </td>
                     <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                       {i.es_alergeno ? (

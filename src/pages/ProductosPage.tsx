@@ -50,8 +50,15 @@ export const ProductosPage = () => {
       setEditing(undefined);
     },
     onError: (error: any) => {
-      const mensaje = error.response?.data?.detail || "Error al crear producto. Verifique que tenga al menos un ingrediente.";
-      alert(mensaje);
+      const detail = error.response?.data?.detail;
+      if (detail && typeof detail === "object" && detail.ingredientes_sin_stock) {
+        const lista = detail.ingredientes_sin_stock
+          .map((i: any) => `\u2022 ${i.nombre}: tenés ${i.stock_disponible}, necesitás ${i.cantidad_requerida} (faltan ${i.faltante})`)
+          .join("\n");
+        alert(`${detail.mensaje}\n\n${lista}`);
+      } else {
+        alert(typeof detail === "string" ? detail : "Error al crear el producto.");
+      }
     }
   });
 
