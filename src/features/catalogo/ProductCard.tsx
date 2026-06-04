@@ -3,13 +3,17 @@ import type { Producto } from '../../models/Producto';
 interface Props {
   producto: Producto;
   onAgregarAlCarrito?: (producto: Producto) => void;
+  onSeleccionarProducto?: (producto: Producto) => void;  // NUEVO
 }
 
-function ProductCard({ producto, onAgregarAlCarrito }: Props) {
+function ProductCard({ producto, onAgregarAlCarrito, onSeleccionarProducto }: Props) {
   const imagenUrl = producto.imagenes_url?.[0];
 
   return (
-    <article className="group bg-white rounded-2xl border border-orange-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col">
+    <article 
+      className="group bg-white rounded-2xl border border-orange-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
+      onClick={() => onSeleccionarProducto?.(producto)}  // Click en toda la card
+    >
       {/* Imagen */}
       <div className="relative w-full h-48 bg-orange-50 overflow-hidden flex items-center justify-center">
         {imagenUrl ? (
@@ -59,7 +63,10 @@ function ProductCard({ producto, onAgregarAlCarrito }: Props) {
           </span>
           <button
             id={`btn-carrito-${producto.id}`}
-            onClick={() => onAgregarAlCarrito?.(producto)}
+            onClick={(e) => {
+              e.stopPropagation();  
+              onAgregarAlCarrito?.(producto);
+            }}
             disabled={!producto.disponible}
             className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 disabled:bg-stone-200 disabled:cursor-not-allowed text-white disabled:text-stone-400 px-4 py-2 rounded-xl font-semibold text-sm transition-colors duration-200 shadow-sm hover:shadow-md"
           >

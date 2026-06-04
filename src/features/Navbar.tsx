@@ -6,9 +6,9 @@ function Navbar() {
     if (!isAuthenticated) {
         return (
             <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
-                <div className="text-2xl font-bold text-orange-600 tracking-tight">
-                    Sabor&Gestión
-                </div>
+                <Link to="/" className="text-2xl font-bold text-orange-600 tracking-tight">
+                        Sabor&Gestión
+                </Link>
                 <div className="space-x-4">
                     <Link
                         to="/login"
@@ -38,9 +38,9 @@ function Navbar() {
 
     return (
         <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
-            <div className="text-2xl font-bold text-orange-600 tracking-tight">
-                Sabor&Gestión
-            </div>
+            <Link to="/" className="text-2xl font-bold text-orange-600 tracking-tight">
+                        Sabor&Gestión
+            </Link>
             <div className="flex items-center gap-6">
                 {isAdmin && (
                     <Link to="/admin" className="text-stone-600 hover:text-orange-600 transition-colors font-medium">
@@ -49,7 +49,7 @@ function Navbar() {
                 )}
                 {!isAdmin && (
                     <>
-                        <Link to="/" className="text-stone-600 hover:text-orange-600 transition-colors font-medium">
+                        <Link to="/catalogo" className="text-stone-600 hover:text-orange-600 transition-colors font-medium">
                             Catálogo
                         </Link>
                         <Link to="/" className="text-stone-600 hover:text-orange-600 transition-colors font-medium">

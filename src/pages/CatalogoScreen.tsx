@@ -7,6 +7,7 @@ import { getProductos, productosPorCategoria } from '../api/productosApi';
 import Navbar from '../features/Navbar';
 import ProductCard from '../features/catalogo/ProductCard';
 import FiltrosCatalogo from '../features/catalogo/FiltrosCatalogo';
+import DetalleProductoModal from '../features/components/DetalleProductoModal';
 
 const PAGE_SIZE = 9;
 const BASE_URL = 'http://localhost:8000';
@@ -121,6 +122,7 @@ function CatalogoScreen() {
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<number | null>(null);
   const [busqueda, setBusqueda] = useState('');
   const [paginaActual, setPaginaActual] = useState(0);
+  const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
 
   // ── Cargar categorías activas ─────────────────────────────────────────────
   useEffect(() => {
@@ -202,9 +204,23 @@ function CatalogoScreen() {
   const filtrosActivos = categoriaSeleccionada !== null || busqueda.trim() !== '';
   const estasCargando = cargando || cargandoCategoria;
 
-  const handleAgregarAlCarrito = (producto: Producto) => {
-    // TODO: integrar con contexto de carrito
-    console.log('Agregar al carrito:', producto);
+  const handleAgregarAlCarrito = (producto: Producto, cantidad?: number, ingredientesRemovidos?: number[]) => {
+    if (cantidad !== undefined && ingredientesRemovidos !== undefined) {
+      console.log('Agregar producto personalizado al carrito:', {
+        producto,
+        cantidad,
+        ingredientes_removidos: ingredientesRemovidos
+      });
+    } else {
+      console.log('Agregar producto base al carrito:', producto);
+    }
+  };
+
+  const handleAgregarDesdeModal = (productoId: number, cantidad: number, ingredientesRemovidos: number[]) => {
+    const producto = productos.find(p => p.id === productoId);
+    if (producto) {
+      handleAgregarAlCarrito(producto, cantidad, ingredientesRemovidos);
+    }
   };
 
   const handleCategoriaChange = useCallback((id: number | null) => {
@@ -265,6 +281,7 @@ function CatalogoScreen() {
                       key={producto.id}
                       producto={producto}
                       onAgregarAlCarrito={handleAgregarAlCarrito}
+                      onSeleccionarProducto={setProductoSeleccionado}
                     />
                   ))}
                 </div>
@@ -279,6 +296,14 @@ function CatalogoScreen() {
           </section>
         </div>
       </main>
+
+      {/* Modal de detalle de producto */}
+      <DetalleProductoModal
+        producto={productoSeleccionado}
+        isOpen={productoSeleccionado !== null}
+        onClose={() => setProductoSeleccionado(null)}
+        onAgregar={handleAgregarDesdeModal}
+      />
     </div>
   );
 }
