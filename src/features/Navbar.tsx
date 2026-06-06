@@ -35,6 +35,7 @@ function Navbar() {
         ?? usuarioRoles[0]?.codigo
         ?? "";
     const initial = usuario?.nombre?.charAt(0).toUpperCase() ?? "?";
+    const perfilUrl = usuario ? `/usuario/${usuario.id}` : "/";
 
     return (
         <nav className="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto">
@@ -67,17 +68,25 @@ function Navbar() {
                         Pedidos
                     </Link>
                 )}
+                <Link
+                    to={perfilUrl}
+                    className="text-stone-600 hover:text-orange-600 transition-colors font-medium"
+                >
+                    Mi Perfil
+                </Link>
             </div>
             <div className="ml-4 flex items-center gap-3 border-l border-gray-200 pl-4">
-                <div className="flex flex-col items-end">
-                    <span className="text-sm font-medium text-gray-900">
-                        {usuario?.nombre} {usuario?.apellido}
-                    </span>
-                    <span className="text-xs text-gray-500">{displayRole}</span>
-                </div>
-                <div className="w-8 h-8 rounded-full bg-[#E63946] flex items-center justify-center text-white font-semibold">
-                    {initial}
-                </div>
+                <Link to={perfilUrl} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                    <div className="flex flex-col items-end">
+                        <span className="text-sm font-medium text-gray-900">
+                            {usuario?.nombre} {usuario?.apellido}
+                        </span>
+                        <span className="text-xs text-gray-500">{displayRole}</span>
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-[#E63946] flex items-center justify-center text-white font-semibold">
+                        {initial}
+                    </div>
+                </Link>
                 <button
                     onClick={() => {
                         console.log("🚪 Ejecutando logout");
@@ -87,7 +96,7 @@ function Navbar() {
                             hover:bg-orange-50 hover:text-orange-700 
                             transition-all duration-200 rounded-lg font-medium text-sm"
                 >
-                    Cerras Sesion
+                    Cerrar Sesión
                 </button>
             </div>
         </nav>
