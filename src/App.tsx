@@ -14,6 +14,8 @@ import { useAuth } from './context/authContext'
 import LandingScreen from './pages/LandingScreen'
 import SignUpScreen from './pages/SignUpScreen'
 import CatalogoScreen from './pages/CatalogoScreen'
+import PerfilScreen from './pages/PerfilScreen'
+import EditarPerfilScreen from './pages/EditarPerfilScreen'
 
 function App() {
   const { getUsuarioFromToken } = useAuth();
@@ -30,7 +32,8 @@ function App() {
       <Route path='/' element={<LandingScreen />} />
       <Route path='/signup' element={<SignUpScreen />} />
       <Route path='/catalogo' element={<CatalogoScreen />} />
-      
+      <Route path='/usuario/:id' element={<PerfilScreen />} />
+      <Route path='/usuario/:id/editar' element={<EditarPerfilScreen />} />
       <Route path='/admin' element={
           <ProtectedRoute rolesHabilitados={['ADMIN']}>
               <DashboardLayout />
