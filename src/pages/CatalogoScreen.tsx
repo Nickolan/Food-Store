@@ -8,6 +8,8 @@ import Navbar from '../features/Navbar';
 import ProductCard from '../features/catalogo/ProductCard';
 import FiltrosCatalogo from '../features/catalogo/FiltrosCatalogo';
 import DetalleProductoModal from '../features/components/DetalleProductoModal';
+import CarritoDrawer from '../features/CarritoDrawer';
+import { useCarrito } from '../context/carritoContext';
 
 const PAGE_SIZE = 9;
 const BASE_URL = 'http://localhost:8000';
@@ -109,6 +111,7 @@ function Paginado({
 
 // ─── Screen principal ─────────────────────────────────────────────────────────
 function CatalogoScreen() {
+  const { agregarProducto } = useCarrito();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [productos, setProductos] = useState<Producto[]>([]);
   const [totalProductos, setTotalProductos] = useState(0);
@@ -205,21 +208,13 @@ function CatalogoScreen() {
   const estasCargando = cargando || cargandoCategoria;
 
   const handleAgregarAlCarrito = (producto: Producto, cantidad?: number, ingredientesRemovidos?: number[]) => {
-    if (cantidad !== undefined && ingredientesRemovidos !== undefined) {
-      console.log('Agregar producto personalizado al carrito:', {
-        producto,
-        cantidad,
-        ingredientes_removidos: ingredientesRemovidos
-      });
-    } else {
-      console.log('Agregar producto base al carrito:', producto);
-    }
+    agregarProducto(producto, cantidad ?? 1, ingredientesRemovidos ?? []);
   };
 
   const handleAgregarDesdeModal = (productoId: number, cantidad: number, ingredientesRemovidos: number[]) => {
     const producto = productos.find(p => p.id === productoId);
     if (producto) {
-      handleAgregarAlCarrito(producto, cantidad, ingredientesRemovidos);
+      agregarProducto(producto, cantidad, ingredientesRemovidos);
     }
   };
 
@@ -236,6 +231,7 @@ function CatalogoScreen() {
   return (
     <div className="min-h-screen bg-orange-50 font-sans text-stone-800">
       <Navbar />
+      <CarritoDrawer />
 
       {/* Hero compacto */}
       <header className="bg-white border-b border-orange-100 py-10 px-8">
