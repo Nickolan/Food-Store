@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { useCarrito } from '../context/carritoContext';
 
 function CarritoDrawer() {
+  const navigate = useNavigate();
   const {
     items,
     carritoAbierto,
@@ -17,19 +19,8 @@ function CarritoDrawer() {
       alert('El carrito está vacío. Agregá productos antes de continuar.');
       return;
     }
-    const resumen = items
-      .map((i) => {
-        const base = `• ${i.nombre} x${i.cantidad}`;
-        const personalizacion =
-          i.ingredientes_removidos.length > 0
-            ? ` (sin: ${i.ingredientes_removidos.join(', ')})`
-            : '';
-        return base + personalizacion;
-      })
-      .join('\n');
-    alert(
-      `🛒 Resumen del carrito (${totalItems} producto${totalItems !== 1 ? 's' : ''}):\n\n${resumen}\n\nTotal: $${totalPrecio.toFixed(2)}`
-    );
+    cerrarCarrito();
+    navigate('/checkout');
   };
 
   return (

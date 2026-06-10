@@ -76,7 +76,7 @@ function Navbar() {
                         <Link to="/catalogo" className="text-stone-600 hover:text-orange-600 transition-colors font-medium">
                             Catálogo
                         </Link>
-                        <Link to="/" className="text-stone-600 hover:text-orange-600 transition-colors font-medium">
+                        <Link to="/mis-pedidos" className="text-stone-600 hover:text-orange-600 transition-colors font-medium">
                             Mis Pedidos
                         </Link>
                     </>
