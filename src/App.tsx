@@ -16,6 +16,11 @@ import SignUpScreen from './pages/SignUpScreen'
 import CatalogoScreen from './pages/CatalogoScreen'
 import PerfilScreen from './pages/PerfilScreen'
 import EditarPerfilScreen from './pages/EditarPerfilScreen'
+import CheckoutScreen from './pages/CheckoutScreen'
+import SuccessScreen from './pages/SuccessScreen'
+import FailureScreen from './pages/FailureScreen'
+import PendingScreen from './pages/PendingScreen'
+import MisPedidosScreen from './pages/MisPedidosScreen'
 
 function App() {
   const { getUsuarioFromToken } = useAuth();
@@ -34,6 +39,11 @@ function App() {
       <Route path='/catalogo' element={<CatalogoScreen />} />
       <Route path='/usuario/:id' element={<PerfilScreen />} />
       <Route path='/usuario/:id/editar' element={<EditarPerfilScreen />} />
+      <Route path='/checkout' element={<CheckoutScreen />} />
+      <Route path='/success' element={<SuccessScreen />} />
+      <Route path='/failure' element={<FailureScreen />} />
+      <Route path='/pending' element={<PendingScreen />} />
+      <Route path='/mis-pedidos' element={<MisPedidosScreen />} />
       <Route path='/admin' element={
           <ProtectedRoute rolesHabilitados={['ADMIN']}>
               <DashboardLayout />
