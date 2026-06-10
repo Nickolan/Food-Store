@@ -1,5 +1,5 @@
 import './App.css'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import LoginScreen from './pages/LoginScreen'
 import ListaIngredientesScreen from './pages/ListaIngredientesScreen'
@@ -16,6 +16,16 @@ import SignUpScreen from './pages/SignUpScreen'
 import CatalogoScreen from './pages/CatalogoScreen'
 import PerfilScreen from './pages/PerfilScreen'
 import EditarPerfilScreen from './pages/EditarPerfilScreen'
+import PedidosScreen from './pages/PedidosScreen'
+
+function AdminOnly({ children }: { children: React.ReactNode }) {
+  const { usuario } = useAuth();
+  const esAdmin = usuario?.roles?.some((r) => r.codigo === 'ADMIN');
+  if (!esAdmin) {
+    return <Navigate to="/admin/pedidos" replace />;
+  }
+  return <>{children}</>;
+}
 
 function App() {
   const { getUsuarioFromToken } = useAuth();
@@ -35,16 +45,17 @@ function App() {
       <Route path='/usuario/:id' element={<PerfilScreen />} />
       <Route path='/usuario/:id/editar' element={<EditarPerfilScreen />} />
       <Route path='/admin' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN']}>
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'PEDIDOS']}>
               <DashboardLayout />
           </ProtectedRoute>
       }>
         <Route index element={<DashboardWelcome />} />
-        <Route path='categorias' element={<CategoriaScreen />} />
-        <Route path='ingredientes' element={<ListaIngredientesScreen />} />
-        <Route path='formulario-ingrediente' element={<CrearIngredienteScreen />} />
-        <Route path='ingredientes/editar/:id' element={<EditarIngredienteScreen />} />
-        <Route path='productos' element={<ProductosPage />} />
+        <Route path='categorias' element={<AdminOnly><CategoriaScreen /></AdminOnly>} />
+        <Route path='ingredientes' element={<AdminOnly><ListaIngredientesScreen /></AdminOnly>} />
+        <Route path='formulario-ingrediente' element={<AdminOnly><CrearIngredienteScreen /></AdminOnly>} />
+        <Route path='ingredientes/editar/:id' element={<AdminOnly><EditarIngredienteScreen /></AdminOnly>} />
+        <Route path='productos' element={<AdminOnly><ProductosPage /></AdminOnly>} />
+        <Route path='pedidos' element={<PedidosScreen />} />
       </Route>
     </Routes>
   )
