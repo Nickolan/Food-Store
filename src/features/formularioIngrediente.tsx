@@ -3,6 +3,8 @@ import { useContext, useEffect, useState } from "react"
 import { IngredientesContext } from "../context/ingredientesContext"
 
 import type { Ingrediente } from "../models/Ingrediente"
+import type { UnidadMedida } from "../models/Unidad_medida";
+import { getUnidadesMedida } from "../api/unidadesMedidaApi";
 
 
 
@@ -14,7 +16,7 @@ interface FormularioIngredienteProps {
 export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredienteProps) => {
 
     const context = useContext(IngredientesContext)
-
+ 
     if (!context) return null
 
     const [formData, setFormData] = useState<Omit<Ingrediente, "id">>({
@@ -26,7 +28,7 @@ export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredi
         stock_cantidad: 0,
 
         activo: true,
-
+        unidad_medida_id: null,
         es_alergeno: false
 
     })
@@ -105,7 +107,8 @@ export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredi
 
                 activo: context.ingredienteSeleccionado.activo,
 
-                es_alergeno: context.ingredienteSeleccionado.es_alergeno
+                es_alergeno: context.ingredienteSeleccionado.es_alergeno,
+                unidad_medida_id: context.ingredienteSeleccionado.unidad_medida_id ?? null
 
             })
 
@@ -121,14 +124,18 @@ export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredi
 
                 activo: true,
 
-                es_alergeno: false
+                es_alergeno: false,
+                unidad_medida_id: null
 
             })
 
         }
 
     }, [context.ingredienteSeleccionado])
-
+    const [unidades, setUnidades] = useState<UnidadMedida[]>([]);
+    useEffect(() => {
+        getUnidadesMedida().then(res => setUnidades(res.items));
+     }, []);
 
 
     return (
@@ -198,7 +205,22 @@ export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredi
                                 <option value="false">No</option>
                             </select>
                         </div>
-
+                        <div>
+                        <label className="block text-sm font-bold text-[#1D3557] mb-1.5">
+                            Unidad de medida <span className="font-normal text-gray-400">(del stock)</span>
+                        </label>
+                        <select
+                            name="unidad_medida_id"
+                            value={formData.unidad_medida_id ?? 0}
+                            onChange={(e) => setFormData({ ...formData, unidad_medida_id: Number(e.target.value) || null })}
+                            className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-[#1D3557] focus:outline-none focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] transition-all bg-gray-50/50 focus:bg-white"
+                        >
+                            <option value={0}>Sin unidad</option>
+                            {unidades.map(u => (
+                                <option key={u.id} value={u.id}>{u.nombre} ({u.simbolo})</option>
+                            ))}
+                        </select>
+                    </div>
                         
 
                         <div className="flex justify-end mt-8 pt-5 border-t border-gray-100">

@@ -36,6 +36,15 @@ export const IngredienteCard = ({ i }: { i: Ingrediente }) => {
           </span>
         )}
       </div>
+     <div className="flex-1 min-w-0">
+        <h2 className="text-base font-bold text-gray-900 truncate">{i.nombre}</h2>
+        <p className="text-xs text-gray-500 truncate max-w-md hidden sm:block">
+            {i.descripcion || "Sin descripción"}
+        </p>
+        <p className="text-xs text-gray-400 mt-0.5">
+            Stock: {i.stock_cantidad} {i.unidad_medida?.simbolo ?? ""}
+        </p>
+    </div>
 
       <div className="flex flex-row items-center gap-1 border-l border-gray-100 pl-2 md:pl-4">
         <button
