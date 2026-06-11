@@ -5,6 +5,7 @@ import { usuarioApi, type ActualizarUsuarioDTO } from '../api/usuarioApi';
 import DireccionesManager from '../features/components/DireccionesManager';
 import { toast } from 'react-hot-toast';
 import Navbar from '../features/Navbar';
+import CarritoDrawer from '../features/CarritoDrawer';
 
 export default function EditarPerfilScreen() {
   const { usuario, getUsuarioFromToken } = useAuth();
@@ -61,6 +62,7 @@ export default function EditarPerfilScreen() {
   return (
     <div className="bg-orange-50 min-h-screen">
       <Navbar />
+      <CarritoDrawer />
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-md p-6">
           {/* Botón volver */}

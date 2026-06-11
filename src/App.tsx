@@ -21,6 +21,7 @@ import SuccessScreen from './pages/SuccessScreen'
 import FailureScreen from './pages/FailureScreen'
 import PendingScreen from './pages/PendingScreen'
 import MisPedidosScreen from './pages/MisPedidosScreen'
+import ListaUsuariosScreen from './pages/ListaUsuariosScreen'
 
 function App() {
   const { getUsuarioFromToken } = useAuth();
@@ -55,6 +56,7 @@ function App() {
         <Route path='formulario-ingrediente' element={<CrearIngredienteScreen />} />
         <Route path='ingredientes/editar/:id' element={<EditarIngredienteScreen />} />
         <Route path='productos' element={<ProductosPage />} />
+        <Route path='usuarios' element={<ListaUsuariosScreen />} />
       </Route>
     </Routes>
   )

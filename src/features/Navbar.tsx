@@ -91,12 +91,6 @@ function Navbar() {
                         Pedidos
                     </Link>
                 )}
-                <Link
-                    to={perfilUrl}
-                    className="text-stone-600 hover:text-orange-600 transition-colors font-medium"
-                >
-                    Mi Perfil
-                </Link>
                 {!isAdmin && <CarritoBoton />}
             </div>
             <div className="ml-4 flex items-center gap-3 border-l border-gray-200 pl-4">

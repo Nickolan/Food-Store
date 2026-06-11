@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaRegEdit } from 'react-icons/fa';
 import DireccionesManager from '../features/components/DireccionesManager';
 import Navbar from '../features/Navbar';
+import CarritoDrawer from '../features/CarritoDrawer';
 
 export default function PerfilScreen() {
   const { usuario } = useAuth();
@@ -20,6 +21,7 @@ export default function PerfilScreen() {
   return (
     <div className="bg-orange-50 min-h-screen">
       <Navbar />
+      <CarritoDrawer />
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow-md p-6 relative">
           

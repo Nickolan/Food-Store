@@ -4,6 +4,7 @@ import { obtenerPedidos, cancelarPedido } from '../api/pedidosApi';
 import type { PedidoRead } from '../api/pedidosApi';
 import { useAuth } from '../context/authContext';
 import { useNavigate } from 'react-router-dom';
+import CarritoDrawer from '../features/CarritoDrawer';
 
 function MisPedidosScreen() {
   const { isAuthenticated } = useAuth();
@@ -99,6 +100,7 @@ function MisPedidosScreen() {
   return (
     <div className="bg-orange-50 min-h-screen">
       <Navbar />
+      <CarritoDrawer />
 
       <main className="max-w-5xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-extrabold text-gray-900 mb-8">Mis Pedidos</h1>

@@ -1,3 +1,4 @@
+import CarritoDrawer from '../features/CarritoDrawer';
 import Navbar from '../features/Navbar';
 import { Link } from 'react-router-dom';
 
@@ -6,6 +7,7 @@ function LandingScreen() {
     <div className="min-h-screen bg-orange-50 font-sans text-stone-800">
       
       <Navbar />
+      <CarritoDrawer />
 
       <main className="max-w-7xl mx-auto px-8 py-16 md:py-24 flex flex-col md:flex-row items-center gap-12">
         <div className="flex-1 space-y-6">

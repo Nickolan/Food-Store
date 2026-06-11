@@ -13,6 +13,30 @@ export default function Sidebar() {
       </div>
       <nav className="flex flex-col gap-2 mt-2">
         <NavLink
+          to="/admin"
+          className={({ isActive }) =>
+            `flex items-center gap-3 transition-colors ${
+              isActive
+                ? 'border-l-4 border-orange-600 bg-orange-50 text-orange-600 px-6 py-3 font-bold text-sm'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-orange-50 px-6 py-3 text-sm font-medium'
+            }`
+          }
+        >
+          Inicio
+        </NavLink>
+        <NavLink
+          to="/admin/usuarios"
+          className={({ isActive }) =>
+            `flex items-center gap-3 transition-colors ${
+              isActive
+                ? 'border-l-4 border-orange-600 bg-orange-50 text-orange-600 px-6 py-3 font-bold text-sm'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-orange-50 px-6 py-3 text-sm font-medium'
+            }`
+          }
+        >
+          Usuarios
+        </NavLink>
+        <NavLink
           to="/admin/categorias"
           className={({ isActive }) =>
             `block transition-colors ${
