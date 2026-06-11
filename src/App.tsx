@@ -22,6 +22,7 @@ import FailureScreen from './pages/FailureScreen'
 import PendingScreen from './pages/PendingScreen'
 import MisPedidosScreen from './pages/MisPedidosScreen'
 import ListaUsuariosScreen from './pages/ListaUsuariosScreen'
+import StockScreen from './pages/StockScreen'
 
 function App() {
   const { getUsuarioFromToken } = useAuth();
@@ -46,17 +47,26 @@ function App() {
       <Route path='/pending' element={<PendingScreen />} />
       <Route path='/mis-pedidos' element={<MisPedidosScreen />} />
       <Route path='/admin' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN']}>
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']}>
               <DashboardLayout />
           </ProtectedRoute>
       }>
-        <Route index element={<DashboardWelcome />} />
+        <Route index element={
+          <ProtectedRoute rolesHabilitados={['ADMIN']} fallbackRedirect="/admin/stock">
+            <DashboardWelcome />
+          </ProtectedRoute>
+        } />
         <Route path='categorias' element={<CategoriaScreen />} />
         <Route path='ingredientes' element={<ListaIngredientesScreen />} />
         <Route path='formulario-ingrediente' element={<CrearIngredienteScreen />} />
         <Route path='ingredientes/editar/:id' element={<EditarIngredienteScreen />} />
         <Route path='productos' element={<ProductosPage />} />
-        <Route path='usuarios' element={<ListaUsuariosScreen />} />
+        <Route path='usuarios' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN']}>
+            <ListaUsuariosScreen />
+          </ProtectedRoute>
+        } />
+        <Route path='stock' element={<StockScreen />} />
       </Route>
     </Routes>
   )

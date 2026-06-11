@@ -82,7 +82,7 @@ function Navbar() {
                     </>
                 )}
                 {shouldShowStock && (
-                    <Link to="/" className="text-stone-600 hover:text-orange-600 transition-colors font-medium">
+                    <Link to="/admin/stock" className="text-stone-600 hover:text-orange-600 transition-colors font-medium">
                         Stock
                     </Link>
                 )}

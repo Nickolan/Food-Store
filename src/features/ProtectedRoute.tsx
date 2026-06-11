@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 
-const ProtectedRoute = ({children, rolesHabilitados}: {children: React.ReactNode; rolesHabilitados: string[]}) => {
+const ProtectedRoute = ({children, rolesHabilitados, fallbackRedirect}: {children: React.ReactNode; rolesHabilitados: string[]; fallbackRedirect?: string}) => {
     const { getUsuarioFromToken } = useAuth();
     
     const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +42,7 @@ const ProtectedRoute = ({children, rolesHabilitados}: {children: React.ReactNode
     }
 
     if (!isAuthorized) {
-        return <Navigate to="/" replace />;
+        return <Navigate to={fallbackRedirect ?? "/"} replace />;
     }
 
     return <>{children}</>;
