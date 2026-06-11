@@ -1,33 +1,64 @@
 import axios from "axios";
 import type { PedidoRead, PedidoUpdate, HistorialEstadoPedidoRead } from "../models/Pedido";
 
-const api = axios.create({ baseURL: "http://localhost:8000/pedidos", withCredentials: true });
+const api = axios.create({
+  baseURL: "http://localhost:8000",
+  withCredentials: true,
+});
 
 export interface GetPedidosParams {
   skip?: number;
   limit?: number;
 }
 
+export interface DetalleCreate {
+  producto_id: number;
+  cantidad: number;
+  personalizacion?: number[];
+}
+
+export interface PedidoCreate {
+  forma_pago_codigo: string;
+  direccion_id?: number | null;
+  descuento?: number;
+  costo_envio?: number;
+  notas?: string;
+  items: DetalleCreate[];
+}
+
 export async function getPedidos(params?: GetPedidosParams): Promise<PedidoRead[]> {
-  const response = await api.get<PedidoRead[]>("/", { params });
+  const response = await api.get<PedidoRead[]>("/pedidos/", { params });
   return response.data;
 }
 
 export async function getPedidoById(id: number): Promise<PedidoRead> {
-  const response = await api.get<PedidoRead>(`/${id}`);
+  const response = await api.get<PedidoRead>(`/pedidos/${id}`);
+  return response.data;
+}
+
+export async function crearPedido(data: PedidoCreate): Promise<PedidoRead> {
+  const response = await api.post<PedidoRead>("/pedidos/", data);
   return response.data;
 }
 
 export async function actualizarEstado(id: number, data: PedidoUpdate): Promise<PedidoRead> {
-  const response = await api.put<PedidoRead>(`/${id}`, data);
+  const response = await api.put<PedidoRead>(`/pedidos/${id}`, data);
   return response.data;
 }
 
 export async function getHistorialPedido(id: number): Promise<HistorialEstadoPedidoRead[]> {
-  const response = await api.get<HistorialEstadoPedidoRead[]>(`/${id}/historial`);
+  const response = await api.get<HistorialEstadoPedidoRead[]>(`/pedidos/${id}/historial`);
   return response.data;
 }
 
 export async function cancelarPedido(id: number, motivo: string): Promise<void> {
-  await api.delete(`/${id}`, { params: { motivo } });
+  await api.delete(`/pedidos/${id}`, { params: { motivo } });
+}
+
+export async function obtenerPedidos(skip = 0, limit = 100): Promise<PedidoRead[]> {
+  return getPedidos({ skip, limit });
+}
+
+export async function obtenerPedidoPorId(id: number): Promise<PedidoRead> {
+  return getPedidoById(id);
 }
