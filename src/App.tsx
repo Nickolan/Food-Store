@@ -1,5 +1,5 @@
 import './App.css'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import { useEffect } from 'react'
 import LoginScreen from './pages/LoginScreen'
 import ListaIngredientesScreen from './pages/ListaIngredientesScreen'
@@ -17,15 +17,6 @@ import CatalogoScreen from './pages/CatalogoScreen'
 import PerfilScreen from './pages/PerfilScreen'
 import EditarPerfilScreen from './pages/EditarPerfilScreen'
 import PedidosScreen from './pages/PedidosScreen'
-
-function AdminOnly({ children }: { children: React.ReactNode }) {
-  const { usuario } = useAuth();
-  const esAdmin = usuario?.roles?.some((r) => r.codigo === 'ADMIN');
-  if (!esAdmin) {
-    return <Navigate to="/admin/pedidos" replace />;
-  }
-  return <>{children}</>;
-}
 
 function App() {
   const { getUsuarioFromToken } = useAuth();
@@ -49,12 +40,36 @@ function App() {
               <DashboardLayout />
           </ProtectedRoute>
       }>
-        <Route index element={<DashboardWelcome />} />
-        <Route path='categorias' element={<AdminOnly><CategoriaScreen /></AdminOnly>} />
-        <Route path='ingredientes' element={<AdminOnly><ListaIngredientesScreen /></AdminOnly>} />
-        <Route path='formulario-ingrediente' element={<AdminOnly><CrearIngredienteScreen /></AdminOnly>} />
-        <Route path='ingredientes/editar/:id' element={<AdminOnly><EditarIngredienteScreen /></AdminOnly>} />
-        <Route path='productos' element={<AdminOnly><ProductosPage /></AdminOnly>} />
+        <Route index element={
+          <ProtectedRoute rolesHabilitados={['ADMIN']} fallbackRedirect="/admin/pedidos">
+            <DashboardWelcome />
+          </ProtectedRoute>
+        } />
+        <Route path='categorias' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN']} fallbackRedirect="/admin/pedidos">
+            <CategoriaScreen />
+          </ProtectedRoute>
+        } />
+        <Route path='ingredientes' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN']} fallbackRedirect="/admin/pedidos">
+            <ListaIngredientesScreen />
+          </ProtectedRoute>
+        } />
+        <Route path='formulario-ingrediente' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN']} fallbackRedirect="/admin/pedidos">
+            <CrearIngredienteScreen />
+          </ProtectedRoute>
+        } />
+        <Route path='ingredientes/editar/:id' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN']} fallbackRedirect="/admin/pedidos">
+            <EditarIngredienteScreen />
+          </ProtectedRoute>
+        } />
+        <Route path='productos' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN']} fallbackRedirect="/admin/pedidos">
+            <ProductosPage />
+          </ProtectedRoute>
+        } />
         <Route path='pedidos' element={<PedidosScreen />} />
       </Route>
     </Routes>
