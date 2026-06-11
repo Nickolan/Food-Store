@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { Usuario } from "../models/Usuario";
 
 const api = axios.create({ 
     baseURL: "http://localhost:8000/api/v1/auth", 
@@ -11,9 +12,31 @@ export interface ActualizarUsuarioDTO {
   celular?: string;
 }
 
+export interface UsuariosPaginados {
+  total: number;
+  items: Usuario[];
+}
+
 export const usuarioApi = {
   actualizarPerfil: async (data: ActualizarUsuarioDTO): Promise<any> => {
     const response = await api.put('/me', data);
+    return response.data;
+  },
+
+  // ─── Endpoints de administración ───────────────────────────────────────────
+
+  listarUsuarios: async (offset = 0, limit = 10): Promise<UsuariosPaginados> => {
+    const response = await api.get<UsuariosPaginados>('/', { params: { offset, limit } });
+    return response.data;
+  },
+
+  desactivarUsuario: async (id: number): Promise<Usuario> => {
+    const response = await api.delete<Usuario>(`/${id}`);
+    return response.data;
+  },
+
+  reactivarUsuario: async (id: number): Promise<Usuario> => {
+    const response = await api.patch<Usuario>(`/${id}/activar`);
     return response.data;
   },
 };

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import type { PedidoRead, DetallePedidoRead, HistorialEstadoPedidoRead } from "../../../models/Pedido";
+import type { Usuario } from "../../../models/Usuario";
 import { getHistorialPedido } from "../../../api/pedidosApi";
+import { direccionesApi, type Direccion } from "../../../api/direccionesApi";
 
 const BADGE_CLASSES: Record<string, string> = {
   PENDIENTE: "bg-yellow-100 text-yellow-800",
@@ -23,11 +25,14 @@ const ETIQUETAS: Record<string, string> = {
 interface Props {
   pedido: PedidoRead;
   onClose: () => void;
+  usuarioMap: Record<number, Usuario>;
 }
 
-export default function DetallePedidoModal({ pedido, onClose }: Props) {
+export default function DetallePedidoModal({ pedido, onClose, usuarioMap }: Props) {
   const [historial, setHistorial] = useState<HistorialEstadoPedidoRead[]>([]);
   const [cargandoHistorial, setCargandoHistorial] = useState(true);
+  const [direccion, setDireccion] = useState<Direccion | null>(null);
+  const [cargandoDireccion, setCargandoDireccion] = useState(false);
 
   useEffect(() => {
     getHistorialPedido(pedido.id)
@@ -36,6 +41,17 @@ export default function DetallePedidoModal({ pedido, onClose }: Props) {
       .finally(() => setCargandoHistorial(false));
   }, [pedido.id]);
 
+  useEffect(() => {
+    if (!pedido.direccion_id) return;
+    setCargandoDireccion(true);
+    direccionesApi
+      .obtenerAdmin(pedido.direccion_id)
+      .then(setDireccion)
+      .catch(() => setDireccion(null))
+      .finally(() => setCargandoDireccion(false));
+  }, [pedido.direccion_id]);
+
+  const usuario = usuarioMap[pedido.usuario_id];
   const badgeClass = BADGE_CLASSES[pedido.estado_codigo.toUpperCase()] ?? "bg-gray-100 text-gray-700";
   const etiquetaEstado = ETIQUETAS[pedido.estado_codigo.toUpperCase()] ?? pedido.estado_codigo;
 
@@ -46,8 +62,6 @@ export default function DetallePedidoModal({ pedido, onClose }: Props) {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
       });
     } catch {
       return fecha;
@@ -71,10 +85,7 @@ export default function DetallePedidoModal({ pedido, onClose }: Props) {
               <span className="text-xs text-stone-400">{formatearFecha(pedido.created_at)}</span>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-stone-900 transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-stone-900 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -83,21 +94,60 @@ export default function DetallePedidoModal({ pedido, onClose }: Props) {
 
         {/* Info del pedido */}
         <div className="p-6 grid grid-cols-2 gap-4 text-sm border-b border-orange-100">
+          {/* Usuario */}
           <div>
-            <span className="text-stone-400">Usuario ID</span>
-            <p className="text-stone-900 font-medium">{pedido.usuario_id}</p>
+            <span className="text-stone-400 text-xs uppercase font-semibold">Usuario</span>
+            {usuario ? (
+              <>
+                <p className="text-stone-900 font-medium mt-0.5">
+                  {usuario.nombre} {usuario.apellido}
+                </p>
+                <p className="text-xs text-stone-400">{usuario.email}</p>
+                {/* Mostrá celular si tu modelo Usuario lo tiene */}
+                {(usuario as any).celular && (
+                  <p className="text-xs text-stone-400">{(usuario as any).celular}</p>
+                )}
+              </>
+            ) : (
+              <p className="text-stone-500 mt-0.5">#{pedido.usuario_id}</p>
+            )}
           </div>
+
+          {/* Forma de pago */}
           <div>
-            <span className="text-stone-400">Forma de pago</span>
-            <p className="text-stone-900 font-medium">{pedido.forma_pago_codigo}</p>
+            <span className="text-stone-400 text-xs uppercase font-semibold">Forma de pago</span>
+            <p className="text-stone-900 font-medium mt-0.5">{pedido.forma_pago_codigo}</p>
           </div>
-          <div>
-            <span className="text-stone-400">Dirección</span>
-            <p className="text-stone-900 font-medium">{pedido.direccion_id ? `#${pedido.direccion_id}` : "—"}</p>
+
+          {/* Dirección */}
+          <div className="col-span-2">
+            <span className="text-stone-400 text-xs uppercase font-semibold">Dirección de entrega</span>
+            {!pedido.direccion_id ? (
+              <p className="text-stone-500 mt-0.5">—</p>
+            ) : cargandoDireccion ? (
+              <p className="text-stone-400 text-xs mt-0.5">Cargando dirección...</p>
+            ) : direccion ? (
+              <div className="mt-0.5 space-y-0.5">
+                <p className="text-stone-900 font-medium">
+                  {direccion.linea1}
+                  {direccion.linea2 ? `, ${direccion.linea2}` : ""}
+                </p>
+                <p className="text-xs text-stone-500">
+                  {direccion.ciudad}
+                  {direccion.provincia ? `, ${direccion.provincia}` : ""}
+                  {" — CP "}
+                  {direccion.codigo_postal}
+                </p>
+              </div>
+            ) : (
+              <p className="text-stone-500 mt-0.5">#{pedido.direccion_id} (no disponible)</p>
+            )}
           </div>
-          <div>
-            <span className="text-stone-400">Notas</span>
-            <p className="text-stone-900 font-medium">{pedido.notas || "—"}</p>
+
+          {/* Notas */}
+          <div className="col-span-2">
+            <span className="text-stone-400 text-xs uppercase font-semibold">Notas</span>
+            <p className="text-stone-900 font-medium mt-0.5">{pedido.notas || "—"}</p>
           </div>
         </div>
 

@@ -1,7 +1,9 @@
 import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPedidos } from "../api/pedidosApi";
+import { usuarioApi } from "../api/usuarioApi";
 import type { PedidoRead } from "../models/Pedido";
+import type { Usuario } from "../models/Usuario";
 import CambiarEstadoDropdown from "../features/components/pedidos/CambiarEstadoDropdown";
 import DetallePedidoModal from "../features/components/pedidos/DetallePedidoModal";
 
@@ -41,7 +43,24 @@ export default function PedidosScreen() {
     placeholderData: (prev) => prev,
   });
 
+  const { data: usuarios } = useQuery({
+    queryKey: ["usuarios"],
+    queryFn: async () => {
+      const res = await usuarioApi.listarUsuarios(0, 100);
+      return res.items;
+    },
+  });
+
   const pedidos = data ?? [];
+
+  const usuarioMap = useMemo(() => {
+    const map: Record<number, Usuario> = {};
+    if (!usuarios) return map;
+    for (const u of usuarios) {
+      map[u.id] = u;
+    }
+    return map;
+  }, [usuarios]);
 
   const filteredPedidos = useMemo(() => {
     return pedidos.filter((p) => {
@@ -50,7 +69,13 @@ export default function PedidosScreen() {
       }
       if (filtroUsuario) {
         const q = filtroUsuario.toLowerCase();
-        if (!String(p.usuario_id).includes(q)) {
+        const user = usuarioMap[p.usuario_id];
+        if (
+          !user ||
+          (!user.nombre.toLowerCase().includes(q) &&
+            !user.apellido.toLowerCase().includes(q) &&
+            !user.email.toLowerCase().includes(q))
+        ) {
           return false;
         }
       }
@@ -64,7 +89,7 @@ export default function PedidosScreen() {
       }
       return true;
     });
-  }, [pedidos, filtroEstado, filtroUsuario, filtroFechaDesde, filtroFechaHasta]);
+  }, [pedidos, filtroEstado, filtroUsuario, filtroFechaDesde, filtroFechaHasta, usuarioMap]);
 
   const limpiarFiltros = () => {
     setFiltroFechaDesde("");
@@ -80,8 +105,6 @@ export default function PedidosScreen() {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
       });
     } catch {
       return fecha;
@@ -140,7 +163,7 @@ export default function PedidosScreen() {
             </svg>
             <input
               type="text"
-              placeholder="ID de usuario..."
+              placeholder="Buscar usuario..."
               value={filtroUsuario}
               onChange={(e) => setFiltroUsuario(e.target.value)}
               className="bg-transparent text-sm text-stone-900 outline-none w-28 placeholder:text-stone-400"
@@ -220,7 +243,9 @@ export default function PedidosScreen() {
                           #{pedido.id}
                         </td>
                         <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
-                          #{pedido.usuario_id}
+                          {usuarioMap[pedido.usuario_id]
+                            ? `${usuarioMap[pedido.usuario_id]!.nombre} ${usuarioMap[pedido.usuario_id]!.apellido}`
+                            : `#${pedido.usuario_id}`}
                         </td>
                         <td className="py-4 px-4 border-b border-orange-100 text-center">
                           <CambiarEstadoDropdown
@@ -295,6 +320,7 @@ export default function PedidosScreen() {
       {pedidoDetalle && (
         <DetallePedidoModal
           pedido={pedidoDetalle}
+          usuarioMap={usuarioMap}
           onClose={() => setPedidoDetalle(null)}
         />
       )}
