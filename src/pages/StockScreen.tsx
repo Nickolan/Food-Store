@@ -10,7 +10,6 @@ export default function StockScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Modal state
   const [modalAbierto, setModalAbierto] = useState(false);
   const [ingredienteSeleccionado, setIngredienteSeleccionado] = useState<Ingrediente | null>(null);
   const [nuevoStock, setNuevoStock] = useState<string>('');
@@ -106,7 +105,7 @@ export default function StockScreen() {
         </div>
       </div>
 
-      {/* Content */}
+      {/* Contenido */}
       {loading ? (
         <div className="flex items-center justify-center py-20 text-stone-400 text-sm">
           Cargando ingredientes...
@@ -129,6 +128,7 @@ export default function StockScreen() {
                 <th className="px-5 py-3 text-left font-semibold">ID</th>
                 <th className="px-5 py-3 text-left font-semibold">Nombre</th>
                 <th className="px-5 py-3 text-left font-semibold">Precio</th>
+                <th className="px-5 py-3 text-left font-semibold">Unidad</th>
                 <th className="px-5 py-3 text-left font-semibold">Stock</th>
                 <th className="px-5 py-3 text-left font-semibold">Acciones</th>
               </tr>
@@ -143,8 +143,11 @@ export default function StockScreen() {
                 >
                   <td className="px-5 py-3 text-stone-400 font-mono">{ing.id}</td>
                   <td className="px-5 py-3 text-stone-800 font-medium">{ing.nombre}</td>
-                  <td className="px-5 py-3 text-stone-400">
+                  <td className="px-5 py-3 text-stone-800">
                     {ing.precio != null ? `$${ing.precio}` : '—'}
+                  </td>
+                  <td className="px-5 py-3 text-stone-800 text-xs">
+                    {ing.unidad_medida?.simbolo ?? '—'}
                   </td>
                   <td className="px-5 py-3">
                     <span

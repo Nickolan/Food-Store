@@ -6,4 +6,6 @@ export interface Ingrediente{
     precio?: number | null;
     es_alergeno:boolean;
     activo: boolean;
+    unidad_medida_id?: number | null;
+    unidad_medida?: { id: number; nombre: string; simbolo: string } | null;
 }

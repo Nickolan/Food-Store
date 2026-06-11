@@ -24,6 +24,9 @@ export const IngredienteCard = ({ i }: { i: Ingrediente }) => {
         <p className="text-xs text-gray-500 truncate max-w-md hidden sm:block">
           {i.descripcion || "Sin descripción"}
         </p>
+        <p className="text-xs text-gray-400 mt-0.5">
+          Stock: {i.stock_cantidad} {i.unidad_medida?.simbolo ?? ""}
+        </p>
       </div>
 
       <div className="flex flex-row items-center gap-2">

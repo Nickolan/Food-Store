@@ -5,7 +5,6 @@ export interface ProductoIngrediente {
   ingrediente_id: number;
   es_removible: boolean;
   cantidad: number;           
-  unidad_medida_id: number;
 }
 
 export interface ProductoBase {
@@ -58,6 +57,5 @@ export interface ProductoReadFull {
     ingrediente: Ingrediente;
     es_removible: boolean;
     cantidad: number;
-    unidad_medida_id: number | null;
   }>;
 }
