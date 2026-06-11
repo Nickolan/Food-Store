@@ -1,9 +1,10 @@
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 
 
 export default function Sidebar() {
   const { logout } = useAuth();
+  const navigate = useNavigate();
   return (
     <div className="h-screen bg-white border-r border-orange-100 flex flex-col w-[15%] min-w-[200px] z-50 relative">
       <div className="px-6 py-6">
@@ -77,6 +78,7 @@ export default function Sidebar() {
         className="text-orange-600 font-bold px-6 py-3 hover:bg-orange-50 transition-colors w-full text-left mt-auto mb-8"
         onClick={() => {
           logout();
+          navigate('/')
         }}
       >
         Cerrar Sesión
