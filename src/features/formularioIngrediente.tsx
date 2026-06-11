@@ -16,7 +16,7 @@ interface FormularioIngredienteProps {
 export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredienteProps) => {
 
     const context = useContext(IngredientesContext)
-
+ 
     if (!context) return null
 
     const [formData, setFormData] = useState<Omit<Ingrediente, "id">>({

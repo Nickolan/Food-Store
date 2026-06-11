@@ -11,7 +11,6 @@ export interface ProductoBase {
   nombre: string;
   descripcion: string;
   precio_base: number;
-  stock: number;
   stock_minimo: number;
   disponible: boolean;
   imagenes_url: string[];
