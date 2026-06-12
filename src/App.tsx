@@ -16,7 +16,6 @@ import SignUpScreen from './pages/SignUpScreen'
 import CatalogoScreen from './pages/CatalogoScreen'
 import PerfilScreen from './pages/PerfilScreen'
 import EditarPerfilScreen from './pages/EditarPerfilScreen'
-import PedidosScreen from './pages/PedidosScreen'
 import CheckoutScreen from './pages/CheckoutScreen'
 import SuccessScreen from './pages/SuccessScreen'
 import FailureScreen from './pages/FailureScreen'
@@ -24,6 +23,7 @@ import PendingScreen from './pages/PendingScreen'
 import MisPedidosScreen from './pages/MisPedidosScreen'
 import ListaUsuariosScreen from './pages/ListaUsuariosScreen'
 import StockScreen from './pages/StockScreen'
+import PedidosScreen from './pages/PedidosScreen'
 
 function RoleRedirect() {
   const { usuario } = useAuth();
@@ -57,51 +57,23 @@ function App() {
       <Route path='/pending' element={<PendingScreen />} />
       <Route path='/mis-pedidos' element={<MisPedidosScreen />} />
       <Route path='/admin' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN', 'PEDIDOS', 'STOCK']}>
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK', 'PEDIDOS']}>
               <DashboardLayout />
           </ProtectedRoute>
       }>
         <Route index element={<RoleRedirect />} />
-        <Route path='categorias' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']} fallbackRedirect="/admin/pedidos">
-            <CategoriaScreen />
-          </ProtectedRoute>
-        } />
-        <Route path='ingredientes' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']} fallbackRedirect="/admin/pedidos">
-            <ListaIngredientesScreen />
-          </ProtectedRoute>
-        } />
-        <Route path='formulario-ingrediente' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']} fallbackRedirect="/admin/pedidos">
-            <CrearIngredienteScreen />
-          </ProtectedRoute>
-        } />
-        <Route path='ingredientes/editar/:id' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']} fallbackRedirect="/admin/pedidos">
-            <EditarIngredienteScreen />
-          </ProtectedRoute>
-        } />
-        <Route path='productos' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']} fallbackRedirect="/admin/pedidos">
-            <ProductosPage />
-          </ProtectedRoute>
-        } />
+        <Route path='categorias' element={<CategoriaScreen />} />
+        <Route path='ingredientes' element={<ListaIngredientesScreen />} />
+        <Route path='formulario-ingrediente' element={<CrearIngredienteScreen />} />
+        <Route path='ingredientes/editar/:id' element={<EditarIngredienteScreen />} />
+        <Route path='productos' element={<ProductosPage />} />
         <Route path='usuarios' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN']} fallbackRedirect="/admin">
+          <ProtectedRoute rolesHabilitados={['ADMIN']}>
             <ListaUsuariosScreen />
           </ProtectedRoute>
         } />
-        <Route path='stock' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']} fallbackRedirect="/admin/pedidos">
-            <StockScreen />
-          </ProtectedRoute>
-        } />
-        <Route path='pedidos' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN', 'PEDIDOS']} fallbackRedirect="/admin/stock">
-            <PedidosScreen />
-          </ProtectedRoute>
-        } />
+        <Route path='stock' element={<StockScreen />} />
+        <Route path='pedidos' element={<PedidosScreen />} />
       </Route>
     </Routes>
   )
