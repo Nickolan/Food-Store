@@ -10,7 +10,14 @@ import { MainProvider } from './context/MainProvider'
 // Marcamos la URL base para las solicitudes HTTP
 axios.defaults.baseURL = 'http://localhost:8000'
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 30_000,
+    },
+  },
+});
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -1,48 +1,53 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import Navbar from '../features/Navbar';
 import { obtenerPedidos, cancelarPedido } from '../api/pedidosApi';
 import type { PedidoRead } from '../api/pedidosApi';
 import { useAuth } from '../context/authContext';
 import { useNavigate } from 'react-router-dom';
 import CarritoDrawer from '../features/CarritoDrawer';
+import { useWebSocket, type WsMessage } from '../hooks/useWebSocket';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
+
+// Query key compartida con el hook de WS para que los updates reactivos funcionen
+const PEDIDOS_CLIENT_KEY = ['pedidos', 'client'] as const;
 
 function MisPedidosScreen() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [pedidos, setPedidos] = useState<PedidoRead[]>([]);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [cancelandoId, setCancelandoId] = useState<number | null>(null);
-  
+  const queryClient = useQueryClient();
+
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 5;
+
   const [modalAbierto, setModalAbierto] = useState(false);
   const [pedidoACancelar, setPedidoACancelar] = useState<number | null>(null);
   const [motivoCancelacion, setMotivoCancelacion] = useState('');
-  
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const PAGE_SIZE = 5;
 
+  // ── Redirigir si no autenticado ──────────────────────────────────────────
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    cargarPedidos();
-  }, [isAuthenticated, navigate, page]);
+    if (!isAuthenticated) navigate('/login');
+  }, [isAuthenticated, navigate]);
 
-  const cargarPedidos = async () => {
-    try {
-      setCargando(true);
-      setError(null);
-      const data = await obtenerPedidos(page * PAGE_SIZE, PAGE_SIZE);
-      setPedidos(data);
-      setHasMore(data.length === PAGE_SIZE);
-    } catch (err) {
-      setError('No se pudieron cargar tus pedidos.');
-    } finally {
-      setCargando(false);
-    }
-  };
+  const { data: pedidos = [], isLoading, isError } = useQuery({
+    queryKey: [...PEDIDOS_CLIENT_KEY, page] as const,
+    queryFn: () => obtenerPedidos(page * PAGE_SIZE, PAGE_SIZE),
+    enabled: isAuthenticated,
+    placeholderData: (prev) => prev,
+  });
+
+  const hasMore = pedidos.length === PAGE_SIZE;
+
+  // ── Cancelar pedido ──────────────────────────────────────────────────────
+  const cancelarMutation = useMutation({
+    mutationFn: ({ id, motivo }: { id: number; motivo: string }) =>
+      cancelarPedido(id, motivo),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PEDIDOS_CLIENT_KEY });
+      cerrarModalCancelacion();
+    },
+    onError: () => alert('Hubo un error al cancelar el pedido.'),
+  });
 
   const abrirModalCancelacion = (id: number) => {
     setPedidoACancelar(id);
@@ -56,47 +61,105 @@ function MisPedidosScreen() {
     setMotivoCancelacion('');
   };
 
-  const confirmarCancelacion = async () => {
+  const confirmarCancelacion = () => {
     if (pedidoACancelar === null) return;
+    cancelarMutation.mutate({
+      id: pedidoACancelar,
+      motivo: motivoCancelacion || 'Cancelado por el cliente',
+    });
+  };
+
+
+   const { subscribeToOrder } = useWebSocket({
+    enabled: isAuthenticated,
+    onMessage: useCallback(
+      (msg: WsMessage) => {
+        console.log("ENVIADO DESDE MisPedidosScreen",msg);
+        
+        if (msg.event === "WS_CONNECTED") {
+          queryClient
+            .invalidateQueries({ queryKey: ["pedidos", "client"] })
+            .then(() => {
+              const latest =
+                queryClient.getQueryData<PedidoRead[]>([
+                  "pedidos",
+                  "client",
+                ]) ?? [];
+              latest
+                .filter((p) => !["ENTREGADO", "CANCELADO"].includes(p.estado_codigo))
+                .forEach((p) => subscribeToOrderRef.current?.(p.id));
+            });
+          return;
+        }
+        const updateEvents = [
+          "PEDIDO_CONFIRMADO",
+          "PEDIDO_EN_PREPARACION",
+          "PEDIDO_LISTO",
+          "PEDIDO_CANCELADO",
+          "PEDIDO_ENTREGADO",
+        ];
+        if (updateEvents.includes(msg.event)) {
+          console.log("ACTUALIZANDO EVENTOS");
+          console.log("DATA: ",msg.data);
+          
+          
+          const updated = msg.data as PedidoRead;
+          console.log("ACTUALIZADO", updated);
+
+          // Actualizar TODAS las páginas cacheadas que contengan el pedido modificado
+          queryClient.setQueriesData<PedidoRead[]>(
+            { queryKey: PEDIDOS_CLIENT_KEY },
+            (prev) => {
+              if (!prev) return prev;
+              return prev.map((p) => (p.id === updated.id ? updated : p));
+            },
+          );
+        }
+      },
+      [queryClient],
+    ),
+  });
+
+  const subscribeToOrderRef = useRef(subscribeToOrder);
+  useEffect(() => {
+    subscribeToOrderRef.current = subscribeToOrder;
+  });
+
+  useEffect(() => {
+    console.log("Pedidos desde USEFFECT",pedidos);
     
-    try {
-      setCancelandoId(pedidoACancelar);
-      await cancelarPedido(pedidoACancelar, motivoCancelacion || 'Cancelado por el cliente');
-      await cargarPedidos();
-      cerrarModalCancelacion();
-    } catch (err) {
-      alert('Hubo un error al cancelar el pedido.');
-    } finally {
-      setCancelandoId(null);
-    }
-  };
+    pedidos
+      .filter((p) => !["ENTREGADO", "CANCELADO"].includes(p.estado_codigo))
+      .forEach((p) => subscribeToOrder(p.id));
+  }, [pedidos, subscribeToOrder]);
 
+  // ── Helpers de presentación ──────────────────────────────────────────────
+  // Códigos alineados con el seed: PENDIENTE, CONFIRMADO, EN_PREP, EN_CAMINO, ENTREGADO, CANCELADO
   const getEstadoColor = (codigo: string) => {
-    switch (codigo) {
-      case 'PENDIENTE': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+    switch (codigo.toUpperCase()) {
+      case 'PENDIENTE':  return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'CONFIRMADO': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'EN_PREP': return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'LISTO_PARA_ENTREGA': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'EN_CAMINO': return 'bg-teal-100 text-teal-800 border-teal-200';
-      case 'ENTREGADO': return 'bg-green-100 text-green-800 border-green-200';
-      case 'CANCELADO': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'EN_PREP':    return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'EN_CAMINO':  return 'bg-teal-100 text-teal-800 border-teal-200';
+      case 'ENTREGADO':  return 'bg-green-100 text-green-800 border-green-200';
+      case 'CANCELADO':  return 'bg-red-100 text-red-800 border-red-200';
+      default:           return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const getEstadoTexto = (codigo: string) => {
+  const getEstadoTexto = (codigo: string): string => {
     const mapeo: Record<string, string> = {
-      PENDIENTE: 'Pendiente',
+      PENDIENTE:  'Pendiente',
       CONFIRMADO: 'Confirmado',
-      EN_PREP: 'En preparación',
-      LISTO_PARA_ENTREGA: 'Listo para entrega',
-      EN_CAMINO: 'En camino',
-      ENTREGADO: 'Entregado',
-      CANCELADO: 'Cancelado'
+      EN_PREP:    'En preparación',
+      EN_CAMINO:  'En camino',
+      ENTREGADO:  'Entregado',
+      CANCELADO:  'Cancelado',
     };
-    return mapeo[codigo] || codigo;
+    return mapeo[codigo.toUpperCase()] ?? codigo;
   };
 
+  // ── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="bg-orange-50 min-h-screen">
       <Navbar />
@@ -105,13 +168,13 @@ function MisPedidosScreen() {
       <main className="max-w-5xl mx-auto px-4 py-8">
         <h1 className="text-3xl font-extrabold text-gray-900 mb-8">Mis Pedidos</h1>
 
-        {cargando ? (
+        {isLoading ? (
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-orange-200 border-t-orange-600" />
           </div>
-        ) : error ? (
+        ) : isError ? (
           <div className="bg-red-50 text-red-600 p-4 rounded-xl text-center">
-            {error}
+            No se pudieron cargar tus pedidos.
           </div>
         ) : pedidos.length === 0 && page === 0 ? (
           <div className="bg-white rounded-2xl shadow-sm p-12 text-center border border-orange-100">
@@ -149,18 +212,20 @@ function MisPedidosScreen() {
                       <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getEstadoColor(pedido.estado_codigo)}`}>
                         {getEstadoTexto(pedido.estado_codigo)}
                       </span>
-                      {pedido.estado_codigo === 'PENDIENTE' && (
+                      {pedido.estado_codigo.toUpperCase() === 'PENDIENTE' && (
                         <button
                           onClick={() => abrirModalCancelacion(pedido.id)}
-                          disabled={cancelandoId === pedido.id}
+                          disabled={cancelarMutation.isPending && pedidoACancelar === pedido.id}
                           className="text-sm font-semibold text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
                         >
-                          {cancelandoId === pedido.id ? 'Cancelando...' : 'Cancelar'}
+                          {cancelarMutation.isPending && pedidoACancelar === pedido.id
+                            ? 'Cancelando...'
+                            : 'Cancelar'}
                         </button>
                       )}
                     </div>
                   </div>
-                  
+
                   <div className="p-6">
                     <div className="flex flex-col md:flex-row md:justify-between gap-6">
                       <div className="flex-1">
@@ -175,7 +240,7 @@ function MisPedidosScreen() {
                                 <span className="text-stone-700 font-medium">{item.nombre_snapshot}</span>
                               </div>
                               <span className="text-stone-900 font-medium whitespace-nowrap ml-4">
-                                ${item.subtotal_snap.toLocaleString('es-AR')}
+                                ${Number(item.subtotal_snap).toLocaleString('es-AR')}
                               </span>
                             </li>
                           ))}
@@ -186,26 +251,26 @@ function MisPedidosScreen() {
                         <div className="space-y-2 mb-3 pb-3 border-b border-stone-200">
                           <div className="flex justify-between text-sm text-stone-600">
                             <span>Subtotal</span>
-                            <span>${pedido.subtotal.toLocaleString('es-AR')}</span>
+                            <span>${Number(pedido.subtotal).toLocaleString('es-AR')}</span>
                           </div>
                           <div className="flex justify-between text-sm text-stone-600">
                             <span>Envío</span>
-                            <span>${pedido.costo_envio.toLocaleString('es-AR')}</span>
+                            <span>${Number(pedido.costo_envio).toLocaleString('es-AR')}</span>
                           </div>
-                          {pedido.descuento > 0 && (
+                          {Number(pedido.descuento) > 0 && (
                             <div className="flex justify-between text-sm text-green-600 font-medium">
                               <span>Descuento</span>
-                              <span>-${pedido.descuento.toLocaleString('es-AR')}</span>
+                              <span>-${Number(pedido.descuento).toLocaleString('es-AR')}</span>
                             </div>
                           )}
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="font-bold text-stone-900">Total</span>
-                          <span className="text-xl font-extrabold text-orange-600">${pedido.total.toLocaleString('es-AR')}</span>
+                          <span className="text-xl font-extrabold text-orange-600">${Number(pedido.total).toLocaleString('es-AR')}</span>
                         </div>
                       </div>
                     </div>
-                    
+
                     {pedido.notas && (
                       <div className="mt-4 bg-orange-50/50 p-3 rounded-lg border border-orange-100 text-sm text-stone-600">
                         <span className="font-semibold text-orange-800">Notas:</span> {pedido.notas}
@@ -215,18 +280,18 @@ function MisPedidosScreen() {
                 </div>
               ))
             )}
-            
+
             <div className="flex items-center justify-between border-t border-stone-200 bg-white px-4 py-3 sm:px-6 rounded-2xl shadow-sm mt-6">
               <div className="flex flex-1 justify-between sm:hidden">
                 <button
-                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
                   className="relative inline-flex items-center rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50"
                 >
                   Anterior
                 </button>
                 <button
-                  onClick={() => setPage(p => p + 1)}
+                  onClick={() => setPage((p) => p + 1)}
                   disabled={!hasMore}
                   className="relative ml-3 inline-flex items-center rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50"
                 >
@@ -234,38 +299,33 @@ function MisPedidosScreen() {
                 </button>
               </div>
               <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-stone-700">
-                    Mostrando página <span className="font-medium">{page + 1}</span>
-                  </p>
-                </div>
-                <div>
-                  <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-                    <button
-                      onClick={() => setPage(p => Math.max(0, p - 1))}
-                      disabled={page === 0}
-                      className="relative inline-flex items-center rounded-l-md px-2 py-2 text-stone-400 ring-1 ring-inset ring-stone-300 hover:bg-stone-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
-                    >
-                      <span className="sr-only">Anterior</span>
-                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => setPage(p => p + 1)}
-                      disabled={!hasMore}
-                      className="relative inline-flex items-center rounded-r-md px-2 py-2 text-stone-400 ring-1 ring-inset ring-stone-300 hover:bg-stone-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
-                    >
-                      <span className="sr-only">Siguiente</span>
-                      <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                        <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </nav>
-                </div>
+                <p className="text-sm text-stone-700">
+                  Mostrando página <span className="font-medium">{page + 1}</span>
+                </p>
+                <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                  <button
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    className="relative inline-flex items-center rounded-l-md px-2 py-2 text-stone-400 ring-1 ring-inset ring-stone-300 hover:bg-stone-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                  >
+                    <span className="sr-only">Anterior</span>
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={!hasMore}
+                    className="relative inline-flex items-center rounded-r-md px-2 py-2 text-stone-400 ring-1 ring-inset ring-stone-300 hover:bg-stone-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
+                  >
+                    <span className="sr-only">Siguiente</span>
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </nav>
               </div>
             </div>
-
           </div>
         )}
       </main>
@@ -298,21 +358,21 @@ function MisPedidosScreen() {
             <div className="px-6 py-4 bg-stone-50 border-t border-stone-200 flex justify-end gap-3">
               <button
                 onClick={cerrarModalCancelacion}
-                disabled={cancelandoId === pedidoACancelar}
+                disabled={cancelarMutation.isPending}
                 className="px-4 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-200 bg-stone-100 rounded-lg transition-colors"
               >
                 Volver
               </button>
               <button
                 onClick={confirmarCancelacion}
-                disabled={cancelandoId === pedidoACancelar}
+                disabled={cancelarMutation.isPending}
                 className="px-4 py-2 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-70"
               >
-                {cancelandoId === pedidoACancelar ? (
+                {cancelarMutation.isPending ? (
                   <>
                     <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
                     Cancelando...
                   </>
