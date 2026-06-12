@@ -12,6 +12,7 @@ import DashboardLayout from './features/DashboardLayout'
 import DashboardWelcome from './pages/DashboardWelcome'
 import { useAuth } from './context/authContext'
 import LandingScreen from './pages/LandingScreen'
+import AdminRedirect from './features/AdminRedirect'
 import SignUpScreen from './pages/SignUpScreen'
 import CatalogoScreen from './pages/CatalogoScreen'
 import PerfilScreen from './pages/PerfilScreen'
@@ -46,16 +47,16 @@ function App() {
   return (
     <Routes>
       <Route path='/login' element={<LoginScreen />} />
-      <Route path='/' element={<LandingScreen />} />
-      <Route path='/signup' element={<SignUpScreen />} />
-      <Route path='/catalogo' element={<CatalogoScreen />} />
-      <Route path='/usuario/:id' element={<PerfilScreen />} />
-      <Route path='/usuario/:id/editar' element={<EditarPerfilScreen />} />
-      <Route path='/checkout' element={<CheckoutScreen />} />
-      <Route path='/success' element={<SuccessScreen />} />
-      <Route path='/failure' element={<FailureScreen />} />
-      <Route path='/pending' element={<PendingScreen />} />
-      <Route path='/mis-pedidos' element={<MisPedidosScreen />} />
+      <Route path='/' element={<AdminRedirect><LandingScreen /></AdminRedirect>} />
+      <Route path='/signup' element={<AdminRedirect><SignUpScreen /></AdminRedirect>} />
+      <Route path='/catalogo' element={<AdminRedirect><CatalogoScreen /></AdminRedirect>} />
+      <Route path='/usuario/:id' element={<AdminRedirect><PerfilScreen /></AdminRedirect>} />
+      <Route path='/usuario/:id/editar' element={<AdminRedirect><EditarPerfilScreen /></AdminRedirect>} />
+      <Route path='/checkout' element={<AdminRedirect><CheckoutScreen /></AdminRedirect>} />
+      <Route path='/success' element={<AdminRedirect><SuccessScreen /></AdminRedirect>} />
+      <Route path='/failure' element={<AdminRedirect><FailureScreen /></AdminRedirect>} />
+      <Route path='/pending' element={<AdminRedirect><PendingScreen /></AdminRedirect>} />
+      <Route path='/mis-pedidos' element={<AdminRedirect><MisPedidosScreen /></AdminRedirect>} />
       <Route path='/admin' element={
           <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK', 'PEDIDOS']}>
               <DashboardLayout />
