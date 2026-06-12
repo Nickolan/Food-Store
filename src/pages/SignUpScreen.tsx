@@ -118,16 +118,25 @@ function SignUpScreen() {
                                 value={f.state.value}
                                 onChange={(e) => f.handleChange(e.target.value)}
                                 placeholder="••••••••"
-                            />
+                            />                            {f.state.value.length > 0 && (
+                                <p className="text-grey-600 text-xs mt-1">
+                                    Usá mayúsculas, números y símbolos para mayor seguridad.
+                                </p>
+                            )}
                         </div>
                     )}
                 </form.Field>
 
+                {auth?.error && (
+                    <p className="text-red-600 text-sm text-center mt-4">{auth.error}</p>
+                )}
+
                 <button 
                     type="submit"
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg h-12 rounded-xl transition-colors mt-6 shadow-md"
+                    disabled={auth?.loading}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg h-12 rounded-xl transition-colors mt-4 shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Registrarme
+                    {auth?.loading ? 'REGISTRANDO...' : 'Registrarme'}
                 </button>
                 
                 <p className="text-center text-stone-500 text-sm mt-4">

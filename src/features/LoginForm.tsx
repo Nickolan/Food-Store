@@ -22,8 +22,8 @@ const LoginForm = () => {
                 } else {
                     console.warn(" getUsuarioFromToken no disponible en auth context")
                 }
-
-            } navigate('/')
+                navigate('/')
+            }
         }
     })
 
