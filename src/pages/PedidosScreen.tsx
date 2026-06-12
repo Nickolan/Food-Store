@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useAuth } from "../context/authContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPedidos } from "../api/pedidosApi";
 import { usuarioApi } from "../api/usuarioApi";
@@ -6,8 +7,12 @@ import type { PedidoRead } from "../models/Pedido";
 import type { Usuario } from "../models/Usuario";
 import CambiarEstadoDropdown from "../features/components/pedidos/CambiarEstadoDropdown";
 import DetallePedidoModal from "../features/components/pedidos/DetallePedidoModal";
+import { useWebSocket, type WsMessage } from "../hooks/useWebSocket";
+
 
 const PAGE_SIZE = 10;
+
+const PEDIDOS_ADMIN_KEY = ['pedidos', 'admin'] as const;
 
 const ETIQUETAS_PAGO: Record<string, string> = {
   MERCADOPAGO: "Mercado Pago",
@@ -27,6 +32,35 @@ const ESTADOS_FILTRO = [
 
 export default function PedidosScreen() {
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
+
+  useWebSocket({
+    enabled: isAuthenticated,
+    onMessage: useCallback(
+      (msg: WsMessage) => {
+        if (msg.event === "WS_CONNECTED") {
+          queryClient.invalidateQueries({ queryKey: PEDIDOS_ADMIN_KEY });
+          return;
+        }
+        if (msg.event === "NUEVO_PEDIDO") {
+          //const nuevo = msg.data as PedidoRead;
+          // Invalidar para que la primera página se recargue con el nuevo pedido
+          queryClient.invalidateQueries({ queryKey: PEDIDOS_ADMIN_KEY });
+        } else if (msg.data && (msg.data as PedidoRead).id) {
+          const updated = msg.data as PedidoRead;
+          // Actualizar TODAS las páginas cacheadas que contengan el pedido modificado
+          queryClient.setQueriesData<PedidoRead[]>(
+            { queryKey: PEDIDOS_ADMIN_KEY },
+            (prev) => {
+              if (!prev) return prev;
+              return prev.map((p) => (p.id === updated.id ? updated : p));
+            },
+          );
+        }
+      },
+      [queryClient],
+    ),
+  });
 
   const [page, setPage] = useState(0);
 
@@ -38,7 +72,7 @@ export default function PedidosScreen() {
   const [pedidoDetalle, setPedidoDetalle] = useState<PedidoRead | null>(null);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["pedidos", { page }],
+    queryKey: [...PEDIDOS_ADMIN_KEY, { page }],
     queryFn: () => getPedidos({ skip: page * PAGE_SIZE, limit: PAGE_SIZE }),
     placeholderData: (prev) => prev,
   });
@@ -251,7 +285,7 @@ export default function PedidosScreen() {
                           <CambiarEstadoDropdown
                             pedidoId={pedido.id}
                             estadoActual={pedido.estado_codigo}
-                            onSuccess={() => queryClient.invalidateQueries({ queryKey: ["pedidos"] })}
+                            onSuccess={() => queryClient.invalidateQueries({ queryKey: PEDIDOS_ADMIN_KEY })}
                           />
                         </td>
                         <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
