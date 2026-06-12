@@ -23,8 +23,9 @@ interface IngredienteSeleccionado {
   nombre: string;
   es_alergeno: boolean;
   es_removible: boolean;
-  cantidad: number;           
-  unidad_medida_id: number; 
+  cantidad: number;
+  unidad_medida_nombre:string           
+  unidad_medida_simbolo: string; 
 }
 
 export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
@@ -72,14 +73,18 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
   useEffect(() => {
     if (initial && (initial as ProductoReadFull).ingredientes) {
       const productoFull = initial as ProductoReadFull;
-      const ingredientesConRemovible = productoFull.ingredientes.map((item) => ({
-        id: item.ingrediente.id,
-        nombre: item.ingrediente.nombre,
-        es_alergeno: item.ingrediente.es_alergeno || false,
-        es_removible: item.es_removible,
-        cantidad: item.cantidad ?? 1,              
-        unidad_medida_id: item.unidad_medida_id ?? 0,
-      }));
+      const ingredientesConRemovible = productoFull.ingredientes.map((item) => {
+        const ingCompleto = ingredientesDisponibles.find(i => i.id === item.ingrediente.id);
+        return {
+          id: item.ingrediente.id as number,
+          nombre: item.ingrediente.nombre,
+          es_alergeno: item.ingrediente.es_alergeno || false,
+          es_removible: item.es_removible,
+          cantidad: item.cantidad ?? 1,
+          unidad_medida_nombre:ingCompleto?.unidad_medida?.nombre ?? "unidad",
+          unidad_medida_simbolo: ingCompleto?.unidad_medida?.simbolo ?? "unidad",
+        };
+      });
       setIngredientesSeleccionados(ingredientesConRemovible);
     }
 
@@ -88,14 +93,13 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       const ids = productoFull.categorias.map((item: any) => item.categoria.id);
       setSelectedCategoriasIds(ids);
     }
-  }, [initial]);
+  }, [initial, ingredientesDisponibles]);
 
   const form = useForm({
     defaultValues: {
       nombre: initial?.nombre ?? "",
       descripcion: initial?.descripcion ?? "",
       precio_base: initial?.precio_base ?? 0,
-      stock: initial?.stock ?? 0,
       stock_minimo: initial?.stock_minimo ?? 0,
       disponible: initial?.disponible ?? true,
       imagenes_url: initial?.imagenes_url?.join(", ") ?? "",
@@ -106,10 +110,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
         alert("El producto debe tener al menos un ingrediente.");
         return;
       }
-      if (ingredientesSeleccionados.some(i => i.unidad_medida_id === 0)) {
-        alert("Todos los ingredientes deben tener una unidad de medida.");
-        return;
-      }
+      
       if (selectedCategoriasIds.length === 0) {
         alert("El producto debe tener al menos una categoría.");
         return;
@@ -118,7 +119,6 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
         nombre: value.nombre,
         descripcion: value.descripcion,
         precio_base: value.precio_base,
-        stock: value.stock,
         stock_minimo: value.stock_minimo,
         disponible: value.disponible,
         imagenes_url: value.imagenes_url
@@ -133,7 +133,6 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
           ingrediente_id: ing.id,
           es_removible: ing.es_removible,
           cantidad: ing.cantidad,
-          unidad_medida_id: ing.unidad_medida_id,
         }))
       };
       onSubmit(productoData);
@@ -152,8 +151,9 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
           nombre: ingrediente.nombre, 
           es_alergeno: ingrediente.es_alergeno,
           es_removible: false,
-          cantidad: 1,           
-          unidad_medida_id: 0, 
+          cantidad: 1,
+          unidad_medida_nombre:ingrediente.unidad_medida?.nombre ?? "unidad",
+          unidad_medida_simbolo: ingrediente.unidad_medida?.simbolo ?? "unidad",
         }
       ]);
       setSelectedIngredienteId(0);
@@ -240,23 +240,6 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                       min={0.01}
                       step={0.01}
                       placeholder="0.00"
-                      value={f.state.value}
-                      onChange={(e) => f.handleChange(Number(e.target.value))}
-                      required
-                    />
-                  </div>
-                )}
-              </form.Field>
-
-              <form.Field name="stock">
-                {(f) => (
-                  <div>
-                    <label className={labelCls}>Stock actual *</label>
-                    <input
-                      className={inputCls}
-                      type="number"
-                      min={0}
-                      placeholder="0"
                       value={f.state.value}
                       onChange={(e) => f.handleChange(Number(e.target.value))}
                       required
@@ -443,19 +426,8 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                               className="w-20 border border-gray-200 rounded px-2 py-1 text-sm text-center"
                             />
                           </td>
-                          <td className="px-4 py-2">
-                            <select
-                              value={ing.unidad_medida_id}
-                              onChange={(e) => setIngredientesSeleccionados(prev =>
-                                prev.map(i => i.id === ing.id ? { ...i, unidad_medida_id: Number(e.target.value) } : i)
-                              )}
-                              className="border border-gray-200 rounded px-2 py-1 text-sm"
-                            >
-                              <option value={0}>Seleccionar...</option>
-                              {unidadesDisponibles.map(u => (
-                                <option key={u.id} value={u.id}>{u.nombre} ({u.simbolo})</option>
-                              ))}
-                            </select>
+                          <td className="px-4 py-2 text-sm text-gray-500">
+                             {ing.unidad_medida_nombre} ({ing.unidad_medida_simbolo})
                           </td>
                           <td className="px-4 py-2">
                             <label className="flex items-center gap-2 text-sm">
