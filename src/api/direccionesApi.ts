@@ -47,6 +47,12 @@ export interface ActualizarDireccionDTO {
 }
 
 export const direccionesApi = {
+  // Obtener dirección por ID (sin filtro de ownership — solo ADMIN/PEDIDOS)
+  obtenerAdmin: async (id: number): Promise<Direccion> => {
+    const response = await api.get(`/direcciones/admin/${id}`);
+    return response.data;
+  },
+
   // Crear nueva dirección
   crear: async (data: CrearDireccionDTO): Promise<Direccion> => {
     const response = await api.post('/direcciones/', data);

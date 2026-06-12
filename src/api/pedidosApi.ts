@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { PedidoUpdate, HistorialEstadoPedidoRead } from "../models/Pedido";
 
 const api = axios.create({
   baseURL: "http://localhost:8000",
@@ -62,4 +63,29 @@ export async function obtenerPedidoPorId(id: number): Promise<PedidoRead> {
 
 export async function cancelarPedido(id: number, motivo: string): Promise<void> {
   await api.delete(`/pedidos/${id}`, { params: { motivo } });
+}
+
+export interface GetPedidosParams {
+  skip?: number;
+  limit?: number;
+}
+
+export async function getPedidos(params?: GetPedidosParams): Promise<PedidoRead[]> {
+  const response = await api.get<PedidoRead[]>("/pedidos/", { params });
+  return response.data;
+}
+
+export async function getPedidoById(id: number): Promise<PedidoRead> {
+  const response = await api.get<PedidoRead>(`/pedidos/${id}`);
+  return response.data;
+}
+
+export async function actualizarEstado(id: number, data: PedidoUpdate): Promise<PedidoRead> {
+  const response = await api.put<PedidoRead>(`/pedidos/${id}`, data);
+  return response.data;
+}
+
+export async function getHistorialPedido(id: number): Promise<HistorialEstadoPedidoRead[]> {
+  const response = await api.get<HistorialEstadoPedidoRead[]>(`/pedidos/${id}/historial`);
+  return response.data;
 }

@@ -1,5 +1,5 @@
 import './App.css'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import LoginScreen from './pages/LoginScreen'
 import ListaIngredientesScreen from './pages/ListaIngredientesScreen'
@@ -23,6 +23,16 @@ import PendingScreen from './pages/PendingScreen'
 import MisPedidosScreen from './pages/MisPedidosScreen'
 import ListaUsuariosScreen from './pages/ListaUsuariosScreen'
 import StockScreen from './pages/StockScreen'
+import PedidosScreen from './pages/PedidosScreen'
+
+function RoleRedirect() {
+  const { usuario } = useAuth();
+  const roles = usuario?.roles?.map(r => r.codigo) ?? [];
+  if (roles.includes('ADMIN')) return <DashboardWelcome />;
+  if (roles.includes('PEDIDOS')) return <Navigate to="/admin/pedidos" replace />;
+  if (roles.includes('STOCK')) return <Navigate to="/admin/stock" replace />;
+  return <Navigate to="/" replace />;
+}
 
 function App() {
   const { getUsuarioFromToken } = useAuth();
@@ -47,15 +57,11 @@ function App() {
       <Route path='/pending' element={<PendingScreen />} />
       <Route path='/mis-pedidos' element={<MisPedidosScreen />} />
       <Route path='/admin' element={
-          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']}>
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK', 'PEDIDOS']}>
               <DashboardLayout />
           </ProtectedRoute>
       }>
-        <Route index element={
-          <ProtectedRoute rolesHabilitados={['ADMIN']} fallbackRedirect="/admin/stock">
-            <DashboardWelcome />
-          </ProtectedRoute>
-        } />
+        <Route index element={<RoleRedirect />} />
         <Route path='categorias' element={<CategoriaScreen />} />
         <Route path='ingredientes' element={<ListaIngredientesScreen />} />
         <Route path='formulario-ingrediente' element={<CrearIngredienteScreen />} />
@@ -67,6 +73,7 @@ function App() {
           </ProtectedRoute>
         } />
         <Route path='stock' element={<StockScreen />} />
+        <Route path='pedidos' element={<PedidosScreen />} />
       </Route>
     </Routes>
   )
