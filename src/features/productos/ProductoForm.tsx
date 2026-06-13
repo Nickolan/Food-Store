@@ -35,6 +35,10 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
   const [unidadesDisponibles, setUnidadesDisponibles] = useState<UnidadMedida[]>([]);
   const [categoriasDisponibles, setCategoriasDisponibles] = useState<Categoria[]>([]);
   const [selectedCategoriasIds, setSelectedCategoriasIds] = useState<number[]>([]);
+  const [imagenesFiles,setImagenesFiles] = useState<File[]>([]);
+ const [imagenesExistentes, setImagenesExistentes] = useState<string[]>(
+  initial?.imagenes_url ?? []
+);
 
   useEffect(() => {
     const cargarIngredientes = async () => {
@@ -46,7 +50,6 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       }
     };
     cargarIngredientes();
-
     const cargarUnidades = async () => {
       try {
         const response = await getUnidadesMedida();
@@ -56,6 +59,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       }
     };
     cargarUnidades();
+
 
     const cargarCategorias = async () => {
       try {
@@ -69,7 +73,6 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
     };
     cargarCategorias();
   }, []);
-
   useEffect(() => {
     if (initial && (initial as ProductoReadFull).ingredientes) {
       const productoFull = initial as ProductoReadFull;
@@ -102,10 +105,26 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       precio_base: initial?.precio_base ?? 0,
       stock_minimo: initial?.stock_minimo ?? 0,
       disponible: initial?.disponible ?? true,
-      imagenes_url: initial?.imagenes_url?.join(", ") ?? "",
       unidad_venta_id: (initial as ProductoReadFull | undefined)?.unidad_medida?.id ?? 0,
     },
     onSubmit: async ({ value }) => {
+      let imagenesUrls: string[] = [...imagenesExistentes];
+      if (imagenesFiles.length > 0) {
+        const res=await Promise.all(imagenesFiles.map(async (file) => {
+          const formData = new FormData();
+          formData.append("file", file);
+          return fetch("http://localhost:8000/productos/upload-imagen", {
+            method: "POST",
+            credentials: "include",
+            body: formData
+          });
+        }));
+        const data = await Promise.all(res.map(r => r.json()));
+        const nuevaImagenesUrls = data.map((d: any) => d.url as string);
+        imagenesUrls = [...imagenesUrls, ...nuevaImagenesUrls];
+      }else{
+        imagenesUrls = initial?.imagenes_url ?? [];
+      }
       if (ingredientesSeleccionados.length === 0) {
         alert("El producto debe tener al menos un ingrediente.");
         return;
@@ -121,12 +140,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
         precio_base: value.precio_base,
         stock_minimo: value.stock_minimo,
         disponible: value.disponible,
-        imagenes_url: value.imagenes_url
-          ? value.imagenes_url
-              .split(",")
-              .map((s: string) => s.trim())
-              .filter(Boolean)
-          : [],
+        imagenes_url: imagenesUrls,
         categorias_ids: selectedCategoriasIds,
         unidad_venta_id: value.unidad_venta_id !== 0 ? value.unidad_venta_id : null,
         ingredientes: ingredientesSeleccionados.map(ing => ({
@@ -309,26 +323,45 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                 </div>
               )}
             </form.Field>
-
-            <div>
-              <form.Field name="imagenes_url">
-                {(f) => (
                   <div>
                     <label className={labelCls}>
-                      URLs de imagenes{" "}
-                      <span className="font-normal text-gray-400">(separadas por coma)</span>
+                      Imágenes del producto{" "}
+                      <span className="font-normal text-gray-400">(opcional)</span>
                     </label>
                     <input
-                      className={inputCls}
+                      className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      type="file"
+                      accept="image/*"
                       placeholder="https://ejemplo.com/img1.jpg, https://ejemplo.com/img2.jpg"
-                      value={f.state.value}
-                      onChange={(e) => f.handleChange(e.target.value)}
+                      multiple
+                      onChange={(e) => setImagenesFiles((prev)=>[...prev,...Array.from(e.target.files ?? [])])}
                     />
+                    <div className="flex flex-wrap gap-4">
+                    {imagenesExistentes.map((url, index) => (
+                      <div key={`existente-${index}`} className="relative">
+                      <img
+                        src={url}
+                        alt={`Imagen ${index + 1}`}
+                        className="mt-4 max-w-xs max-h-xs border border-gray-200 rounded-lg object-cover"
+                      />
+                      <button type="button" onClick={() => setImagenesExistentes(prev => prev.filter((_, i) => i !== index))}
+                      className="absolute -top-1 -right-2 bg-red-600 text-white rounded-full p-1 px-2 mt-2 hover:bg-red-700 transition"
+                      >x
+                      </button>
+                      </div>
+                    ))}
+                    {imagenesFiles.map((file, index) => (
+                      <div key={`nueva-${index}`} className="relative">
+                      <img src={URL.createObjectURL(file)} alt={`Nueva ${index + 1}`} className="mt-4 max-w-xs max-h-xs border border-gray-200 rounded-lg object-cover" />
+                      <button type="button" onClick={() => setImagenesFiles(prev => prev.filter((_, i) => i !== index))}
+                      className="absolute -top-1 -right-2 bg-red-600 text-white rounded-full p-1 px-2 mt-2 hover:bg-red-700 transition"
+                      >x
+                      </button>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </form.Field>
-            </div>
-
+                  </div>
+              
             {/* Sección de Categorías */}
             <div className="border-t border-gray-200 pt-4 mt-2">
               <label className={labelCls + " text-base font-semibold"}>
