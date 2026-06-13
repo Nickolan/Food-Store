@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import type { Usuario } from "../models/Usuario";
-import { login as loginApi, getMe, logout as logoutApi, signUpApi } from "../api/authApi";
+import { login as loginApi, getMe, logout as logoutApi, signUpApi, AuthError } from "../api/authApi";
 
 interface AuthContextType {
     usuario: Usuario | null;
@@ -34,8 +34,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             localStorage.setItem('token', data.access_token);
             setToken(data.access_token);
             return true;
-        } catch {
-            setError("Credenciales inválidas. Verificá tu email y contraseña.");
+        } catch (err) {
+            if (err instanceof AuthError) {
+                if (err.status === 429) {
+                    const minutos = err.retryAfter ? Math.ceil(err.retryAfter / 60) : 15;
+                    setError(
+                        `Has superado los 5 intentos fallidos. Estarás bloqueado por ${minutos} minutos.`
+                    );
+                } else if (err.status === 403) {
+                    setError("Tu cuenta está desactivada. Contactá al administrador.");
+                } else {
+                    setError("Credenciales inválidas. Verificá tu email y contraseña.");
+                }
+            } else {
+                setError("Error de conexión con el servidor.");
+            }
             return false;
         } finally {
             setLoading(false);
@@ -50,8 +63,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             console.log(data);
             setUsuario(data);
             return true;
-        } catch {
-            setError("Error al registrarse. Por favor, intentá nuevamente.");
+        } catch (err) {
+            if (err instanceof AuthError) {
+                if (err.status === 400) {
+                    setError("Ya existe una cuenta con este correo electrónico.");
+                } else if (err.status === 422) {
+                    setError("Corregí los errores marcados en el formulario.");
+                } else {
+                    setError("Error al registrarse. Por favor, intentá nuevamente.");
+                }
+            } else {
+                setError("Error de conexión con el servidor.");
+            }
             return false;
         } finally {
             setLoading(false);
