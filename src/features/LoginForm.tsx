@@ -10,11 +10,14 @@ const LoginForm = () => {
         defaultValues: { email: "", password: "" },
         onSubmit: async ({ value }) => {
             const ok = await auth?.login(value.email, value.password)
+            console.log(ok);
+            
             if (ok){
                 console.log("Login exitoso, redirigiendo a dashboard...");
                 if (auth?.getUsuarioFromToken) {
                     try {
                         await auth.getUsuarioFromToken()
+                        navigate('/')
                         console.log(" Usuario cargado correctamente")
                     } catch (error) {
                         console.error("Error cargando usuario:", error)
@@ -22,8 +25,8 @@ const LoginForm = () => {
                 } else {
                     console.warn(" getUsuarioFromToken no disponible en auth context")
                 }
-                navigate('/')
-            }
+
+            } 
         }
     })
 
