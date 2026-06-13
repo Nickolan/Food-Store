@@ -1,6 +1,7 @@
 import { useState, useContext, type ChangeEvent, type FormEvent } from 'react';
 import { CategoriasContext } from '../context/categoriasContext';
 import type { Categoria } from '../models/Categoria';
+import { extraerPublicId } from '../api/cloudinary';
 
 interface FormCategoriaProps {
     cerrar: () => void;
@@ -9,38 +10,58 @@ interface FormCategoriaProps {
 
 export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategoriaProps) {
     const categoriasContext = useContext(CategoriasContext);
-
     const [nombre, setNombre] = useState(categoriaAEditar?.nombre || '');
     const [descripcion, setDescripcion] = useState(categoriaAEditar?.descripcion || '');
-    
     const [parentId, setParentId] = useState<number | ''>(categoriaAEditar?.parent_id || '');
-
     if (!categoriasContext) return null;
     const categoriasDisponibles = categoriasContext.categorias.filter(c => c.id !== categoriaAEditar?.id);
+    const [imagenFile, setImagenFile] = useState<File | null>(null);
+    const [imagenEliminada, setImagenEliminada] = useState(false);
+    const [imagenPreview, setImagenPreview] = useState<string | null>(
+      categoriaAEditar?.imagen_url ?? null
+    );
+    const [imagenPublicId, setImagenPublicId] = useState<string | null>(
+      categoriaAEditar?.imagen_url ? extraerPublicId(categoriaAEditar.imagen_url) : null
+    );
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        
         if (!nombre.trim()) {
             alert("El nombre es obligatorio");
             return;
         }
-
         if (!descripcion.trim()) {
             alert("La descripción es obligatoria");
             return;
         }
-
+        if (imagenEliminada && imagenPublicId && categoriaAEditar?.id) {
+           await fetch(`http://localhost:8000/categorias/${categoriaAEditar.id}/imagen?public_id=${encodeURIComponent(imagenPublicId)}`, {
+           method: "DELETE",
+           credentials: "include",
+           });
+        }
+        let imagenUrl = imagenEliminada ? '' : (categoriaAEditar?.imagen_url ?? '');
+        if (imagenFile) {
+            const formData = new FormData();
+            formData.append("file", imagenFile);
+            const res = await fetch("http://localhost:8000/uploads/imagen?carpeta=foodstore/categorias", {
+                method: "POST",
+                credentials: "include",
+                body: formData
+            });
+            const data = await res.json();
+            imagenUrl = data.secure_url;
+        }
         const categoriaData: Categoria = {
             id: categoriaAEditar ? categoriaAEditar.id : Date.now(),
             nombre,
             descripcion,
-            imagen_url: categoriaAEditar?.imagen_url || '',
+            imagen_url: imagenUrl, 
             activo: categoriaAEditar?.activo ?? true,
             parent_id: parentId === '' ? undefined : Number(parentId),
             hijos: categoriaAEditar?.hijos || []
         };
-
+    
         if (categoriaAEditar) {
             categoriasContext.actualizar(categoriaData);
             categoriasContext.setCategoriaSeleccionada(categoriaData);
@@ -105,9 +126,37 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
                                 ))}
                             </select>
                         </div>
+                        <div>
+                           <label className="block text-sm font-bold text-[#1D3557] mb-1.5">
+                             Imagen <span className="font-normal text-gray-400">(opcional)</span>
+                           </label>
+                           <input
+                             type="file"
+                             accept="image/*"
+                             onChange={(e) => {
+                               const file = e.target.files?.[0] ?? null;
+                               setImagenFile(file);
+                               if (file) setImagenPreview(URL.createObjectURL(file));
+                             }}
+                             className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                           />
+                           {imagenPreview && (
+                             <div className="relative mt-3 inline-block">
+                               <img src={imagenPreview} className="h-24 w-24 object-cover rounded-lg border border-gray-200" />
+                               <button
+                                 type="button"
+                                 onClick={() => {
+                                  setImagenFile(null);
+                                  setImagenPreview(null);
+                                  setImagenEliminada(true);
+                                }}
+                                 className="absolute -top-1 -right-2 bg-red-600 text-white rounded-full p-1 px-2 hover:bg-red-700"
+                            >x</button>                               
+                             </div>
+                           )}
+                         </div>
 
-                        
-
+                          
                         <div className="flex justify-end mt-8 pt-5 border-t border-gray-100">
                             <button 
                                 type="submit"
