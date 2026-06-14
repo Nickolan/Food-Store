@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 
-const WS_URL = "ws://localhost:8000/pedidos/cocina/ws";
+const WS_URL = "ws://localhost:8000/api/v1/pedidos/cocina/ws";
 
 export interface WsMessage {
   event: string;

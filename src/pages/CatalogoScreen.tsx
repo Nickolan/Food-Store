@@ -12,7 +12,7 @@ import CarritoDrawer from '../features/CarritoDrawer';
 import { useCarrito } from '../context/carritoContext';
 
 const PAGE_SIZE = 9;
-const BASE_URL = 'http://localhost:8000';
+
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 function ProductCardSkeleton() {
