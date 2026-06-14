@@ -1,8 +1,9 @@
 // api/ingredientesApi.ts
 import axios from "axios";
 import type { Ingrediente } from "../models/Ingrediente";
+import { env } from '../config/env';
 
-const api = axios.create({ baseURL: "http://localhost:8000", withCredentials: true  });
+const api = axios.create({ baseURL: env.API_BASE_URL, withCredentials: true  });
 
 export interface IngredientePaginadoResponse {
   total: number;
