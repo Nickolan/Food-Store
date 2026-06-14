@@ -1,8 +1,7 @@
 import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { HiOutlineClipboard, HiOutlineTag, HiOutlineCube, HiOutlineShoppingBag } from "react-icons/hi";
+import { HiOutlineClipboard, HiOutlineTag, HiOutlineCube, HiOutlineShoppingBag, HiOutlineChartBar } from "react-icons/hi";
 import { TbTruckDelivery } from "react-icons/tb";
 import { useAuth } from '../context/authContext';
-
 
 export default function Sidebar() {
   const { usuario, logout } = useAuth();
@@ -118,6 +117,21 @@ export default function Sidebar() {
           >
             <TbTruckDelivery className="h-5 w-5" />
             Pedidos
+          </NavLink>
+        )}
+        {esAdmin && (
+          <NavLink
+            to="/admin/estadisticas"
+            className={({ isActive }) =>
+              `flex items-center gap-3 transition-colors ${
+                isActive
+                  ? 'border-l-4 border-orange-600 bg-orange-50 text-orange-600 px-6 py-3 font-bold text-sm'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-orange-50 px-6 py-3 text-sm font-medium'
+              }`
+            }
+          >
+            <HiOutlineChartBar className="h-5 w-5" />
+            Estadísticas
           </NavLink>
         )}
       </nav>

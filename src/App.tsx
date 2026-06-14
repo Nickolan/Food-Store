@@ -25,6 +25,7 @@ import MisPedidosScreen from './pages/MisPedidosScreen'
 import ListaUsuariosScreen from './pages/ListaUsuariosScreen'
 import StockScreen from './pages/StockScreen'
 import PedidosScreen from './pages/PedidosScreen'
+import EstadisticasScreen from './pages/EstadisticasScreen'
 
 function RoleRedirect() {
   const { usuario } = useAuth();
@@ -101,6 +102,12 @@ function App() {
         <Route path='pedidos' element={
           <ProtectedRoute rolesHabilitados={['ADMIN', 'PEDIDOS']}>
             <PedidosScreen />
+          </ProtectedRoute>
+        } />
+            
+        <Route path='estadisticas' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN']}>
+            <EstadisticasScreen />
           </ProtectedRoute>
         } />
       </Route>
