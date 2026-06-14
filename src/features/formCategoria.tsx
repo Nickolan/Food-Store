@@ -35,7 +35,7 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
             return;
         }
         if (imagenEliminada && imagenPublicId && categoriaAEditar?.id) {
-           await fetch(`http://localhost:8000/categorias/${categoriaAEditar.id}/imagen?public_id=${encodeURIComponent(imagenPublicId)}`, {
+           await fetch(`http://localhost:8000/api/v6/categorias/${categoriaAEditar.id}/imagen?public_id=${encodeURIComponent(imagenPublicId)}`, {
            method: "DELETE",
            credentials: "include",
            });
@@ -44,7 +44,7 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
         if (imagenFile) {
             const formData = new FormData();
             formData.append("file", imagenFile);
-            const res = await fetch("http://localhost:8000/uploads/imagen?carpeta=foodstore/categorias", {
+            const res = await fetch("http://localhost:8000/api/v6/uploads/imagen?carpeta=foodstore/categorias", {
                 method: "POST",
                 credentials: "include",
                 body: formData

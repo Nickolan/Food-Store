@@ -117,7 +117,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
         const res = await Promise.all(imagenesFiles.map(async (file) => {
         const formData = new FormData();
         formData.append("file", file);
-        const r = await fetch("http://localhost:8000/uploads/imagen?carpeta=foodstore/productos", {
+        const r = await fetch("http://localhost:8000/api/v6/uploads/imagen?carpeta=foodstore/productos", {
           method: "POST",
           credentials: "include",
           body: formData
@@ -346,7 +346,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                         type="button"
                         onClick={async () => {
                           if (img.public_id) {
-                            await fetch(`http://localhost:8000/uploads/imagen/${encodeURIComponent(img.public_id)}`, {
+                            await fetch(`http://localhost:8000/api/v6/uploads/imagen/${encodeURIComponent(img.public_id)}`, {
                               method: "DELETE",
                               credentials: "include",
                             });
