@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Categoria } from "../models/Categoria";
 
-const api = axios.create({ baseURL: "http://localhost:8000", withCredentials: true  });
+const api = axios.create({ baseURL: "http://localhost:8000/api/v1", withCredentials: true  });
 
 export const getCategorias = async ({limit = 100, offset = 0, nombre = ""}: { limit?: number; offset?: number; nombre?: string }) => {
   const response = await api.get<{ total: number; items: Categoria[] }>(`/categorias/?limit=${limit}&offset=${offset}&nombre=${nombre || ''}`);

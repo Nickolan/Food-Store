@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { UnidadMedida } from "../models/Unidad_medida";
 
-const api = axios.create({ baseURL: "http://localhost:8000", withCredentials: true });
+const api = axios.create({ baseURL: "http://localhost:8000/api/v1", withCredentials: true });
 
 export interface UnidadMedidaPaginadoResponse {
   total: number;

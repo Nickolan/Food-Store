@@ -2,7 +2,7 @@ import axios from "axios";
 import type { PedidoUpdate, HistorialEstadoPedidoRead } from "../models/Pedido";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000",
+  baseURL: "http://localhost:8000/api/v1",
   withCredentials: true,
 });
 

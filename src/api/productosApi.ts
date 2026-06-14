@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { Producto, ProductoCreate, ProductoUpdate, ProductoReadFull } from "../models/Producto";
 
-const api = axios.create({ baseURL: "http://localhost:8000", withCredentials: true  });
+const api = axios.create({ baseURL: "http://localhost:8000/api/v1", withCredentials: true  });
 
 export interface ProductoPaginadoResponse {
   total: number;
