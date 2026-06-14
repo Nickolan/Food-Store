@@ -68,7 +68,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 if (err.status === 400) {
                     setError("Ya existe una cuenta con este correo electrónico.");
                 } else if (err.status === 422) {
-                    setError("Corregí los errores marcados en el formulario.");
+                    const mensajes: Record<string, string> = {
+                        "String should have at least 8 characters": "La contraseña debe tener por lo menos 8 caracteres",
+                    };
+                    setError(mensajes[err.message] ?? err.message);
                 } else {
                     setError("Error al registrarse. Por favor, intentá nuevamente.");
                 }
