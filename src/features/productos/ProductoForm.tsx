@@ -7,6 +7,7 @@ import { getUnidadesMedida } from "../../api/unidadesMedidaApi";
 import type { UnidadMedida } from "../../models/Unidad_medida";
 import { getCategorias } from "../../api/categoriasApi";
 import type { Categoria } from "../../models/Categoria";
+import { extraerPublicId } from "../../api/cloudinary";
 
 
 interface Props {
@@ -36,9 +37,12 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
   const [categoriasDisponibles, setCategoriasDisponibles] = useState<Categoria[]>([]);
   const [selectedCategoriasIds, setSelectedCategoriasIds] = useState<number[]>([]);
   const [imagenesFiles,setImagenesFiles] = useState<File[]>([]);
- const [imagenesExistentes, setImagenesExistentes] = useState<string[]>(
-  initial?.imagenes_url ?? []
-);
+  const [imagenesExistentes, setImagenesExistentes] = useState<{ url: string; public_id?: string }[]>(
+    initial?.imagenes_url?.map(url => ({ 
+      url, 
+      public_id: extraerPublicId(url) ?? undefined 
+    })) ?? []
+  );
 
   useEffect(() => {
     const cargarIngredientes = async () => {
@@ -108,22 +112,20 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       unidad_venta_id: (initial as ProductoReadFull | undefined)?.unidad_medida?.id ?? 0,
     },
     onSubmit: async ({ value }) => {
-      let imagenesUrls: string[] = [...imagenesExistentes];
+      let imagenesUrls: string[] = [...imagenesExistentes.map(i => i.url)];
       if (imagenesFiles.length > 0) {
-        const res=await Promise.all(imagenesFiles.map(async (file) => {
-          const formData = new FormData();
-          formData.append("file", file);
-          return fetch("http://localhost:8000/productos/upload-imagen", {
-            method: "POST",
-            credentials: "include",
-            body: formData
-          });
-        }));
-        const data = await Promise.all(res.map(r => r.json()));
-        const nuevaImagenesUrls = data.map((d: any) => d.url as string);
-        imagenesUrls = [...imagenesUrls, ...nuevaImagenesUrls];
-      }else{
-        imagenesUrls = initial?.imagenes_url ?? [];
+        const res = await Promise.all(imagenesFiles.map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        const r = await fetch("http://localhost:8000/uploads/imagen?carpeta=foodstore/productos", {
+          method: "POST",
+          credentials: "include",
+          body: formData
+        });
+        return r.json();
+      }));
+      const nuevasUrls = res.map((d: any) => d.secure_url as string);
+      imagenesUrls = [...imagenesExistentes.map(i => i.url), ...nuevasUrls];
       }
       if (ingredientesSeleccionados.length === 0) {
         alert("El producto debe tener al menos un ingrediente.");
@@ -337,19 +339,24 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                       onChange={(e) => setImagenesFiles((prev)=>[...prev,...Array.from(e.target.files ?? [])])}
                     />
                     <div className="flex flex-wrap gap-4">
-                    {imagenesExistentes.map((url, index) => (
-                      <div key={`existente-${index}`} className="relative">
-                      <img
-                        src={url}
-                        alt={`Imagen ${index + 1}`}
-                        className="mt-4 max-w-xs max-h-xs border border-gray-200 rounded-lg object-cover"
-                      />
-                      <button type="button" onClick={() => setImagenesExistentes(prev => prev.filter((_, i) => i !== index))}
-                      className="absolute -top-1 -right-2 bg-red-600 text-white rounded-full p-1 px-2 mt-2 hover:bg-red-700 transition"
-                      >x
-                      </button>
-                      </div>
-                    ))}
+                    {imagenesExistentes.map((img, index) => (
+                    <div key={`existente-${index}`} className="relative">
+                      <img src={img.url} alt={`Imagen ${index + 1}`} className="h-24 w-24 object-cover rounded-lg border border-gray-200" />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (img.public_id) {
+                            await fetch(`http://localhost:8000/uploads/imagen/${encodeURIComponent(img.public_id)}`, {
+                              method: "DELETE",
+                              credentials: "include",
+                            });
+                          }
+                          setImagenesExistentes(prev => prev.filter((_, i) => i !== index));
+                        }}
+                        className="absolute -top-1 -right-2 bg-red-600 text-white rounded-full p-1 px-2 hover:bg-red-700"
+                      >x</button>
+                    </div>
+                  ))}
                     {imagenesFiles.map((file, index) => (
                       <div key={`nueva-${index}`} className="relative">
                       <img src={URL.createObjectURL(file)} alt={`Nueva ${index + 1}`} className="mt-4 max-w-xs max-h-xs border border-gray-200 rounded-lg object-cover" />
