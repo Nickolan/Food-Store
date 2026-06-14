@@ -1,7 +1,6 @@
 import axios from "axios";
 import type { LoginResponse, Usuario } from "../models/Usuario";
-
-const api = axios.create({ baseURL: "http://localhost:8000/api/v1/auth", withCredentials: true });
+const api = axios.create({ baseURL: "http://localhost:8000/api/v6/auth", withCredentials: true });
 
 export async function login(form_data: { email: string; password: string }): Promise<LoginResponse> {
 

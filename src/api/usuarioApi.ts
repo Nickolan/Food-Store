@@ -1,8 +1,9 @@
 import axios from "axios";
 import type { Usuario } from "../models/Usuario";
+import { env } from '../config/env';
 
 const api = axios.create({ 
-    baseURL: "http://localhost:8000/api/v1/auth", 
+    baseURL: env.API_BASE_URL + "/auth", 
     withCredentials: true 
 });
 
