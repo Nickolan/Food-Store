@@ -6,9 +6,10 @@ import {BrowserRouter} from 'react-router-dom'
 import axios from 'axios'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MainProvider } from './context/MainProvider'
+import { env } from './config/env.ts'
 
 // Marcamos la URL base para las solicitudes HTTP
-axios.defaults.baseURL = 'http://localhost:8000/api/v6';
+axios.defaults.baseURL = env.API_BASE_URL;
 
 const queryClient = new QueryClient({
   defaultOptions: {

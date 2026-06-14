@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { LoginResponse, Usuario } from "../models/Usuario";
-const api = axios.create({ baseURL: "http://localhost:8000/api/v6/auth", withCredentials: true });
+import { env } from '../config/env';
+const api = axios.create({ baseURL: env.API_BASE_URL, withCredentials: true });
 
 export class AuthError extends Error {
     status: number;
@@ -16,7 +17,7 @@ export class AuthError extends Error {
 
 export async function login(form_data: { email: string; password: string }): Promise<LoginResponse> {
     try {
-        const response = await api.post<LoginResponse>("/token", {
+        const response = await api.post<LoginResponse>("/auth/token", {
             email: form_data.email,
             password: form_data.password
         });
@@ -34,17 +35,17 @@ export async function login(form_data: { email: string; password: string }): Pro
 }
 
 export async function getMe(): Promise<Usuario> {
-    const response = await api.get<Usuario>("/me");
+    const response = await api.get<Usuario>("/auth/me");
     return response.data;
 }
 
 export async function logout(): Promise<void> {
-    await api.post("/logout");
+    await api.post("/auth/logout");
 }
 
 export async function signUpApi(form_data: { nombre: string; apellido: string; email: string; celular: string; password: string }): Promise<Usuario> {
     try {
-        const response = await api.post<Usuario>("/", {
+        const response = await api.post<Usuario>("/auth", {
             nombre: form_data.nombre,
             apellido: form_data.apellido,
             email: form_data.email,
