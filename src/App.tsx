@@ -64,18 +64,47 @@ function App() {
           </ProtectedRoute>
       }>
         <Route index element={<RoleRedirect />} />
-        <Route path='categorias' element={<CategoriaScreen />} />
-        <Route path='ingredientes' element={<ListaIngredientesScreen />} />
-        <Route path='formulario-ingrediente' element={<CrearIngredienteScreen />} />
-        <Route path='ingredientes/editar/:id' element={<EditarIngredienteScreen />} />
-        <Route path='productos' element={<ProductosPage />} />
+        <Route path='categorias' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']}>
+            <CategoriaScreen />
+          </ProtectedRoute>
+        } />
+        <Route path='ingredientes' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']}>
+            <ListaIngredientesScreen />
+          </ProtectedRoute>
+        } />
+        <Route path='formulario-ingrediente' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']}>
+            <CrearIngredienteScreen />
+          </ProtectedRoute>
+        } />
+        <Route path='ingredientes/editar/:id' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']}>
+            <EditarIngredienteScreen />
+          </ProtectedRoute>
+        } />
+        <Route path='productos' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']}>
+            <ProductosPage />
+          </ProtectedRoute>
+        } />
         <Route path='usuarios' element={
           <ProtectedRoute rolesHabilitados={['ADMIN']}>
             <ListaUsuariosScreen />
           </ProtectedRoute>
         } />
-        <Route path='stock' element={<StockScreen />} />
-        <Route path='pedidos' element={<PedidosScreen />} />
+        <Route path='stock' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'STOCK']}>
+            <StockScreen />
+          </ProtectedRoute>
+        } />
+        <Route path='pedidos' element={
+          <ProtectedRoute rolesHabilitados={['ADMIN', 'PEDIDOS']}>
+            <PedidosScreen />
+          </ProtectedRoute>
+        } />
+            
         <Route path='estadisticas' element={
           <ProtectedRoute rolesHabilitados={['ADMIN']}>
             <EstadisticasScreen />

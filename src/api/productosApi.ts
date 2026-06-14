@@ -93,3 +93,15 @@ export const productosPorCategoria = async (id: number): Promise<ProductoPaginad
   const response = await api.get<ProductoPaginadoResponse>(`/productos/${id}/categoria`);
   return response.data;
 }
+export const uploadImagenProducto = async (file: File): Promise<{ secure_url: string; public_id: string }> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const response = await api.post("/uploads/imagen?carpeta=foodstore/productos", formData, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
+  return response.data;
+};
+
+export const deleteImagenProducto = async (publicId: string): Promise<void> => {
+  await api.delete(`/uploads/imagen/${encodeURIComponent(publicId)}`);
+};
