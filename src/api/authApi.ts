@@ -48,7 +48,7 @@ export async function logout(): Promise<void> {
 
 export async function signUpApi(form_data: { nombre: string; apellido: string; email: string; celular: string; password: string }): Promise<Usuario> {
     try {
-        const response = await api.post<Usuario>("/auth", {
+        const response = await api.post<Usuario>("/auth/", {
             nombre: form_data.nombre,
             apellido: form_data.apellido,
             email: form_data.email,
@@ -57,12 +57,16 @@ export async function signUpApi(form_data: { nombre: string; apellido: string; e
         });
         return response.data;
     } catch (err) {
+        console.error(err);
+        
         if (axios.isAxiosError(err) && err.response) {
             const status = err.response.status;
             const raw = err.response.data?.detail || "Error inesperado";
             const message = Array.isArray(raw)
                 ? raw.map((e: { msg?: string }) => e.msg ?? "").filter(Boolean).join(". ")
                 : raw;
+            console.error(status, raw, message);
+            
             throw new AuthError(message, status);
         }
         throw new AuthError("Error de conexión con el servidor", 0);
