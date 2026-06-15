@@ -3,6 +3,7 @@ import { CategoriasContext } from '../context/categoriasContext';
 import type { Categoria } from '../models/Categoria';
 import { env } from '../config/env';
 import { extraerPublicId } from '../api/cloudinary';
+import axios from 'axios';
 
 interface FormCategoriaProps {
     cerrar: () => void;
@@ -35,23 +36,22 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
             alert("La descripción es obligatoria");
             return;
         }
-        if (imagenEliminada && imagenPublicId && categoriaAEditar?.id) {
-           await fetch(`${env.API_BASE_URL}/categorias/${categoriaAEditar.id}/imagen?public_id=${encodeURIComponent(imagenPublicId)}`, {
-           method: "DELETE",
-           credentials: "include",
-           });
-        }
+        if (imagenEliminada && imagenPublicId) {
+            await axios.delete(
+              `${env.API_BASE_URL}/api/v6/uploads/imagen/${encodeURIComponent(imagenPublicId)}`,
+              { withCredentials: true }
+            );
+          }
         let imagenUrl = imagenEliminada ? '' : (categoriaAEditar?.imagen_url ?? '');
         if (imagenFile) {
             const formData = new FormData();
             formData.append("file", imagenFile);
-            const res = await fetch(`${env.API_BASE_URL}/uploads/imagen?carpeta=foodstore/categorias`, {
-                method: "POST",
-                credentials: "include",
-                body: formData
-            });
-            const data = await res.json();
-            imagenUrl = data.secure_url;
+            const res = await axios.post(
+                `${env.API_BASE_URL}/api/v6/uploads/imagen?carpeta=foodstore/categorias`,
+                formData,
+                { withCredentials: true }
+            );
+            imagenUrl = res.data.secure_url;
         }
         const categoriaData: Categoria = {
             id: categoriaAEditar ? categoriaAEditar.id : Date.now(),
