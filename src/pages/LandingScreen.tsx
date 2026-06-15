@@ -25,11 +25,12 @@ function LandingScreen() {
           </div>
         </div>
 
-        <div className="flex-1 w-full aspect-square md:aspect-auto md:h-96 bg-orange-200 rounded-3xl flex items-center justify-center shadow-inner overflow-hidden relative">
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-400 to-transparent"></div>
-          <span className="text-orange-800/50 font-medium text-xl">
-            [Imagen ilustrativa de un plato cálido]
-          </span>
+        <div className="flex-1 w-full aspect-square md:aspect-auto md:h-96 rounded-3xl overflow-hidden shadow-2xl relative">
+          <img
+            src="/hero_hot_meal.png"
+            alt="Plato caliente gourmet con salmón y vegetales asados"
+            className="w-full h-full object-cover"
+          />
         </div>
       </main>
 
