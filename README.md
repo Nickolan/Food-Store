@@ -42,9 +42,10 @@ Antes de comenzar, asegúrate de tener instalado en tu máquina limpia:
 
 ### ⚙️ Paso a Paso para Levantar el Frontend
 
-#### 1. Navegar al directorio del Frontend
-Abre una terminal nueva y dirígete a la carpeta raíz del frontend:
+### 1. Clonar el repositorio
+
 ```bash
+git clone https://github.com/Nickolan/Food-Store.git
 cd Food-Store
 ```
 
