@@ -101,7 +101,7 @@ npm run preview
 
 ## 👥 Credenciales de Prueba (Usuarios Semilla)
 
-Para probar la plataforma con diferentes niveles de acceso y flujos de trabajo, la base de datos se inicializa automáticamente en el backend con **4 usuarios preconfigurados** (definidos en `Server/app/db/seed.py`). 
+Para probar la plataforma con diferentes niveles de acceso y flujos de trabajo, la base de datos se inicializa automáticamente en el backend con **4 usuarios preconfigurados** (definidos en `Food-Store-Server/app/db/seed.py`). 
 
 > [!IMPORTANT]
 > A diferencia de versiones anteriores de la documentación, las contraseñas reales son seguras, están capitalizadas y finalizan con `1234!`. Asegúrate de ingresar las credenciales tal como se detallan en la siguiente tabla:
