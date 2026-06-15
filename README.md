@@ -87,16 +87,6 @@ npm run dev
 Una vez ejecutado, la terminal mostrará la URL de acceso local. Por defecto:
 👉 **[http://localhost:5173](http://localhost:5173)**
 
-#### 5. Compilar para Producción (Opcional)
-Para validar que no existan errores de tipado o empaquetado y generar el bundle final de producción:
-```bash
-npm run build
-```
-Para previsualizar la compilación localmente:
-```bash
-npm run preview
-```
-
 ---
 
 ## 👥 Credenciales de Prueba (Usuarios Semilla)
