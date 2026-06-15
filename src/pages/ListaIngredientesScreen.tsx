@@ -40,35 +40,35 @@ export default function ListaIngredientesScreen() {
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center px-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 px-4 mb-6">
         <div>
-          <h1 className="text-stone-900 text-2xl font-bold">Gestión de Ingredientes</h1>
+          <h1 className="text-stone-900 text-xl sm:text-2xl font-bold">Gestión de Ingredientes</h1>
           <p className="text-gray-500 text-sm mt-1">
             Administrá el catálogo de ingredientes y alérgenos.
           </p>
         </div>
         <Link 
           to="/admin/formulario-ingrediente" 
-          className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-4 py-2 rounded-lg transition-colors"
+          className="w-full sm:w-auto text-center bg-orange-600 hover:bg-orange-700 text-white font-bold px-4 py-2 rounded-lg transition-colors"
         >
           + Agregar Ingrediente
         </Link>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 w-full">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex gap-4 items-center">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
             <input
               type="search"
               placeholder="Buscar ingrediente..."
               value={filtroNombre}
               onChange={(e) => setFiltroNombre(e.target.value)}
-              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none w-52"
+              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none w-full sm:w-52"
             />
             <select
               value={filtroActivo}
               onChange={(e) => setFiltroActivo(e.target.value)}
-              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none"
+              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none w-full sm:w-auto"
             >
               <option value="todos">Todos los Estados</option>
               <option value="true">Solo Activos</option>
@@ -77,7 +77,7 @@ export default function ListaIngredientesScreen() {
             <select
               value={filtroAlergeno}
               onChange={(e) => setFiltroAlergeno(e.target.value)}
-              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none"
+              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none w-full sm:w-auto"
             >
               <option value="todos">Todos los Alérgenos</option>
               <option value="true">Sí (Alérgeno)</option>
@@ -183,11 +183,11 @@ export default function ListaIngredientesScreen() {
           </table>
         </div>
 
-        <div className="flex justify-between items-center mt-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-6">
           <button 
             disabled={pagina === 0}
             onClick={() => setPagina(p => p - 1)}
-            className="bg-white border border-orange-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-50 transition"
+            className="w-full sm:w-auto bg-white border border-orange-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-50 transition"
           >
             Anterior
           </button>
@@ -197,7 +197,7 @@ export default function ListaIngredientesScreen() {
           <button 
             disabled={(pagina + 1) * limit >= context.total}
             onClick={() => setPagina(p => p + 1)}
-            className="bg-white border border-orange-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-50 transition"
+            className="w-full sm:w-auto bg-white border border-orange-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-50 transition"
           >
             Siguiente
           </button>

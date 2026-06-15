@@ -78,33 +78,33 @@ export default function CategoriaScreen() {
 
     return (
         <div className="w-full">
-            <div className="flex justify-between items-center px-4 mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 px-4 mb-6">
                 <div>
-                    <h1 className="text-stone-900 text-2xl font-bold">Categorias</h1>
+                    <h1 className="text-stone-900 text-xl sm:text-2xl font-bold">Categorias</h1>
                     <p className="text-gray-500 text-sm mt-1">Administra las categorias de tus productos</p>
                 </div>
                 <button 
                     onClick={() => setMostrarModalCrear(true)}
-                    className="bg-orange-600 font-bold text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+                    className="w-full sm:w-auto bg-orange-600 font-bold text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
                 >
                     + Nueva Categoria
                 </button>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 w-full">
-                <div className="flex justify-between items-center mb-4">
-                    <div className="flex gap-4 items-center">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+                    <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
                         <input
                             type="text"
                             placeholder="Buscar por nombre..."
                             value={filtroNombre}
                             onChange={(e) => setFiltroNombre(e.target.value)}
-                            className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none w-52"
+                            className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none w-full sm:w-52"
                         />
                         <select
                             value={filtroActivo}
                             onChange={(e) => setFiltroActivo(e.target.value)}
-                            className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none bg-white"
+                            className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none bg-white w-full sm:w-auto"
                         >
                             <option value="todos">Todos los estados</option>
                             <option value="activos">Activos</option>
@@ -230,11 +230,11 @@ export default function CategoriaScreen() {
                 </div>
 
                 {totalPages > 1 && (
-                    <div className="flex justify-between items-center mt-6 border-t border-orange-100 pt-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-6 border-t border-orange-100 pt-6">
                         <button 
                             disabled={currentPage === 1}
                             onClick={() => setCurrentPage(p => p - 1)}
-                            className="px-4 py-2 border border-orange-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-orange-50 disabled:opacity-50 transition-colors"
+                            className="w-full sm:w-auto px-4 py-2 border border-orange-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-orange-50 disabled:opacity-50 transition-colors"
                         >
                             Anterior
                         </button>
@@ -244,7 +244,7 @@ export default function CategoriaScreen() {
                         <button 
                             disabled={currentPage === totalPages}
                             onClick={() => setCurrentPage(p => p + 1)}
-                            className="px-4 py-2 border border-orange-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-orange-50 disabled:opacity-50 transition-colors"
+                            className="w-full sm:w-auto px-4 py-2 border border-orange-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-orange-50 disabled:opacity-50 transition-colors"
                         >
                             Siguiente
                         </button>

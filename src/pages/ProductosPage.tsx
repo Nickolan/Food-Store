@@ -139,9 +139,9 @@ export const ProductosPage = () => {
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center px-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 px-4 mb-6">
         <div>
-          <h1 className="text-stone-900 text-2xl font-bold">Gestión de Productos</h1>
+          <h1 className="text-stone-900 text-xl sm:text-2xl font-bold">Gestión de Productos</h1>
           <p className="text-stone-500 text-sm mt-1">
             Administrá el catálogo de productos del local.
           </p>
@@ -152,7 +152,7 @@ export const ProductosPage = () => {
             setEditing(undefined);
             setShowForm(true);
           }}
-          className="bg-orange-600 text-white font-bold px-4 py-2 rounded-lg hover:bg-orange-700 transition focus:ring-2 focus:ring-orange-600 focus:ring-offset-2"
+          className="w-full sm:w-auto bg-orange-600 text-white font-bold px-4 py-2 rounded-lg hover:bg-orange-700 transition focus:ring-2 focus:ring-orange-600 focus:ring-offset-2"
         >
           + Nuevo producto
         </button>

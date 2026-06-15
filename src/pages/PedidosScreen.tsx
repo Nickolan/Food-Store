@@ -150,9 +150,9 @@ export default function PedidosScreen() {
   return (
     <div className="w-full">
       {/* Header */}
-      <div className="flex justify-between items-center px-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 px-4 mb-6">
         <div>
-          <h1 className="text-stone-900 text-2xl font-bold">Gestión de Pedidos</h1>
+          <h1 className="text-stone-900 text-xl sm:text-2xl font-bold">Gestión de Pedidos</h1>
           <p className="text-stone-500 text-sm mt-1">
             Administrá y actualizá el estado de los pedidos del local.
           </p>
@@ -161,7 +161,7 @@ export default function PedidosScreen() {
 
       {/* Searchbar */}
       <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-4 mb-4">
-        <div className="flex flex-wrap items-end gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap items-end gap-3">
           {/* Fecha desde */}
           <div className="flex items-center gap-2 bg-orange-50 rounded-lg px-3 py-2 border border-orange-200">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-orange-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -171,11 +171,10 @@ export default function PedidosScreen() {
               type="date"
               value={filtroFechaDesde}
               onChange={(e) => setFiltroFechaDesde(e.target.value)}
-              className="bg-transparent text-sm text-stone-900 outline-none w-32"
+              className="bg-transparent text-sm text-stone-900 outline-none w-full"
               title="Fecha desde"
             />
           </div>
-          <span className="text-stone-400 text-sm pb-2">—</span>
           {/* Fecha hasta */}
           <div className="flex items-center gap-2 bg-orange-50 rounded-lg px-3 py-2 border border-orange-200">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-orange-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -185,7 +184,7 @@ export default function PedidosScreen() {
               type="date"
               value={filtroFechaHasta}
               onChange={(e) => setFiltroFechaHasta(e.target.value)}
-              className="bg-transparent text-sm text-stone-900 outline-none w-32"
+              className="bg-transparent text-sm text-stone-900 outline-none w-full"
               title="Fecha hasta"
             />
           </div>
@@ -200,7 +199,7 @@ export default function PedidosScreen() {
               placeholder="Buscar usuario..."
               value={filtroUsuario}
               onChange={(e) => setFiltroUsuario(e.target.value)}
-              className="bg-transparent text-sm text-stone-900 outline-none w-28 placeholder:text-stone-400"
+              className="bg-transparent text-sm text-stone-900 outline-none w-full placeholder:text-stone-400"
             />
           </div>
 
@@ -208,7 +207,7 @@ export default function PedidosScreen() {
           <select
             value={filtroEstado}
             onChange={(e) => setFiltroEstado(e.target.value)}
-            className="h-9 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 bg-white focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none"
+            className="h-9 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 bg-white focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none w-full sm:w-auto"
           >
             {ESTADOS_FILTRO.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -219,7 +218,7 @@ export default function PedidosScreen() {
           {hayFiltrosActivos && (
             <button
               onClick={limpiarFiltros}
-              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+              className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors w-full sm:w-auto justify-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -329,11 +328,11 @@ export default function PedidosScreen() {
             </div>
 
             {/* Paginación */}
-            <div className="flex justify-between items-center mt-6 border-t border-orange-100 pt-6">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-6 border-t border-orange-100 pt-6">
               <button
                 disabled={page === 0}
                 onClick={() => setPage((p) => p - 1)}
-                className="px-4 py-2 border border-orange-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-orange-50 disabled:opacity-50 transition-colors"
+                className="w-full sm:w-auto px-4 py-2 border border-orange-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-orange-50 disabled:opacity-50 transition-colors"
               >
                 Anterior
               </button>
@@ -341,7 +340,7 @@ export default function PedidosScreen() {
               <button
                 disabled={pedidos.length < PAGE_SIZE}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-4 py-2 border border-orange-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-orange-50 disabled:opacity-50 transition-colors"
+                className="w-full sm:w-auto px-4 py-2 border border-orange-200 rounded-lg text-sm font-medium text-gray-500 bg-white hover:bg-orange-50 disabled:opacity-50 transition-colors"
               >
                 Siguiente
               </button>

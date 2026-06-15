@@ -9,8 +9,8 @@ import { crearPago } from '../api/pagosApi';
 
 function CheckoutScreen() {
   const navigate = useNavigate();
-  const { items, totalItems, totalPrecio, vaciarCarrito } = useCarrito();
-  const { usuario, isAuthenticated } = useAuth();
+  const { items, totalItems, totalPrecio, vaciarCarrito, quitarProducto } = useCarrito();
+  const { usuario, isAuthenticated, initializing } = useAuth();
 
   const [direcciones, setDirecciones] = useState<Direccion[]>([]);
   const [direccionSeleccionada, setDireccionSeleccionada] = useState<number | null>(null);
@@ -23,6 +23,7 @@ function CheckoutScreen() {
   const costoEnvio = formaPago === 'EFECTIVO' ? 0 : 50;
 
   useEffect(() => {
+    if (initializing) return;
     if (!isAuthenticated) {
       navigate('/login', { replace: true });
       return;
@@ -31,7 +32,7 @@ function CheckoutScreen() {
       navigate('/catalogo', { replace: true });
       return;
     }
-  }, [isAuthenticated, totalItems, navigate, pedidoExitoso]);
+  }, [initializing, isAuthenticated, totalItems, navigate, pedidoExitoso]);
 
   useEffect(() => {
     direccionesApi.listar()
@@ -154,11 +155,20 @@ function CheckoutScreen() {
                       )}
                     </div>
 
-                    <div className="text-right shrink-0">
+                    <div className="flex flex-col items-end gap-2 shrink-0">
                       <p className="text-gray-500 text-xs">x{item.cantidad}</p>
                       <p className="text-gray-900 font-bold text-sm">
                         ${(item.precio_base * item.cantidad).toFixed(2)}
                       </p>
+                      <button
+                        onClick={() => quitarProducto(item.key)}
+                        className="text-stone-400 hover:text-red-500 transition-colors"
+                        aria-label="Quitar item del pedido"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 ))}

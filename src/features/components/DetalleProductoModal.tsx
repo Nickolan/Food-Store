@@ -102,6 +102,8 @@ function DetalleProductoModal({ producto, isOpen, onClose, onAgregar }: Props) {
   );
 
   // Obtener la categoría principal
+  console.log(productoCompleto);
+  
   const categoriaPrincipal = productoCompleto?.categorias?.find(cat => cat.es_principal)?.categoria ||
     productoCompleto?.categorias?.[0]?.categoria;
 

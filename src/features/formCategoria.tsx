@@ -38,7 +38,7 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
         }
         if (imagenEliminada && imagenPublicId) {
             await axios.delete(
-              `${env.API_BASE_URL}/api/v6/uploads/imagen/${encodeURIComponent(imagenPublicId)}`,
+              `${env.API_BASE_URL}/uploads/imagen/${encodeURIComponent(imagenPublicId)}`,
               { withCredentials: true }
             );
           }
@@ -47,7 +47,7 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
             const formData = new FormData();
             formData.append("file", imagenFile);
             const res = await axios.post(
-                `${env.API_BASE_URL}/api/v6/uploads/imagen?carpeta=foodstore/categorias`,
+                `${env.API_BASE_URL}/uploads/imagen?carpeta=foodstore/categorias`,
                 formData,
                 { withCredentials: true }
             );

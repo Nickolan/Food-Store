@@ -79,12 +79,12 @@ export default function StockScreen() {
   return (
     <div className="p-6 min-h-screen bg-stone-50">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-stone-800">Gestión de Materia Prima</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-stone-800">Gestión de Materia Prima</h1>
         <div className="flex gap-2">
           <button
             onClick={() => setFiltro('todos')}
-            className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors ${
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-semibold transition-colors ${
               filtro === 'todos'
                 ? 'bg-orange-600 text-white'
                 : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
@@ -94,7 +94,7 @@ export default function StockScreen() {
           </button>
           <button
             onClick={() => setFiltro('bajo')}
-            className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors ${
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-md text-sm font-semibold transition-colors ${
               filtro === 'bajo'
                 ? 'bg-orange-600 text-white'
                 : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
@@ -121,7 +121,7 @@ export default function StockScreen() {
             : 'No hay ingredientes registrados.'}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 overflow-hidden shadow-sm overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-stone-100 text-stone-500 uppercase text-xs tracking-wide">

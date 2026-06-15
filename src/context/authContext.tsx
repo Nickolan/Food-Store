@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import type { Usuario } from "../models/Usuario";
 import { login as loginApi, getMe, logout as logoutApi, signUpApi, AuthError } from "../api/authApi";
 
@@ -7,6 +7,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     token?: string | null;
     loading: boolean;
+    initializing: boolean;
     error: string | null;
     login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
@@ -22,6 +23,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // true mientras restauramos la sesión desde localStorage al montar
+    const [initializing, setInitializing] = useState(() => !!localStorage.getItem('token'));
+
+    // ── Restaurar sesión al refrescar ─────────────────────────────────────────
+    useEffect(() => {
+        const storedToken = localStorage.getItem('token');
+        if (!storedToken) {
+            setInitializing(false);
+            return; 
+        }
+
+        getMe()
+            .then((user) => {
+                setUsuario(user);
+                setToken(storedToken);
+            })
+            .catch(() => {
+                // Token inválido o expirado → limpiar
+                localStorage.removeItem('token');
+            })
+            .finally(() => {
+                setInitializing(false);
+            });
+    }, []);
 
     const login = async (email: string, password: string): Promise<boolean> => {
         setLoading(true);
@@ -106,6 +131,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             value={{
                 usuario,
                 isAuthenticated: usuario !== null,
+                initializing,
                 loading,
                 error,
                 login,

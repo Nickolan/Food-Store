@@ -210,14 +210,14 @@ export default function ListaUsuariosScreen() {
       )}
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
-      <div className="flex justify-between items-center px-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 px-4 mb-6">
         <div>
-          <h1 className="text-stone-900 text-2xl font-bold">Gestión de Usuarios</h1>
+          <h1 className="text-stone-900 text-xl sm:text-2xl font-bold">Gestión de Usuarios</h1>
           <p className="text-gray-500 text-sm mt-1">
             Administrá el acceso al sistema — activá o desactivá cuentas.
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-white border border-orange-100 rounded-xl px-4 py-2 shadow-sm">
+        <div className="flex items-center gap-2 bg-white border border-orange-100 rounded-xl px-4 py-2 shadow-sm self-start sm:self-auto">
           <IconUser />
           <span className="text-stone-700 font-semibold text-sm">
             {data?.total ?? "—"} usuarios totales
@@ -229,8 +229,8 @@ export default function ListaUsuariosScreen() {
       <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-6 w-full">
 
         {/* Filtros */}
-        <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
-          <div className="flex gap-3 items-center flex-wrap">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
             {/* Búsqueda */}
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -241,7 +241,7 @@ export default function ListaUsuariosScreen() {
                 placeholder="Buscar por nombre o email..."
                 value={filtro}
                 onChange={(e) => setFiltro(e.target.value)}
-                className="h-10 pl-9 pr-3 rounded-lg border border-orange-200 text-sm text-stone-900 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none w-60"
+                className="h-10 pl-9 pr-3 rounded-lg border border-orange-200 text-sm text-stone-900 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none w-full sm:w-60"
               />
             </div>
 
@@ -249,7 +249,7 @@ export default function ListaUsuariosScreen() {
             <select
               value={filtroEstado}
               onChange={(e) => setFiltroEstado(e.target.value as any)}
-              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none"
+              className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none w-full sm:w-auto"
             >
               <option value="todos">Todos los estados</option>
               <option value="activos">Solo activos</option>
@@ -373,11 +373,11 @@ export default function ListaUsuariosScreen() {
         </div>
 
         {/* Paginación */}
-        <div className="flex justify-between items-center mt-6">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-6">
           <button
             disabled={pagina === 0 || loading}
             onClick={() => setPagina((p) => p - 1)}
-            className="bg-white border border-orange-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-50 transition"
+            className="w-full sm:w-auto bg-white border border-orange-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-50 transition"
           >
             ← Anterior
           </button>
@@ -387,7 +387,7 @@ export default function ListaUsuariosScreen() {
           <button
             disabled={(pagina + 1) * LIMIT >= (data?.total ?? 0) || loading}
             onClick={() => setPagina((p) => p + 1)}
-            className="bg-white border border-orange-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-50 transition"
+            className="w-full sm:w-auto bg-white border border-orange-200 text-gray-700 px-4 py-2 rounded-lg text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-orange-50 transition"
           >
             Siguiente →
           </button>
