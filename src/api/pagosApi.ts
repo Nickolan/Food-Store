@@ -25,10 +25,10 @@ export interface PagoRead {
 }
 
 export async function crearPago(data: PagoCreate): Promise<PagoRead> {
-  const response = await api.post<PagoRead>("/api/v1/pagos/", data);
+  const response = await api.post<PagoRead>("/pagos/", data);
   return response.data;
 }
 
 export async function confirmarPagoConMP(paymentId: number): Promise<void> {
-  await api.post(`/api/v1/pagos/webhook?data.id=${paymentId}`);
+  await api.post(`/pagos/webhook?data.id=${paymentId}`);
 }

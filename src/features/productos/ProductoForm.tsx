@@ -8,6 +8,7 @@ import type { UnidadMedida } from "../../models/Unidad_medida";
 import { getCategorias } from "../../api/categoriasApi";
 import type { Categoria } from "../../models/Categoria";
 import { extraerPublicId } from "../../api/cloudinary";
+import { env } from "../../config/env";
 
 
 interface Props {
@@ -117,7 +118,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
         const res = await Promise.all(imagenesFiles.map(async (file) => {
         const formData = new FormData();
         formData.append("file", file);
-        const r = await fetch("http://localhost:8000/api/v6/uploads/imagen?carpeta=foodstore/productos", {
+        const r = await fetch(`${env.API_BASE_URL}/uploads/imagen?carpeta=foodstore/productos`, {
           method: "POST",
           credentials: "include",
           body: formData
@@ -346,7 +347,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                         type="button"
                         onClick={async () => {
                           if (img.public_id) {
-                            await fetch(`http://localhost:8000/api/v6/uploads/imagen/${encodeURIComponent(img.public_id)}`, {
+                            await fetch(`${env.API_BASE_URL}/uploads/imagen/${encodeURIComponent(img.public_id)}`, {
                               method: "DELETE",
                               credentials: "include",
                             });

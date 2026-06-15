@@ -1,6 +1,7 @@
 import { useState, useContext, type ChangeEvent, type FormEvent } from 'react';
 import { CategoriasContext } from '../context/categoriasContext';
 import type { Categoria } from '../models/Categoria';
+import { env } from '../config/env';
 import { extraerPublicId } from '../api/cloudinary';
 import axios from 'axios';
 
@@ -37,7 +38,7 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
         }
         if (imagenEliminada && imagenPublicId) {
             await axios.delete(
-              `http://localhost:8000/api/v6/uploads/imagen/${encodeURIComponent(imagenPublicId)}`,
+              `${env.API_BASE_URL}/api/v6/uploads/imagen/${encodeURIComponent(imagenPublicId)}`,
               { withCredentials: true }
             );
           }
@@ -46,7 +47,7 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
             const formData = new FormData();
             formData.append("file", imagenFile);
             const res = await axios.post(
-                "http://localhost:8000/api/v6/uploads/imagen?carpeta=foodstore/categorias",
+                `${env.API_BASE_URL}/api/v6/uploads/imagen?carpeta=foodstore/categorias`,
                 formData,
                 { withCredentials: true }
             );
