@@ -25,10 +25,13 @@ export async function login(form_data: { email: string; password: string }): Pro
     } catch (err) {
         if (axios.isAxiosError(err) && err.response) {
             const status = err.response.status;
-            const detail = err.response.data?.detail || "Error inesperado";
+            const raw = err.response.data?.detail || "Error inesperado";
+            const message = Array.isArray(raw)
+                ? raw.map((e: { msg?: string }) => e.msg ?? "").filter(Boolean).join(". ")
+                : raw;
             const retryAfter = err.response.headers?.["retry-after"] ?? err.response.headers?.["Retry-After"];
             const retryAfterNum = retryAfter ? parseInt(retryAfter, 10) : undefined;
-            throw new AuthError(detail, status, retryAfterNum);
+            throw new AuthError(message, status, retryAfterNum);
         }
         throw new AuthError("Error de conexión con el servidor", 0);
     }
@@ -56,8 +59,11 @@ export async function signUpApi(form_data: { nombre: string; apellido: string; e
     } catch (err) {
         if (axios.isAxiosError(err) && err.response) {
             const status = err.response.status;
-            const detail = err.response.data?.detail || "Error inesperado";
-            throw new AuthError(detail, status);
+            const raw = err.response.data?.detail || "Error inesperado";
+            const message = Array.isArray(raw)
+                ? raw.map((e: { msg?: string }) => e.msg ?? "").filter(Boolean).join(". ")
+                : raw;
+            throw new AuthError(message, status);
         }
         throw new AuthError("Error de conexión con el servidor", 0);
     }
