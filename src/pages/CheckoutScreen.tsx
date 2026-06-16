@@ -78,8 +78,7 @@ function CheckoutScreen() {
         if (checkoutUrl) {
           setPedidoExitoso(true);
           vaciarCarrito();
-          window.open(checkoutUrl, '_blank');
-          navigate(`/pending?pedido=${pedido.id}`);
+          window.location.href = checkoutUrl;
         } else {
           setError('No se pudo obtener la URL de pago. Intentá de nuevo.');
         }
