@@ -12,6 +12,8 @@ export interface IngredientePaginadoResponse {
 
 export interface IngredienteFilter {
   nombre?: string;
+  activo?: boolean;
+  es_alergeno?: boolean;
   offset?: number;
   limit?: number;
 }
@@ -21,6 +23,8 @@ export const getIngredientes = async (
 ): Promise<IngredientePaginadoResponse> => {
   const params: Record<string, string> = {};
   if (filters?.nombre) params["nombre"] = filters.nombre;
+  if (filters?.activo !== undefined) params["activo"] = String(filters.activo);
+  if (filters?.es_alergeno !== undefined) params["es_alergeno"] = String(filters.es_alergeno);
   if (filters?.offset !== undefined) params["offset"] = String(filters.offset);
   if (filters?.limit !== undefined) params["limit"] = String(filters.limit);
 

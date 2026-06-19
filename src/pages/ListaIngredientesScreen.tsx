@@ -20,23 +20,20 @@ export default function ListaIngredientesScreen() {
 
   useEffect(() => {
     if (!context) return
-    context.cargar({ offset: pagina * limit, limit })
-  }, [pagina]);
+    context.cargar({
+      offset: pagina * limit,
+      limit,
+      nombre: filtroNombre || undefined,
+      activo: filtroActivo === "todos" ? undefined : filtroActivo === "true",
+      es_alergeno: filtroAlergeno === "todos" ? undefined : filtroAlergeno === "true",
+    })
+  }, [pagina, filtroNombre, filtroActivo, filtroAlergeno]);
+
+  useEffect(() => {
+    setPagina(0)
+  }, [filtroNombre, filtroActivo, filtroAlergeno]);
+
   if (!context) return null
-  const inicio = pagina * limit + 1;
-
-  const fin = Math.min((pagina * limit) + context.ingredientes.length, context.total);
-  const filtrarIngredientes = (Array.isArray(context.ingredientes) ? context.ingredientes : []).filter((i) => {
-
-    const coincideNombre = i.nombre.toLowerCase().includes(filtroNombre.toLowerCase())
-
-    const coincideActivo = filtroActivo === "todos" || (filtroActivo === "true" && i.activo) || (filtroActivo === "false" && !i.activo)
-
-    const coincideAlergeno = filtroAlergeno === "todos" || (filtroAlergeno === "true" && i.es_alergeno) || (filtroAlergeno === "false" && !i.es_alergeno)
-
-    return coincideNombre && coincideActivo && coincideAlergeno
-
-  })
 
   return (
     <div className="w-full">
@@ -103,14 +100,14 @@ export default function ListaIngredientesScreen() {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {filtrarIngredientes.length === 0 ? (
+              {context.ingredientes.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-8 px-4 text-center text-sm text-gray-400 border-b border-orange-100">
                     No hay ingredientes para mostrar.
                   </td>
                 </tr>
               ) : (
-                filtrarIngredientes.map((i) => (
+                context.ingredientes.map((i) => (
                   <tr key={i.id} className="transition hover:bg-orange-50">
                     <td className="py-4 px-4 border-b border-orange-100 text-stone-900 text-sm text-center">
                       {i.id}
