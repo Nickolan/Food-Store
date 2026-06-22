@@ -115,6 +115,11 @@ export const getProductoAlertas = async (): Promise<ProductoAlertasResponse> => 
   return response.data;
 };
 
+export const descartarAlertaIngrediente = async (id: number): Promise<Producto> => {
+  const response = await api.post<Producto>(`/productos/${id}/descartar-alerta`);
+  return response.data;
+};
+
 export const reactivarProducto = async (id: number): Promise<Producto> => {
   const response = await api.put<Producto>(`/productos/${id}/reactivar`);
   return response.data;

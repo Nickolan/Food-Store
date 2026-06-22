@@ -23,9 +23,6 @@ export default function ListaIngredientesScreen() {
     context.cargar({ offset: pagina * limit, limit })
   }, [pagina]);
   if (!context) return null
-  const inicio = pagina * limit + 1;
-
-  const fin = Math.min((pagina * limit) + context.ingredientes.length, context.total);
   const filtrarIngredientes = (Array.isArray(context.ingredientes) ? context.ingredientes : []).filter((i) => {
 
     const coincideNombre = i.nombre.toLowerCase().includes(filtroNombre.toLowerCase())

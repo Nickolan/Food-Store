@@ -25,6 +25,7 @@ interface Props {
   onFilterActivo: (v: "" | "true" | "false") => void;
   onEdit: (producto: Producto) => void;
   onToggleActivo: (producto: Producto) => void;
+  onDescartarAlerta: (producto: Producto) => void;
 }
 
 export const ProductosGrid = ({
@@ -41,6 +42,7 @@ export const ProductosGrid = ({
   onFilterActivo,
   onEdit,
   onToggleActivo,
+  onDescartarAlerta,
 }: Props) => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const [margenPopup, setMargenPopup] = useState<MargenPopup | null>(null);
@@ -62,19 +64,22 @@ export const ProductosGrid = ({
     helper.accessor("id", {
       header: "ID",
       size: 60,
-      cell: (info) => (
-        <div className="flex items-center justify-center gap-1.5">
-          {info.getValue()}
-          {info.row.original.tiene_alerta_precio && (
-            <span
-              title="Precio de ingrediente actualizado — revisá el margen"
-              className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-400 text-white text-[10px] font-bold"
-            >
-              !
-            </span>
-          )}
-        </div>
-      ),
+      cell: (info) => {
+        const prod = info.row.original;
+        return (
+          <div className="flex items-center justify-center gap-1.5">
+            {info.getValue()}
+            {prod.alerta_ingrediente_modificado && (
+              <span
+                title="Un ingrediente cambió de precio — revisá el margen"
+                className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-400 text-white text-[9px] font-bold leading-none"
+              >
+                !
+              </span>
+            )}
+          </div>
+        );
+      },
     }),
     helper.accessor("nombre", { header: "Nombre" }),
     helper.accessor("precio_base", {
@@ -188,6 +193,18 @@ export const ProductosGrid = ({
       header: "Acciones",
       cell: ({ row }) => (
         <div className="flex justify-center items-center gap-4">
+          {row.original.alerta_ingrediente_modificado && (
+            <button
+              id={`btn-descartar-alerta-${row.original.id}`}
+              onClick={() => onDescartarAlerta(row.original)}
+              className="text-amber-500 hover:text-amber-700 transition-colors"
+              title="Descartar alerta de ingrediente modificado"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </button>
+          )}
           <button
             id={`btn-editar-${row.original.id}`}
             onClick={() => onEdit(row.original)}

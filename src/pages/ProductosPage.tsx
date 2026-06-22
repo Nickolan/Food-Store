@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductosGrid } from "../features/productos/ProductosGrid";
 import { ProductoForm } from "../features/productos/ProductoForm";
-import type { Producto, ProductoReadFull } from "../models/Producto";
+import type { Producto, ProductoCreate, ProductoReadFull } from "../models/Producto";
 import {
   getProductos,
   createProducto,
@@ -11,6 +11,7 @@ import {
   getProductoById,
   reactivarProducto,
   getProductoAlertas,
+  descartarAlertaIngrediente,
 } from "../api/productosApi";
 
 const PAGE_SIZE = 10;
@@ -114,7 +115,15 @@ export const ProductosPage = () => {
     }
   });
 
-  const handleSubmit = async (formData: Omit<Producto, "id" | "activo">) => {
+  const mutDescartarAlerta = useMutation({
+    mutationFn: (id: number) => descartarAlertaIngrediente(id),
+    onSuccess: invalidar,
+    onError: (error: any) => {
+      alert(error.response?.data?.detail || "Error al descartar la alerta");
+    }
+  });
+
+  const handleSubmit = async (formData: Omit<ProductoCreate, "id" | "activo">) => {
     if (editing?.id) {
       await mutUpdate.mutateAsync({ id: editing.id, data: formData });
     } else {
@@ -156,7 +165,6 @@ export const ProductosPage = () => {
     }
   };
 
-  const productos = data?.items ?? [];
   const total = data?.total ?? 0;
 
   return (
@@ -224,6 +232,7 @@ export const ProductosPage = () => {
           onFilterDisponible={handleFilterChange(setFilterDisponible)}
           onEdit={handleEdit}
           onToggleActivo={handleToggleActivo}
+          onDescartarAlerta={(p) => mutDescartarAlerta.mutate(p.id!)}
         />
       )}
     </div>
