@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductosGrid } from "../features/productos/ProductosGrid";
 import { ProductoForm } from "../features/productos/ProductoForm";
@@ -10,6 +10,7 @@ import {
   updateProducto,
   getProductoById,
   reactivarProducto,
+  getProductoAlertas,
 } from "../api/productosApi";
 
 const PAGE_SIZE = 10;
@@ -39,13 +40,33 @@ export const ProductosPage = () => {
     placeholderData: (prev) => prev,
   });
 
+  const { data: alertas } = useQuery({
+    queryKey: ["productos-alertas"],
+    queryFn: getProductoAlertas,
+    refetchInterval: 30_000, // refrescar cada 30s
+  });
+
+  // Mergear alertas en los productos del listado
+  const productosConAlertas = useMemo(() => {
+    if (!data?.items || !alertas?.items) return data?.items ?? [];
+    const alertasMap = new Map(alertas.items.map(a => [a.producto_id, a]));
+    return data.items.map(p => ({
+      ...p,
+      tiene_alerta_precio: alertasMap.has(p.id!),
+    }));
+  }, [data?.items, alertas?.items]);
+
   const invalidar = () =>
     queryClient.invalidateQueries({ queryKey: ["productos"] });
+
+  const invalidarAlertas = () =>
+    queryClient.invalidateQueries({ queryKey: ["productos-alertas"] });
 
   const mutCreate = useMutation({
     mutationFn: createProducto,
     onSuccess: () => {
       invalidar();
+      invalidarAlertas();
       setShowForm(false);
       setEditing(undefined);
     },
@@ -67,6 +88,7 @@ export const ProductosPage = () => {
       updateProducto(id, data),
     onSuccess: () => {
       invalidar();
+      invalidarAlertas();
       setShowForm(false);
       setEditing(undefined);
     },
@@ -189,7 +211,7 @@ export const ProductosPage = () => {
 
       {!isLoading && !isError && (
         <ProductosGrid
-          data={productos}
+          data={productosConAlertas}
           total={total}
           page={page}
           pageSize={PAGE_SIZE}

@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type { Producto, ProductoCreate, ProductoReadFull } from "../../models/Producto";
 import type { Ingrediente } from "../../models/Ingrediente";
 import { getIngredientes } from "../../api/ingredientesApi";
@@ -44,6 +44,20 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       public_id: extraerPublicId(url) ?? undefined 
     })) ?? []
   );
+  const [precioBaseLocal, setPrecioBaseLocal] = useState(initial?.precio_base ?? 0);
+
+  // ─── Cálculos de margen en vivo ─────────────────────────────────────
+  const costoTotal = useMemo(() => {
+    return ingredientesSeleccionados.reduce((total, ing) => {
+      const ingrediente = ingredientesDisponibles.find(i => i.id === ing.id);
+      const precio = ingrediente?.precio ?? 0;
+      return total + precio * ing.cantidad;
+    }, 0);
+  }, [ingredientesSeleccionados, ingredientesDisponibles]);
+
+  const margenAbsoluto = precioBaseLocal - costoTotal;
+  const margenPorcentual = precioBaseLocal > 0 ? (margenAbsoluto / precioBaseLocal) * 100 : 0;
+  const precioSugerido = costoTotal * 1.10;
 
   useEffect(() => {
     const cargarIngredientes = async () => {
@@ -258,7 +272,10 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                       step={0.01}
                       placeholder="0.00"
                       value={f.state.value}
-                      onChange={(e) => f.handleChange(Number(e.target.value))}
+                      onChange={(e) => {
+                        f.handleChange(Number(e.target.value));
+                        setPrecioBaseLocal(Number(e.target.value));
+                      }}
                       required
                     />
                   </div>
@@ -505,6 +522,68 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                 <p className="text-sm text-red-500 text-center py-4 border border-red-300 border-dashed rounded-lg bg-red-50">
                   ⚠️ Debes agregar al menos un ingrediente al producto.
                 </p>
+              )}
+            </div>
+
+            {/* ─── Card de Margen ───────────────────────────────────────── */}
+            <div className="border-t-2 border-blue-100 rounded-xl bg-blue-50/50 p-5 space-y-3">
+              <h3 className="text-sm font-bold text-[#1D3557] flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                </svg>
+                Análisis de margen
+              </h3>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {/* Costo total */}
+                <div className="bg-white rounded-lg p-3 border border-blue-100">
+                  <p className="text-xs text-gray-500 font-medium">Costo total</p>
+                  <p className="text-lg font-bold text-[#1D3557]">${costoTotal.toFixed(2)}</p>
+                </div>
+
+                {/* Margen absoluto */}
+                <div className="bg-white rounded-lg p-3 border border-blue-100">
+                  <p className="text-xs text-gray-500 font-medium">Margen bruto</p>
+                  <p className={`text-lg font-bold ${margenAbsoluto >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    ${margenAbsoluto.toFixed(2)}
+                  </p>
+                </div>
+
+                {/* Margen porcentual */}
+                <div className="bg-white rounded-lg p-3 border border-blue-100">
+                  <p className="text-xs text-gray-500 font-medium">Margen %</p>
+                  <p className={`text-lg font-bold ${margenPorcentual >= 10 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    {margenPorcentual.toFixed(1)}%
+                  </p>
+                </div>
+
+                {/* Precio sugerido */}
+                <div className="bg-white rounded-lg p-3 border border-blue-100">
+                  <p className="text-xs text-gray-500 font-medium">Precio sugerido</p>
+                  <p className="text-lg font-bold text-blue-600">${precioSugerido.toFixed(2)}</p>
+                </div>
+              </div>
+
+              {/* Texto informativo fijo */}
+              {precioBaseLocal > 0 && (
+                <div className={`flex items-center gap-2 text-xs font-medium rounded-lg px-3 py-2 ${
+                  margenPorcentual >= 10
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : margenPorcentual >= 0
+                    ? 'bg-amber-100 text-amber-700'
+                    : 'bg-red-100 text-red-700'
+                }`}>
+                  {margenPorcentual >= 10 ? (
+                    <>✅ Margen saludable ({margenPorcentual.toFixed(1)}%)</>
+                  ) : margenPorcentual >= 0 ? (
+                    <>⚠️ Margen bajo ({margenPorcentual.toFixed(1)}%). Considerá subir el precio.</>
+                  ) : (
+                    <>❌ Vendiendo por debajo del costo.</>
+                  )}
+                </div>
+              )}
+              {precioBaseLocal === 0 && (
+                <p className="text-xs text-gray-400 italic">Establecé un precio base para ver el análisis de margen.</p>
               )}
             </div>
 
