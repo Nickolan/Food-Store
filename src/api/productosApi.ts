@@ -84,6 +84,42 @@ export const removeIngredienteFromProducto = async (
   return response.data;
 };
 
+export interface ProductoMargenResponse {
+  producto_id: number;
+  precio_venta: number;
+  costo_total: number;
+  margen_absoluto: number;
+  margen_porcentual: number | null;
+}
+
+export const getProductoMargen = async (id: number): Promise<ProductoMargenResponse> => {
+  const response = await api.get<ProductoMargenResponse>(`/productos/${id}/margen`);
+  return response.data;
+};
+
+export interface ProductoAlertaItem {
+  producto_id: number;
+  nombre: string;
+  tipo_alerta: "margen_bajo" | "precio_ingrediente_actualizado";
+  mensaje: string;
+  margen_porcentual: number | null;
+}
+
+export interface ProductoAlertasResponse {
+  total: number;
+  items: ProductoAlertaItem[];
+}
+
+export const getProductoAlertas = async (): Promise<ProductoAlertasResponse> => {
+  const response = await api.get<ProductoAlertasResponse>("/productos/alertas");
+  return response.data;
+};
+
+export const descartarAlertaIngrediente = async (id: number): Promise<Producto> => {
+  const response = await api.post<Producto>(`/productos/${id}/descartar-alerta`);
+  return response.data;
+};
+
 export const reactivarProducto = async (id: number): Promise<Producto> => {
   const response = await api.put<Producto>(`/productos/${id}/reactivar`);
   return response.data;

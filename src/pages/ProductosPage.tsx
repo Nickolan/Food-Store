@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductosGrid } from "../features/productos/ProductosGrid";
 import { ProductoForm } from "../features/productos/ProductoForm";
-import type { Producto, ProductoReadFull } from "../models/Producto";
+import type { Producto, ProductoCreate, ProductoReadFull } from "../models/Producto";
 import {
   getProductos,
   createProducto,
@@ -10,6 +10,8 @@ import {
   updateProducto,
   getProductoById,
   reactivarProducto,
+  getProductoAlertas,
+  descartarAlertaIngrediente,
 } from "../api/productosApi";
 
 const PAGE_SIZE = 10;
@@ -39,13 +41,33 @@ export const ProductosPage = () => {
     placeholderData: (prev) => prev,
   });
 
+  const { data: alertas } = useQuery({
+    queryKey: ["productos-alertas"],
+    queryFn: getProductoAlertas,
+    refetchInterval: 30_000, // refrescar cada 30s
+  });
+
+  // Mergear alertas en los productos del listado
+  const productosConAlertas = useMemo(() => {
+    if (!data?.items || !alertas?.items) return data?.items ?? [];
+    const alertasMap = new Map(alertas.items.map(a => [a.producto_id, a]));
+    return data.items.map(p => ({
+      ...p,
+      tiene_alerta_precio: alertasMap.has(p.id!),
+    }));
+  }, [data?.items, alertas?.items]);
+
   const invalidar = () =>
     queryClient.invalidateQueries({ queryKey: ["productos"] });
+
+  const invalidarAlertas = () =>
+    queryClient.invalidateQueries({ queryKey: ["productos-alertas"] });
 
   const mutCreate = useMutation({
     mutationFn: createProducto,
     onSuccess: () => {
       invalidar();
+      invalidarAlertas();
       setShowForm(false);
       setEditing(undefined);
     },
@@ -67,6 +89,7 @@ export const ProductosPage = () => {
       updateProducto(id, data),
     onSuccess: () => {
       invalidar();
+      invalidarAlertas();
       setShowForm(false);
       setEditing(undefined);
     },
@@ -92,7 +115,15 @@ export const ProductosPage = () => {
     }
   });
 
-  const handleSubmit = async (formData: Omit<Producto, "id" | "activo">) => {
+  const mutDescartarAlerta = useMutation({
+    mutationFn: (id: number) => descartarAlertaIngrediente(id),
+    onSuccess: invalidar,
+    onError: (error: any) => {
+      alert(error.response?.data?.detail || "Error al descartar la alerta");
+    }
+  });
+
+  const handleSubmit = async (formData: Omit<ProductoCreate, "id" | "activo">) => {
     if (editing?.id) {
       await mutUpdate.mutateAsync({ id: editing.id, data: formData });
     } else {
@@ -134,7 +165,6 @@ export const ProductosPage = () => {
     }
   };
 
-  const productos = data?.items ?? [];
   const total = data?.total ?? 0;
 
   return (
@@ -189,7 +219,7 @@ export const ProductosPage = () => {
 
       {!isLoading && !isError && (
         <ProductosGrid
-          data={productos}
+          data={productosConAlertas}
           total={total}
           page={page}
           pageSize={PAGE_SIZE}
@@ -202,6 +232,7 @@ export const ProductosPage = () => {
           onFilterDisponible={handleFilterChange(setFilterDisponible)}
           onEdit={handleEdit}
           onToggleActivo={handleToggleActivo}
+          onDescartarAlerta={(p) => mutDescartarAlerta.mutate(p.id!)}
         />
       )}
     </div>

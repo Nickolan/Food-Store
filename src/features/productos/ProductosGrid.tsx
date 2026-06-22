@@ -1,7 +1,15 @@
+import { useState } from "react";
 import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "@tanstack/react-table";
 import type { Producto } from "../../models/Producto";
+import { getProductoMargen } from "../../api/productosApi";
+import type { ProductoMargenResponse } from "../../api/productosApi";
 
 const helper = createColumnHelper<Producto>();
+
+interface MargenPopup {
+  productoId: number;
+  data: ProductoMargenResponse;
+}
 
 interface Props {
   data: Producto[];
@@ -17,6 +25,7 @@ interface Props {
   onFilterActivo: (v: "" | "true" | "false") => void;
   onEdit: (producto: Producto) => void;
   onToggleActivo: (producto: Producto) => void;
+  onDescartarAlerta: (producto: Producto) => void;
 }
 
 export const ProductosGrid = ({
@@ -33,15 +42,123 @@ export const ProductosGrid = ({
   onFilterActivo,
   onEdit,
   onToggleActivo,
+  onDescartarAlerta,
 }: Props) => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const [margenPopup, setMargenPopup] = useState<MargenPopup | null>(null);
+  const [loadingMargen, setLoadingMargen] = useState<number | null>(null);
+
+  const handleVerMargen = async (producto: Producto) => {
+    setLoadingMargen(producto.id);
+    try {
+      const data = await getProductoMargen(producto.id);
+      setMargenPopup({ productoId: producto.id, data });
+    } catch {
+      alert("Error al calcular margen del producto.");
+    } finally {
+      setLoadingMargen(null);
+    }
+  };
 
   const columns = [
-    helper.accessor("id", { header: "ID", size: 60 }),
+    helper.accessor("id", {
+      header: "ID",
+      size: 60,
+      cell: (info) => {
+        const prod = info.row.original;
+        return (
+          <div className="flex items-center justify-center gap-1.5">
+            {info.getValue()}
+            {prod.alerta_ingrediente_modificado && (
+              <span
+                title="Un ingrediente cambió de precio — revisá el margen"
+                className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-amber-400 text-white text-[9px] font-bold leading-none"
+              >
+                !
+              </span>
+            )}
+          </div>
+        );
+      },
+    }),
     helper.accessor("nombre", { header: "Nombre" }),
     helper.accessor("precio_base", {
-      header: "Precio",
+      header: "Precio venta",
       cell: (info) => `$${info.getValue().toFixed(2)}`,
+    }),
+    helper.display({
+      id: "margen",
+      header: "Margen",
+      size: 80,
+      cell: ({ row }) => {
+        const prod = row.original;
+        const isActive = margenPopup?.productoId === prod.id;
+        const isLoading = loadingMargen === prod.id;
+
+        return (
+          <div className="flex justify-center">
+            <button
+              onClick={() => handleVerMargen(prod)}
+              disabled={isLoading}
+              className="text-xs font-medium text-blue-600 hover:text-blue-800 underline underline-offset-2 disabled:opacity-40"
+            >
+              {isLoading ? "..." : "Ver margen"}
+            </button>
+
+            {isActive && margenPopup && (
+              <>
+                {/* Backdrop */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setMargenPopup(null)}
+                />
+                {/* Modal centrado en pantalla — evita cortes por overflow de la tabla */}
+                <div className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded-xl shadow-2xl p-5 w-72">
+                  <div className="flex justify-between items-start mb-3">
+                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wide">Margen de ganancia</p>
+                    <button
+                      onClick={() => setMargenPopup(null)}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="space-y-2.5">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Precio venta:</span>
+                      <span className="font-semibold text-[#1D3557]">${margenPopup.data.precio_venta.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Costo total:</span>
+                      <span className="font-semibold text-[#1D3557]">${margenPopup.data.costo_total.toFixed(2)}</span>
+                    </div>
+                    <hr className="border-gray-100" />
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Margen bruto:</span>
+                      <span className={`font-bold ${margenPopup.data.margen_absoluto >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                        ${margenPopup.data.margen_absoluto.toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Margen %:</span>
+                      <span className={`font-bold ${(margenPopup.data.margen_porcentual ?? 0) >= 10 ? 'text-emerald-600' : 'text-red-600'}`}>
+                        {margenPopup.data.margen_porcentual?.toFixed(1) ?? "—"}%
+                      </span>
+                    </div>
+                    {(margenPopup.data.margen_porcentual ?? 0) < 10 && (
+                      <p className="text-xs text-amber-600 text-center mt-2 bg-amber-50 rounded-lg px-2 py-1.5">
+                        ⚠️ Margen por debajo del 10% recomendado
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        );
+      },
     }),
     helper.accessor("disponible", {
       header: "Disponible",
@@ -76,6 +193,18 @@ export const ProductosGrid = ({
       header: "Acciones",
       cell: ({ row }) => (
         <div className="flex justify-center items-center gap-4">
+          {row.original.alerta_ingrediente_modificado && (
+            <button
+              id={`btn-descartar-alerta-${row.original.id}`}
+              onClick={() => onDescartarAlerta(row.original)}
+              className="text-amber-500 hover:text-amber-700 transition-colors"
+              title="Descartar alerta de ingrediente modificado"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </button>
+          )}
           <button
             id={`btn-editar-${row.original.id}`}
             onClick={() => onEdit(row.original)}
