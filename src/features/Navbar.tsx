@@ -41,6 +41,7 @@ const linkClass = "text-stone-600 hover:text-orange-600 transition-colors font-m
 
 function Navbar() {
     const { usuario, isAuthenticated, logout } = useAuth();
+    const { vaciarCarrito } = useCarrito();
     const [menuAbierto, setMenuAbierto] = useState(false);
     const cerrar = () => setMenuAbierto(false);
 
@@ -99,7 +100,7 @@ function Navbar() {
                                         </div>
                                     </Link>
                                     <button
-                                        onClick={() => { console.log("🚪 Ejecutando logout"); logout(); }}
+                                        onClick={() => { console.log("🚪 Ejecutando logout"); logout(); vaciarCarrito(); }}
                                         className="px-4 py-2 border-2 border-orange-500 text-orange-600 hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 rounded-lg font-medium text-sm"
                                     >
                                         Cerrar Sesión
@@ -160,7 +161,7 @@ function Navbar() {
                                         </div>
                                     </Link>
                                     <button
-                                        onClick={() => { logout(); cerrar(); }}
+                                        onClick={() => { logout(); cerrar(); vaciarCarrito(); }}
                                         className="px-3 py-1.5 border-2 border-orange-500 text-orange-600 hover:bg-orange-50 transition-all rounded-lg font-medium text-sm"
                                     >
                                         Salir
