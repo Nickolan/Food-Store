@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { usuarioApi, type UsuariosPaginados } from "../api/usuarioApi";
 import type { Usuario } from "../models/Usuario";
 
@@ -134,20 +134,43 @@ export default function ListaUsuariosScreen() {
   const [accionLoading, setAccionLoading] = useState(false);
   const [toast, setToast]         = useState<{ msg: string; ok: boolean } | null>(null);
 
+  // Valor con debounce para el texto de búsqueda
+  const [filtroDebounced, setFiltroDebounced] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleFiltroChange = (value: string) => {
+    setFiltro(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setFiltroDebounced(value);
+      setPagina(0);
+    }, 400);
+  };
+
+  const disabledParam = filtroEstado === "activos" ? false : filtroEstado === "inactivos" ? true : undefined;
+
   const cargar = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await usuarioApi.listarUsuarios(pagina * LIMIT, LIMIT);
+      const result = await usuarioApi.listarUsuarios(
+        pagina * LIMIT,
+        LIMIT,
+        filtroDebounced || undefined,
+        disabledParam,
+      );
       setData(result);
     } catch {
       setError("No se pudo cargar la lista de usuarios. Verificá tu conexión.");
     } finally {
       setLoading(false);
     }
-  }, [pagina]);
+  }, [pagina, filtroDebounced, disabledParam]);
 
   useEffect(() => { cargar(); }, [cargar]);
+
+  // Resetear página al cambiar el filtro de estado
+  useEffect(() => { setPagina(0); }, [filtroEstado]);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -174,17 +197,7 @@ export default function ListaUsuariosScreen() {
     }
   };
 
-  // Filtros locales
-  const usuarios = (data?.items ?? []).filter((u) => {
-    const nombre = `${u.nombre} ${u.apellido} ${u.email}`.toLowerCase();
-    const coincideTexto = nombre.includes(filtro.toLowerCase());
-    const coincideEstado =
-      filtroEstado === "todos" ||
-      (filtroEstado === "activos" && !u.disabled) ||
-      (filtroEstado === "inactivos" && u.disabled);
-    return coincideTexto && coincideEstado;
-  });
-
+  const usuarios = data?.items ?? [];
   const totalPaginas = Math.max(1, Math.ceil((data?.total ?? 0) / LIMIT));
 
   return (
@@ -240,7 +253,7 @@ export default function ListaUsuariosScreen() {
                 type="search"
                 placeholder="Buscar por nombre o email..."
                 value={filtro}
-                onChange={(e) => setFiltro(e.target.value)}
+                onChange={(e) => handleFiltroChange(e.target.value)}
                 className="h-10 pl-9 pr-3 rounded-lg border border-orange-200 text-sm text-stone-900 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none w-full sm:w-60"
               />
             </div>
@@ -248,7 +261,7 @@ export default function ListaUsuariosScreen() {
             {/* Estado */}
             <select
               value={filtroEstado}
-              onChange={(e) => setFiltroEstado(e.target.value as any)}
+              onChange={(e) => setFiltroEstado(e.target.value as "todos" | "activos" | "inactivos")}
               className="h-10 rounded-lg border border-orange-200 px-3 text-sm text-stone-900 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none w-full sm:w-auto"
             >
               <option value="todos">Todos los estados</option>
@@ -258,7 +271,7 @@ export default function ListaUsuariosScreen() {
           </div>
 
           <span className="text-sm text-gray-400 font-medium">
-            {usuarios.length} resultado{usuarios.length !== 1 ? "s" : ""}
+            {data?.total ?? 0} resultado{(data?.total ?? 0) !== 1 ? "s" : ""}
           </span>
         </div>
 

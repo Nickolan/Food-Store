@@ -4,9 +4,30 @@ import { env } from '../config/env';
 
 const api = axios.create({ baseURL: env.API_BASE_URL, withCredentials: true  });
 
-export const getCategorias = async ({limit = 100, offset = 0, nombre = ""}: { limit?: number; offset?: number; nombre?: string }) => {
-  const response = await api.get<{ total: number; items: Categoria[] }>(`/categorias/?limit=${limit}&offset=${offset}&nombre=${nombre || ''}`);
-  return response.data.items;
+export const getCategorias = async ({
+  limit = 100,
+  offset = 0,
+  nombre = "",
+  activo,
+  parent_id,
+  solo_raiz,
+}: {
+  limit?: number;
+  offset?: number;
+  nombre?: string;
+  activo?: boolean;
+  parent_id?: number | null;
+  solo_raiz?: boolean;
+}) => {
+  const params = new URLSearchParams();
+  params.set("limit", String(limit));
+  params.set("offset", String(offset));
+  if (nombre) params.set("nombre", nombre);
+  if (activo !== undefined) params.set("activo", String(activo));
+  if (solo_raiz) params.set("solo_raiz", "true");
+  else if (parent_id !== undefined && parent_id !== null) params.set("parent_id", String(parent_id));
+  const response = await api.get<{ total: number; items: Categoria[] }>(`/categorias/?${params}`);
+  return { total: response.data.total, items: response.data.items };
 };
 
 export const getCategoriaById = async (id: number) => {

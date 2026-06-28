@@ -26,8 +26,8 @@ export const usuarioApi = {
 
   // ─── Endpoints de administración ───────────────────────────────────────────
 
-  listarUsuarios: async (offset = 0, limit = 10): Promise<UsuariosPaginados> => {
-    const response = await api.get<UsuariosPaginados>('/', { params: { offset, limit } });
+  listarUsuarios: async (offset = 0, limit = 10, nombre?: string, disabled?: boolean): Promise<UsuariosPaginados> => {
+    const response = await api.get<UsuariosPaginados>('/', { params: { offset, limit, nombre: nombre || undefined, disabled } });
     return response.data;
   },
 

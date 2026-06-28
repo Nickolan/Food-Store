@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import type { Producto, ProductoCreate, ProductoReadFull } from "../../models/Producto";
 import type { Ingrediente } from "../../models/Ingrediente";
 import { getIngredientes } from "../../api/ingredientesApi";
@@ -34,6 +34,9 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
   const [ingredientesDisponibles, setIngredientesDisponibles] = useState<Ingrediente[]>([]);
   const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState<IngredienteSeleccionado[]>([]);
   const [selectedIngredienteId, setSelectedIngredienteId] = useState<number>(0);
+  const [busquedaIngrediente, setBusquedaIngrediente] = useState("");
+  const [mostrarDropdown, setMostrarDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [unidadesDisponibles, setUnidadesDisponibles] = useState<UnidadMedida[]>([]);
   const [categoriasDisponibles, setCategoriasDisponibles] = useState<Categoria[]>([]);
   const [selectedCategoriasIds, setSelectedCategoriasIds] = useState<number[]>([]);
@@ -82,10 +85,8 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
 
     const cargarCategorias = async () => {
       try {
-        const cats = await getCategorias({});
-        console.log(cats);
-        
-        setCategoriasDisponibles(cats.filter(c => c.activo));
+        const { items: cats } = await getCategorias({ activo: true });
+        setCategoriasDisponibles(cats);
       } catch (error) {
         console.error("Error cargando categorías:", error);
       }
@@ -170,16 +171,30 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
     },
   });
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setMostrarDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const ingredientesFiltrados = ingredientesDisponibles
+    .filter(ing => !ingredientesSeleccionados.some(sel => sel.id === ing.id))
+    .filter(ing => ing.nombre.toLowerCase().includes(busquedaIngrediente.toLowerCase()));
+
   const agregarIngrediente = () => {
     if (selectedIngredienteId === 0) return;
-    
+
     const ingrediente = ingredientesDisponibles.find(i => i.id === selectedIngredienteId);
     if (ingrediente && !ingredientesSeleccionados.some(i => i.id === ingrediente.id)) {
       setIngredientesSeleccionados([
         ...ingredientesSeleccionados,
-        { 
-          id: ingrediente.id!, 
-          nombre: ingrediente.nombre, 
+        {
+          id: ingrediente.id!,
+          nombre: ingrediente.nombre,
           es_alergeno: ingrediente.es_alergeno,
           es_removible: false,
           cantidad: 1,
@@ -189,6 +204,25 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
       ]);
       setSelectedIngredienteId(0);
     }
+  };
+
+  const seleccionarIngredienteDesdeDropdown = (ingrediente: typeof ingredientesDisponibles[0]) => {
+    if (!ingredientesSeleccionados.some(i => i.id === ingrediente.id)) {
+      setIngredientesSeleccionados(prev => [
+        ...prev,
+        {
+          id: ingrediente.id!,
+          nombre: ingrediente.nombre,
+          es_alergeno: ingrediente.es_alergeno,
+          es_removible: false,
+          cantidad: 1,
+          unidad_medida_nombre: ingrediente.unidad_medida?.nombre ?? "unidad",
+          unidad_medida_simbolo: ingrediente.unidad_medida?.simbolo ?? "unidad",
+        },
+      ]);
+    }
+    setBusquedaIngrediente("");
+    setMostrarDropdown(false);
   };
 
   const removerIngrediente = (id: number) => {
@@ -424,28 +458,45 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                 Especificá los ingredientes y si pueden ser removidos por el cliente. El producto debe tener al menos un ingrediente.
               </p>
 
-              <div className="flex gap-2 mb-3">
-                <select
+              <div ref={dropdownRef} className="relative mb-3">
+                <input
+                  type="text"
                   className={inputCls}
-                  value={selectedIngredienteId}
-                  onChange={(e) => setSelectedIngredienteId(Number(e.target.value))}
-                >
-                  <option value={0}>Seleccionar ingrediente...</option>
-                  {ingredientesDisponibles
-                    .filter(ing => !ingredientesSeleccionados.some(sel => sel.id === ing.id))
-                    .map(ing => (
-                      <option key={ing.id} value={ing.id}>
-                        {ing.nombre} {ing.es_alergeno ? "⚠️ Alérgeno" : ""}
-                      </option>
-                    ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={agregarIngrediente}
-                  className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700"
-                >
-                  Agregar
-                </button>
+                  placeholder="Buscar ingrediente por nombre..."
+                  value={busquedaIngrediente}
+                  onChange={(e) => {
+                    setBusquedaIngrediente(e.target.value);
+                    setMostrarDropdown(true);
+                  }}
+                  onFocus={() => setMostrarDropdown(true)}
+                />
+                {mostrarDropdown && (
+                  <ul className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto">
+                    {ingredientesFiltrados.length === 0 ? (
+                      <li className="px-4 py-3 text-sm text-gray-400 text-center">
+                        {busquedaIngrediente ? "Sin resultados" : "Escribí para buscar un ingrediente"}
+                      </li>
+                    ) : (
+                      ingredientesFiltrados.map(ing => (
+                        <li
+                          key={ing.id}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            seleccionarIngredienteDesdeDropdown(ing);
+                          }}
+                          className="flex items-center justify-between px-4 py-2.5 text-sm text-[#1D3557] cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-0"
+                        >
+                          <span>{ing.nombre}</span>
+                          {ing.es_alergeno && (
+                            <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                              ⚠️ Alérgeno
+                            </span>
+                          )}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
               </div>
 
               {ingredientesSeleccionados.length > 0 ? (
