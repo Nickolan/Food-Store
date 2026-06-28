@@ -227,7 +227,6 @@ export const FormularioIngrediente = ({ onSuccess, onCancel }: FormularioIngredi
                                 name="precio"
                                 value={formData.precio ?? ''}
                                 min={0}
-                                step={0.01}
                                 onChange={(e) => setFormData({ ...formData, precio: e.target.value ? Number(e.target.value) : null })}
                                 className="w-full border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-[#1D3557] focus:outline-none focus:border-[#E63946] focus:ring-1 focus:ring-[#E63946] transition-all bg-gray-50/50 focus:bg-white"
                                 placeholder="0.00"

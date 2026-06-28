@@ -3,6 +3,7 @@ import { useReactTable, getCoreRowModel, flexRender, createColumnHelper } from "
 import type { Producto } from "../../models/Producto";
 import { getProductoMargen } from "../../api/productosApi";
 import type { ProductoMargenResponse } from "../../api/productosApi";
+import { env } from "../../config/env";
 
 const helper = createColumnHelper<Producto>();
 
@@ -143,13 +144,13 @@ export const ProductosGrid = ({
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Margen %:</span>
-                      <span className={`font-bold ${(margenPopup.data.margen_porcentual ?? 0) >= 10 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      <span className={`font-bold ${(margenPopup.data.margen_porcentual ?? 0) >= env.MARGEN_MINIMO ? 'text-emerald-600' : 'text-red-600'}`}>
                         {margenPopup.data.margen_porcentual?.toFixed(1) ?? "—"}%
                       </span>
                     </div>
-                    {(margenPopup.data.margen_porcentual ?? 0) < 10 && (
+                    {(margenPopup.data.margen_porcentual ?? 0) < env.MARGEN_MINIMO && (
                       <p className="text-xs text-amber-600 text-center mt-2 bg-amber-50 rounded-lg px-2 py-1.5">
-                        ⚠️ Margen por debajo del 10% recomendado
+                        ⚠️ Margen por debajo del {env.MARGEN_MINIMO}% recomendado
                       </p>
                     )}
                   </div>

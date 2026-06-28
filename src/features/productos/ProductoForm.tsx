@@ -57,7 +57,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
 
   const margenAbsoluto = precioBaseLocal - costoTotal;
   const margenPorcentual = precioBaseLocal > 0 ? (margenAbsoluto / precioBaseLocal) * 100 : 0;
-  const precioSugerido = costoTotal * 1.10;
+  const precioSugerido = costoTotal / (1 - env.MARGEN_MINIMO / 100);
 
   useEffect(() => {
     const cargarIngredientes = async () => {
@@ -487,17 +487,24 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                              {ing.unidad_medida_nombre} ({ing.unidad_medida_simbolo})
                           </td>
                           <td className="px-4 py-2">
-                            <label className="flex items-center gap-2 text-sm">
-                              <input
-                                type="checkbox"
-                                checked={ing.es_removible}
-                                onChange={() => toggleRemovible(ing.id)}
-                                className="rounded border-gray-300 text-blue-600"
-                              />
-                              <span className="text-xs text-gray-600">
-                                {ing.es_removible ? "El cliente puede quitarlo" : "Ingrediente fijo"}
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => toggleRemovible(ing.id)}
+                                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
+                                  ing.es_removible ? "bg-green-500" : "bg-gray-300"
+                                }`}
+                              >
+                                <span
+                                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
+                                    ing.es_removible ? "translate-x-[1.125rem]" : "translate-x-0.5"
+                                  }`}
+                                />
+                              </button>
+                              <span className={`text-xs font-medium ${ing.es_removible ? "text-green-600" : "text-gray-400"}`}>
+                                {ing.es_removible ? "Removible" : "Fijo"}
                               </span>
-                            </label>
+                            </div>
                           </td>
                           <td className="px-4 py-2 text-right">
                             <button
@@ -551,7 +558,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                 {/* Margen porcentual */}
                 <div className="bg-white rounded-lg p-3 border border-blue-100">
                   <p className="text-xs text-gray-500 font-medium">Margen %</p>
-                  <p className={`text-lg font-bold ${margenPorcentual >= 10 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <p className={`text-lg font-bold ${margenPorcentual >= env.MARGEN_MINIMO ? 'text-emerald-600' : 'text-red-600'}`}>
                     {margenPorcentual.toFixed(1)}%
                   </p>
                 </div>
@@ -566,16 +573,16 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
               {/* Texto informativo fijo */}
               {precioBaseLocal > 0 && (
                 <div className={`flex items-center gap-2 text-xs font-medium rounded-lg px-3 py-2 ${
-                  margenPorcentual >= 10
+                  margenPorcentual >= env.MARGEN_MINIMO
                     ? 'bg-emerald-100 text-emerald-700'
                     : margenPorcentual >= 0
                     ? 'bg-amber-100 text-amber-700'
                     : 'bg-red-100 text-red-700'
                 }`}>
-                  {margenPorcentual >= 10 ? (
+                  {margenPorcentual >= env.MARGEN_MINIMO ? (
                     <>✅ Margen saludable ({margenPorcentual.toFixed(1)}%)</>
                   ) : margenPorcentual >= 0 ? (
-                    <>⚠️ Margen bajo ({margenPorcentual.toFixed(1)}%). Considerá subir el precio.</>
+                    <>⚠️ Margen bajo ({margenPorcentual.toFixed(1)}%). Mínimo requerido: {env.MARGEN_MINIMO}%.</>
                   ) : (
                     <>❌ Vendiendo por debajo del costo.</>
                   )}
