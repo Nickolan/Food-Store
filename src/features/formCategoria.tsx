@@ -64,10 +64,10 @@ export default function FormCategoria({ cerrar, categoriaAEditar }: FormCategori
         };
     
         if (categoriaAEditar) {
-            categoriasContext.actualizar(categoriaData);
+            await categoriasContext.actualizar(categoriaData);
             categoriasContext.setCategoriaSeleccionada(categoriaData);
         } else {
-            categoriasContext.agregar(categoriaData);
+            await categoriasContext.agregar(categoriaData);
         }
         
         cerrar();

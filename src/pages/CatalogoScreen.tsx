@@ -128,8 +128,8 @@ function CatalogoScreen() {
 
   // ── Cargar categorías activas ─────────────────────────────────────────────
   useEffect(() => {
-    getCategorias({ limit: 100 })
-      .then((items) => setCategorias(items.filter((c) => c.activo)))
+    getCategorias({ limit: 100, activo: true })
+      .then(({ items }) => setCategorias(items.filter(c => c.activo)))
       .catch((err) => console.error('Error al cargar categorías:', err));
   }, []);
 

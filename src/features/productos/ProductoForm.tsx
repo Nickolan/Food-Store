@@ -33,7 +33,6 @@ interface IngredienteSeleccionado {
 export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
   const [ingredientesDisponibles, setIngredientesDisponibles] = useState<Ingrediente[]>([]);
   const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState<IngredienteSeleccionado[]>([]);
-  const [selectedIngredienteId, setSelectedIngredienteId] = useState<number>(0);
   const [busquedaIngrediente, setBusquedaIngrediente] = useState("");
   const [mostrarDropdown, setMostrarDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -86,7 +85,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
     const cargarCategorias = async () => {
       try {
         const { items: cats } = await getCategorias({ activo: true });
-        setCategoriasDisponibles(cats);
+        setCategoriasDisponibles(cats.filter(c => c.activo));
       } catch (error) {
         console.error("Error cargando categorías:", error);
       }
@@ -185,26 +184,6 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
     .filter(ing => !ingredientesSeleccionados.some(sel => sel.id === ing.id))
     .filter(ing => ing.nombre.toLowerCase().includes(busquedaIngrediente.toLowerCase()));
 
-  const agregarIngrediente = () => {
-    if (selectedIngredienteId === 0) return;
-
-    const ingrediente = ingredientesDisponibles.find(i => i.id === selectedIngredienteId);
-    if (ingrediente && !ingredientesSeleccionados.some(i => i.id === ingrediente.id)) {
-      setIngredientesSeleccionados([
-        ...ingredientesSeleccionados,
-        {
-          id: ingrediente.id!,
-          nombre: ingrediente.nombre,
-          es_alergeno: ingrediente.es_alergeno,
-          es_removible: false,
-          cantidad: 1,
-          unidad_medida_nombre:ingrediente.unidad_medida?.nombre ?? "unidad",
-          unidad_medida_simbolo: ingrediente.unidad_medida?.simbolo ?? "unidad",
-        }
-      ]);
-      setSelectedIngredienteId(0);
-    }
-  };
 
   const seleccionarIngredienteDesdeDropdown = (ingrediente: typeof ingredientesDisponibles[0]) => {
     if (!ingredientesSeleccionados.some(i => i.id === ingrediente.id)) {
@@ -315,7 +294,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                 )}
               </form.Field>
 
-              <form.Field name="stock_minimo">
+              {/* <form.Field name="stock_minimo">
                 {(f) => (
                   <div>
                     <label className={labelCls}>Stock minimo *</label>
@@ -330,7 +309,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                     />
                   </div>
                 )}
-              </form.Field>
+              </form.Field> */}
             </div>
 
             <form.Field name="disponible">
