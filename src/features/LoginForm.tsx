@@ -41,7 +41,13 @@ const LoginForm = () => {
                 className="space-y-5"
             >
                 {/* Email */}
-                <form.Field name="email">
+                <form.Field
+                    name="email"
+                    validators={{
+                        onChange: ({ value }) =>
+                            !value ? "Campo requerido" : undefined,
+                    }}
+                >
                     {(f) => (
                         <div>
                             <label
@@ -61,17 +67,33 @@ const LoginForm = () => {
                                     type="email"
                                     placeholder="ejemplo@correo.com"
                                     autoComplete="email"
-                                    className="w-full h-12 pl-11 pr-4 bg-orange-50 border border-orange-200 rounded-xl text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
+                                    className={`w-full h-12 pl-11 pr-4 bg-orange-50 rounded-xl text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none transition-all ${
+                                        f.state.meta.errors.length
+                                            ? "border-2 border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                            : "border border-orange-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                                    }`}
                                     value={f.state.value}
                                     onChange={(e) => f.handleChange(e.target.value)}
+                                    onBlur={f.handleBlur}
                                 />
                             </div>
+                            {f.state.meta.errors.length > 0 && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {f.state.meta.errors.join(", ")}
+                                </p>
+                            )}
                         </div>
                     )}
                 </form.Field>
 
                 {/* Password */}
-                <form.Field name="password">
+                <form.Field
+                    name="password"
+                    validators={{
+                        onChange: ({ value }) =>
+                            !value ? "Campo requerido" : undefined,
+                    }}
+                >
                     {(f) => (
                         <div>
                             <label
@@ -91,11 +113,21 @@ const LoginForm = () => {
                                     type="password"
                                     placeholder="••••••••"
                                     autoComplete="current-password"
-                                    className="w-full h-12 pl-11 pr-4 bg-orange-50 border border-orange-200 rounded-xl text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
+                                    className={`w-full h-12 pl-11 pr-4 bg-orange-50 rounded-xl text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none transition-all ${
+                                        f.state.meta.errors.length
+                                            ? "border-2 border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                            : "border border-orange-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20"
+                                    }`}
                                     value={f.state.value}
                                     onChange={(e) => f.handleChange(e.target.value)}
+                                    onBlur={f.handleBlur}
                                 />
                             </div>
+                            {f.state.meta.errors.length > 0 && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {f.state.meta.errors.join(", ")}
+                                </p>
+                            )}
                         </div>
                     )}
                 </form.Field>

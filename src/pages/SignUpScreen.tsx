@@ -47,48 +47,96 @@ function SignUpScreen() {
                 className="space-y-4"
             >
                 <div className="grid grid-cols-2 gap-4">
-                    <form.Field name="nombre">
+                    <form.Field
+                        name="nombre"
+                        validators={{
+                            onChange: ({ value }) =>
+                                !value ? "Campo requerido" : undefined,
+                        }}
+                    >
                         {(f) => (
                             <div>
                                 <label className="text-sm font-bold text-stone-800 mb-1 block">Nombre</label>
                                 <input
                                     type="text"
-                                    className="w-full h-12 bg-orange-50 border border-orange-100 rounded-xl text-stone-900 text-sm focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none px-4 transition-colors"
+                                    className={`w-full h-12 bg-orange-50 rounded-xl text-stone-900 text-sm focus:outline-none px-4 transition-colors ${
+                                        f.state.meta.errors.length
+                                            ? "border-2 border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                            : "border border-orange-100 focus:border-orange-600 focus:ring-1 focus:ring-orange-600"
+                                    }`}
                                     value={f.state.value}
                                     onChange={(e) => f.handleChange(e.target.value)}
+                                    onBlur={f.handleBlur}
                                     placeholder="Juan"
                                 />
+                                {f.state.meta.errors.length > 0 && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {f.state.meta.errors.join(", ")}
+                                    </p>
+                                )}
                             </div>
                         )}
                     </form.Field>
 
-                    <form.Field name="apellido">
+                    <form.Field
+                        name="apellido"
+                        validators={{
+                            onChange: ({ value }) =>
+                                !value ? "Campo requerido" : undefined,
+                        }}
+                    >
                         {(f) => (
                             <div>
                                 <label className="text-sm font-bold text-stone-800 mb-1 block">Apellido</label>
                                 <input
                                     type="text"
-                                    className="w-full h-12 bg-orange-50 border border-orange-100 rounded-xl text-stone-900 text-sm focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none px-4 transition-colors"
+                                    className={`w-full h-12 bg-orange-50 rounded-xl text-stone-900 text-sm focus:outline-none px-4 transition-colors ${
+                                        f.state.meta.errors.length
+                                            ? "border-2 border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                            : "border border-orange-100 focus:border-orange-600 focus:ring-1 focus:ring-orange-600"
+                                    }`}
                                     value={f.state.value}
                                     onChange={(e) => f.handleChange(e.target.value)}
+                                    onBlur={f.handleBlur}
                                     placeholder="Pérez"
                                 />
+                                {f.state.meta.errors.length > 0 && (
+                                    <p className="text-red-500 text-xs mt-1">
+                                        {f.state.meta.errors.join(", ")}
+                                    </p>
+                                )}
                             </div>
                         )}
                     </form.Field>
                 </div>
 
-                <form.Field name="email">
+                <form.Field
+                    name="email"
+                    validators={{
+                        onChange: ({ value }) =>
+                            !value ? "Campo requerido" : undefined,
+                    }}
+                >
                     {(f) => (
                         <div>
                             <label className="text-sm font-bold text-stone-800 mb-1 block">Correo Electrónico</label>
                             <input
                                 type="email"
-                                className="w-full h-12 bg-orange-50 border border-orange-100 rounded-xl text-stone-900 text-sm focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none px-4 transition-colors"
+                                className={`w-full h-12 bg-orange-50 rounded-xl text-stone-900 text-sm focus:outline-none px-4 transition-colors ${
+                                    f.state.meta.errors.length
+                                        ? "border-2 border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                        : "border border-orange-100 focus:border-orange-600 focus:ring-1 focus:ring-orange-600"
+                                }`}
                                 value={f.state.value}
                                 onChange={(e) => f.handleChange(e.target.value)}
+                                onBlur={f.handleBlur}
                                 placeholder="juan@ejemplo.com"
                             />
+                            {f.state.meta.errors.length > 0 && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {f.state.meta.errors.join(", ")}
+                                </p>
+                            )}
                         </div>
                     )}
                 </form.Field>
@@ -108,18 +156,35 @@ function SignUpScreen() {
                     )}
                 </form.Field>
 
-                <form.Field name="password">
+                <form.Field
+                    name="password"
+                    validators={{
+                        onChange: ({ value }) =>
+                            !value ? "Campo requerido" : undefined,
+                    }}
+                >
                     {(f) => (
                         <div>
                             <label className="text-sm font-bold text-stone-800 mb-1 block">Contraseña</label>
                             <input
                                 type="password"
-                                className="w-full h-12 bg-orange-50 border border-orange-100 rounded-xl text-stone-900 text-sm focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none px-4 transition-colors"
+                                className={`w-full h-12 bg-orange-50 rounded-xl text-stone-900 text-sm focus:outline-none px-4 transition-colors ${
+                                    f.state.meta.errors.length
+                                        ? "border-2 border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                                        : "border border-orange-100 focus:border-orange-600 focus:ring-1 focus:ring-orange-600"
+                                }`}
                                 value={f.state.value}
                                 onChange={(e) => f.handleChange(e.target.value)}
+                                onBlur={f.handleBlur}
                                 placeholder="••••••••"
-                            />                            {f.state.value.length > 0 && (
-                                <p className="text-grey-600 text-xs mt-1">
+                            />
+                            {f.state.meta.errors.length > 0 && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {f.state.meta.errors.join(", ")}
+                                </p>
+                            )}
+                            {f.state.value.length > 0 && (
+                                <p className="text-stone-500 text-xs mt-1">
                                     Usá mayúsculas, números y símbolos para mayor seguridad.
                                 </p>
                             )}
