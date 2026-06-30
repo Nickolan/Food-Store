@@ -505,7 +505,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                             <input
                               type="number"
                               min={0}
-                              step={1}
+                              step="any"
                               value={ing.cantidad}
                               onChange={(e) => setIngredientesSeleccionados(prev =>
                                 prev.map(i => i.id === ing.id ? { ...i, cantidad: Number(e.target.value) } : i)
