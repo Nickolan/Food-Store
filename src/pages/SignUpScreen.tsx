@@ -57,6 +57,7 @@ function SignUpScreen() {
                                     value={f.state.value}
                                     onChange={(e) => f.handleChange(e.target.value)}
                                     placeholder="Juan"
+                                    required
                                 />
                             </div>
                         )}
@@ -72,6 +73,7 @@ function SignUpScreen() {
                                     value={f.state.value}
                                     onChange={(e) => f.handleChange(e.target.value)}
                                     placeholder="Pérez"
+                                    required
                                 />
                             </div>
                         )}
@@ -88,6 +90,7 @@ function SignUpScreen() {
                                 value={f.state.value}
                                 onChange={(e) => f.handleChange(e.target.value)}
                                 placeholder="juan@ejemplo.com"
+                                required
                             />
                         </div>
                     )}
@@ -118,6 +121,7 @@ function SignUpScreen() {
                                 value={f.state.value}
                                 onChange={(e) => f.handleChange(e.target.value)}
                                 placeholder="••••••••"
+                                required
                             />                            {f.state.value.length > 0 && (
                                 <p className="text-grey-600 text-xs mt-1">
                                     Usá mayúsculas, números y símbolos para mayor seguridad.

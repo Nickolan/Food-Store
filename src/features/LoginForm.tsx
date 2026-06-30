@@ -64,6 +64,7 @@ const LoginForm = () => {
                                     className="w-full h-12 pl-11 pr-4 bg-orange-50 border border-orange-200 rounded-xl text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
                                     value={f.state.value}
                                     onChange={(e) => f.handleChange(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
@@ -94,6 +95,7 @@ const LoginForm = () => {
                                     className="w-full h-12 pl-11 pr-4 bg-orange-50 border border-orange-200 rounded-xl text-stone-900 text-sm placeholder:text-stone-400 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
                                     value={f.state.value}
                                     onChange={(e) => f.handleChange(e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
