@@ -282,6 +282,7 @@ export const ProductoForm = ({ initial, onSubmit, onCancel }: Props) => {
                       className={inputCls}
                       type="number"
                       min={1}
+                      step="0.01"
                       placeholder="0.00"
                       value={f.state.value}
                       onChange={(e) => {
